@@ -32,7 +32,7 @@ detectCores()
 
 # number of cores for parallelization
 cores <- 1
-B <- 50
+B <- 10
 
 ## load helper functions
 for (f in list.files("R", "\\.(r|R)$")) {
