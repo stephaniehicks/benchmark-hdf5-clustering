@@ -128,13 +128,7 @@ save_bs_0001 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_0001 <- plyr::ldply(save_bs_0001, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_0001 <- bench_accuracy_calculate_ari(save_bs_0001)
 
 # boxplot
 p_bs_0001 <- tidyr::gather(ari_output_bs_0001) %>% 
@@ -157,13 +151,7 @@ save_bs_0005 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_0005 <- plyr::ldply(save_bs_0005, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_0005 <- bench_accuracy_calculate_ari(save_bs_0005)
 
 # boxplot
 p_bs_0005 <- tidyr::gather(ari_output_bs_0005) %>% 
@@ -186,13 +174,7 @@ save_bs_001 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_001 <- plyr::ldply(save_bs_001, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_001 <- bench_accuracy_calculate_ari(save_bs_001)
 
 # boxplot
 p_bs_001 <- tidyr::gather(ari_output_bs_001) %>% 
@@ -216,13 +198,7 @@ save_bs_005 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_005 <- plyr::ldply(save_bs_005, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_005 <- bench_accuracy_calculate_ari(save_bs_005)
 
 # boxplot
 p_bs_005 <- tidyr::gather(ari_output_bs_005) %>% 
@@ -245,13 +221,7 @@ save_bs_025 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_025 <- plyr::ldply(save_bs_025, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_025 <- bench_accuracy_calculate_ari(save_bs_025)
 
 # boxplot
 p_bs_025 <- tidyr::gather(ari_output_bs_025) %>% 
@@ -274,13 +244,7 @@ save_bs_050 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG,
                   mc.cores=cores)
 
 # calculate adjusted Rand Index 
-ari_output_bs_050 <- plyr::ldply(save_bs_050, function(xx){
-    ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
-    ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
-  c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans)  
-})
+ari_output_bs_050 <- bench_accuracy_calculate_ari(save_bs_050)
 
 # boxplot
 p_bs_050 <- tidyr::gather(ari_output_bs_050) %>% 
