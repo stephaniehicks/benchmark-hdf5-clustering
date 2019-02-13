@@ -260,8 +260,7 @@ p_bs_050
 
 ```{r}
 p_out <- plot_grid(p_bs_0001, p_bs_0005, p_bs_001, 
-                   p_bs_005, p_bs_025, p_bs_050,  
-                   ncol = 3, 
+                   p_bs_005, p_bs_025, p_bs_050, ncol = 3, 
                    labels = LETTERS[1:6], label_size = 30)
 pdf("simulation-studies/figs/accuracy_batch_size.pdf", width=15, height=10)
 print(p_out)

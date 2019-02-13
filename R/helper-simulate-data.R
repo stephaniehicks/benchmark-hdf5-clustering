@@ -74,8 +74,8 @@ simulate_gauss_mix <- function(n_cells, n_genes,
 #' @return a data frame with the number of rows
 #' equal to the length of the list object from 
 #' \code{sim_object}. 
-
-calculate_bench_accuracy_ari <- function(sim_object){
+#' 
+bench_accuracy_calculate_ari <- function(sim_object){
   out <- plyr::ldply(sim_object, function(xx){
     ari_kmeans <- mclust::adjustedRandIndex(
             xx$true_cluster_id,xx$kmeans_cluster_id)
