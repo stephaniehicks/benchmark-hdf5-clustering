@@ -62,8 +62,11 @@ dim(sim_data$obs_data)
 # Plot the true cluster locations
 ref.cols <- c("blue", "brown1", "gold2")
 clust1 <- ref.cols[sim_data$true_cluster_id]
+
+# pdf("simulation-studies/figs/accuracy_batch_size_2D_true_structure.pdf", width=6, height=5)
 plot(sim_data$true_data, pch=16, cex=1.5, col=clust1, 
-     main=paste0("True clusters"))
+     main=paste0("True structure"))
+# dev.off()
 ```
 
 # Benchmark clustering methods 
