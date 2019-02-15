@@ -56,7 +56,8 @@ simulate_gauss_mix <- function(n_cells, n_genes,
   rownames(A1) <- paste0("Cell", seq_len(n_cells), "-1")
   colnames(A1) <- paste0("Gene", seq_len(n_genes))
 
-  list("true_cluster_id" = comp1,
+  list("true_center" = cbind("x" = x_mus, "y" = y_mus),
+       "true_cluster_id" = comp1,
        "true_data" = samples1, 
        "obs_data" = A1)
 }
@@ -78,12 +79,38 @@ simulate_gauss_mix <- function(n_cells, n_genes,
 bench_accuracy_calculate_ari <- function(sim_object){
   out <- plyr::ldply(sim_object, function(xx){
     ari_kmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$kmeans_cluster_id)
+            xx$sim_data$true_cluster_id, 
+            as.numeric(xx$kmeans_output$cluster))
     ari_mbkmeans <- mclust::adjustedRandIndex(
-            xx$true_cluster_id,xx$mbkmeans_cluster_id)
+            xx$sim_data$true_cluster_id,
+            xx$mbkmeans_output$Clusters)
   c(ari_kmeans=ari_kmeans, ari_mbkmeans=ari_mbkmeans) 
   })
   return(out)
 }
+
+
+#' Helper function to calculate the within 
+#' cluster sum of squares to assess accuracy
+#' 
+#' @param sim_object list object from the 
+#' \code{bench_accuracy()} function
+#' 
+#' @importFrom plyr ldply
+#' 
+#' @return a data frame with the number of rows
+#' equal to the length of the list object from 
+#' \code{sim_object}. 
+#' 
+bench_accuracy_extract_wcss <- function(sim_object){
+  out <- plyr::ldply(sim_object, function(xx){
+    wcss_kmeans <- sum(xx$kmeans_output$withinss)
+    wcss_mbkmeans <- sum(xx$mbkmeans_output$WCSS_per_cluster)
+    c(wcss_kmeans =wcss_kmeans, wcss_mbkmeans = wcss_mbkmeans )
+  })
+  return(out)
+}
+
+
 
 
