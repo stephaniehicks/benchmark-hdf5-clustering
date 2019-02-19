@@ -32,7 +32,7 @@ detectCores()
 
 # number of cores for parallelization
 cores <- 1
-B <- 10
+B <- 100
 
 ## load helper functions
 for (f in paste0("R/",list.files("R", "\\.(r|R)$"))) {
@@ -122,6 +122,7 @@ studies in this section:
 ```{r}
 nC <- 1000
 nG <- 500
+mbkmeans_initializer = "kmeans++"
 ```
 
 
@@ -133,7 +134,7 @@ save_bs_0001 <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.001, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -168,7 +169,7 @@ save_bs_0005 <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.005, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -191,7 +192,7 @@ p_bs_0005_wcss <- tidyr::gather(ari_output_bs_0005_wcss) %>%
     geom_boxplot() + geom_jitter() + 
     xlab("clustering method") + 
     ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 1 (0.1% of data)")
+    ggtitle("batch_size = 5 (0.5% of data)")
 p_bs_0005_wcss
 ```
 
@@ -202,7 +203,7 @@ p_bs_0005_wcss
 save_bs_001 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.01, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -236,7 +237,7 @@ p_bs_001_wcss
 save_bs_005 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.05, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -261,7 +262,6 @@ p_bs_005_wcss <- tidyr::gather(ari_output_bs_005_wcss) %>%
     ylab("within cluster sum of squares") + 
     ggtitle("batch_size = 50 (5% of data)")
 p_bs_005_wcss
-
 ```
 
 ### `batch_size = 250` (or 25 percent of data)
@@ -270,7 +270,7 @@ p_bs_005_wcss
 save_bs_025 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.25, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -299,13 +299,11 @@ p_bs_025_wcss
 
 ### `batch_size = 500` (or 50 percent of data)
 ```{r}
-B_050 = 25 
-
 # simulate data
 save_bs_050 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_accuracy, k_centers = 3,
                   batch_size = nC*.50, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = "random", 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
@@ -332,22 +330,60 @@ p_bs_050_wcss <- tidyr::gather(ari_output_bs_050_wcss) %>%
 p_bs_050_wcss
 ```
 
+### `batch_size = 1000` (or 100 percent of data)
+```{r}
+# simulate data
+save_bs_100 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
+                  bench_accuracy, k_centers = 3,
+                  batch_size = nC*1, num_init = 10, max_iters = 100, 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
+                  mc.cores=cores, calc_wcss = TRUE)
+
+# calculate adjusted Rand Index 
+ari_output_bs_100_ari <- bench_accuracy_calculate_ari(save_bs_100)
+
+# extract wcss
+ari_output_bs_100_wcss <- bench_accuracy_extract_wcss(save_bs_100)
+
+# boxplots
+p_bs_100_ari <- tidyr::gather(ari_output_bs_100_ari) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 1000 (100% of data)")
+p_bs_100_ari
+
+p_bs_100_wcss <- tidyr::gather(ari_output_bs_100_wcss) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 1000 (100% of data)")
+p_bs_100_wcss
+```
+
+
 ### Summary
 
 First we will combine the boxplots together in 
 one plot. 
 ```{r}
 p_out_ari <- plot_grid(p_bs_0001_ari, p_bs_0005_ari, p_bs_001_ari, 
-                   p_bs_005_ari, p_bs_025_ari, p_bs_050_ari, ncol = 3, 
-                   labels = LETTERS[1:6], label_size = 30)
-pdf("simulation-studies/figs/accuracy_batch_size_ari.pdf", width=15, height=10)
+                   p_bs_005_ari, p_bs_025_ari, p_bs_050_ari, 
+                   p_bs_100_ari, ncol = 4, 
+                   labels = LETTERS[1:7], label_size = 30)
+pdf(paste0("simulation-studies/figs/accuracy_batch_size_", 
+           mbkmeans_initializer,"_ari.pdf"), width=20, height=10)
 print(p_out_ari)
 dev.off()
 
 p_out_wcss <- plot_grid(p_bs_0001_wcss, p_bs_0005_wcss, p_bs_001_wcss, 
-                   p_bs_005_wcss, p_bs_025_wcss, p_bs_050_wcss, ncol = 3, 
+                   p_bs_005_wcss, p_bs_025_wcss, p_bs_050_wcss, 
+                   p_bs_100_wcss, ncol = 4, 
                    labels = LETTERS[1:6], label_size = 30)
-pdf("simulation-studies/figs/accuracy_batch_size_wcss.pdf", width=15, height=10)
+pdf(paste0("simulation-studies/figs/accuracy_batch_size_", 
+           mbkmeans_initializer,"_wcss.pdf"), width=20, height=10)
 print(p_out_wcss)
 dev.off()
 
@@ -363,24 +399,31 @@ dat_ari <- data.frame(
       stack(ari_output_bs_0005_ari), 
       stack(ari_output_bs_001_ari), 
       stack(ari_output_bs_005_ari), 
-      stack(ari_output_bs_025_ari), 
-      stack(ari_output_bs_050_ari)), 
-    "batch_size" = c(rep(c(.1, .5, 1, 5, 25), each = B*2 ), 
-                     rep(50, each = B_050*2) ))
+      stack(ari_output_bs_025_ari)#, 
+      #stack(ari_output_bs_050_ari), 
+      #stack(ari_output_bs_100_ari)
+      ), 
+    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
+                         )), each = B*2))
+
+dat_ari$batch_size <- factor(dat_ari$batch_size, 
+       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
+                ))
 
 p_out_ari <- dat_ari %>% 
     group_by(batch_size, ind) %>% 
-    summarize(mean_ari = mean(values), 
+    summarize(median_ari = median(values), 
               se_ari = sd(values) / sqrt(n())) %>%
-ggplot(aes(x=batch_size, y=mean_ari, colour=ind)) + 
-    geom_errorbar(aes(ymin=mean_ari-se_ari, 
-                      ymax=mean_ari+se_ari), width=.1) +
+ggplot(aes(x=batch_size, y=median_ari, colour=ind, group=ind)) + 
     geom_line() + geom_point() + 
+    geom_errorbar(aes(ymin=median_ari-se_ari, 
+                      ymax=median_ari+se_ari), width=.1) +
     xlab("batch size") + 
     ylab("adjusted Rand Index") + 
     theme(legend.position="top")
 
-pdf("simulation-studies/figs/accuracy_batch_size_ari_combined.pdf", width=8, height=5)
+pdf(paste0("simulation-studies/figs/accuracy_batch_size_", 
+           mbkmeans_initializer,"_ari_combined.pdf"), width=10, height=5)
 print(p_out_ari)
 dev.off()
 
@@ -390,24 +433,31 @@ dat_wcss <- data.frame(
       stack(ari_output_bs_0005_wcss), 
       stack(ari_output_bs_001_wcss), 
       stack(ari_output_bs_005_wcss), 
-      stack(ari_output_bs_025_wcss), 
-      stack(ari_output_bs_050_wcss)), 
-    "batch_size" = c(rep(c(.1, .5, 1, 5, 25), each = B*2 ), 
-                     rep(50, each = B_050*2) ))
+      stack(ari_output_bs_025_wcss)#, 
+      #stack(ari_output_bs_050_wcss), 
+      #stack(ari_output_bs_100_wcss)
+      ), 
+    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
+                         )), each = B*2))
+
+dat_wcss$batch_size <- factor(dat_wcss$batch_size, 
+       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
+                ))
 
 p_out_wcss <- dat_wcss %>% 
     group_by(batch_size, ind) %>% 
-    summarize(mean_wcss = mean(values), 
+    summarize(median_wcss = median(values), 
               se_wcss = sd(values) / sqrt(n())) %>%
-ggplot(aes(x=batch_size, y=mean_wcss, colour=ind)) + 
-    geom_errorbar(aes(ymin=mean_wcss-se_wcss, 
-                      ymax=mean_wcss+se_wcss), width=.1) +
+ggplot(aes(x=batch_size, y=median_wcss, colour=ind, group=ind)) + 
     geom_line() + geom_point() + 
+    geom_errorbar(aes(ymin=median_wcss-se_wcss, 
+                      ymax=median_wcss+se_wcss), width=.1) +
     xlab("batch size") + 
     ylab("within cluster sum of squares") + 
     theme(legend.position="top")
 
-pdf("simulation-studies/figs/accuracy_batch_size_wcss_combined.pdf", width=8, height=5)
+pdf(paste0("simulation-studies/figs/accuracy_batch_size_", 
+           mbkmeans_initializer,"_wcss_combined.pdf"), width=10, height=5)
 print(p_out_wcss)
 dev.off()
     
