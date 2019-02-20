@@ -111,6 +111,27 @@ bench_accuracy_extract_wcss <- function(sim_object){
   return(out)
 }
 
+#' Helper function to calculate compute time 
+#' for methods
+#' 
+#' @param sim_object list object from the 
+#' \code{bench_time()} function
+#' 
+#' @importFrom plyr ldply
+#' 
+#' @return a data frame with the number of rows
+#' equal to the length of the list object from 
+#' \code{sim_object}. 
+#' 
+bench_time_extract <- function(sim_object){
+  out <- plyr::ldply(sim_object, function(xx){
+    time_kmeans <- xx$kmeans_time
+    time_mbkmeans <- xx$mbkmeans_time
+    c(time_kmeans =time_kmeans, time_mbkmeans = time_mbkmeans)
+  })
+  return(out)
+}
+
 
 
 
