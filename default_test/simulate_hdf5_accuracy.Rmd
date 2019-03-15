@@ -25,22 +25,6 @@ detectCores()
 cores <- 1
 B <- 100
 
-
-
-## load helper functions
-for (f in paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/R/",list.files("R", "\\.(r|R)$"))) {
-    source(f)
-}
-```
-
-```{r data}
-#data
-nC <- 1000  # number of cells
-nG <- 500 # number of genes
-#sim_data <- simulate_gauss_mix(n_cells=nC, n_genes=nG)
-
-#data_matrix<-as.matrix(sim_data$obs_data)
-#data_hdf5<-as(data_matrix,"HDF5Matrix")
 ```
 
 ```{r functions}
@@ -83,8 +67,8 @@ simulate_gauss_mix <- function(n_cells, n_genes,
 
 
 
-#bench_hdf5_accuracy
-bench_hdf5_accuracy <- function(i, n_cells, 
+#bench_hdf5
+bench_hdf5 <- function(i, n_cells, 
                            n_genes, k_centers, 
                            batch_size=batch_size, 
                            num_init = num_init, 
@@ -98,63 +82,29 @@ bench_hdf5_accuracy <- function(i, n_cells,
     sim_data_hdf5 <- as(data_matrix,"HDF5Matrix")
     
     # apply clustering methods 
-    kmeans_output <- stats::kmeans(sim_data$obs_data, 
-                                   centers=k_centers)
+     kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
+                                   centers=k_centers))[3]
     
-    mbkmeans_output <- mbkmeans::mini_batch(
+     mbkmeans_time <- system.time(mbkmeans_output <- mbkmeans::mini_batch(
             sim_data$obs_data, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer, calc_wcss = TRUE)
+            initializer = initializer  ,...))[3]
     
-    mbkmeans_hdf5_output <- mbkmeans::mini_batch(
+    mbkmeans_hdf5_time <- system.time(mbkmeans_hdf5_output <- mbkmeans::mini_batch(
             sim_data_hdf5, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer,calc_wcss = TRUE)
+            initializer = initializer,...))[3]
 
     list(sim_data = sim_data, 
          kmeans_output = kmeans_output,
          mbkmeans_output = mbkmeans_output,
-         mbkmeans_hdf5_output = mbkmeans_hdf5_output)    
-}
-
-
-#bench_hdf5_time
-bench_hdf5_time <- function(i, n_cells, n_genes, k_centers, 
-                       batch_size=batch_size, 
-                       num_init = num_init, 
-                       max_iters = max_iters, 
-                       init_fraction = init_fraction, 
-                       initializer = initializer, ...) {
-    # simulate data 
-     sim_data<-simulate_gauss_mix(n_cells=n_cells, 
-                                   n_genes=n_genes)
-    data_matrix<-as.matrix(sim_data$obs_data)
-    sim_data_hdf5 <- as(data_matrix,"HDF5Matrix")
-    
-    # apply clustering methods 
-    kmeans_time <- system.time(stats::kmeans(sim_data$obs_data, 
-                                   centers=k_centers))[3]
-    
-    mbkmeans_time <- system.time(mbkmeans::mini_batch(
-            sim_data$obs_data, clusters = k_centers, 
-            batch_size = batch_size, num_init = num_init, 
-            max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer, ...))[3]
-    
-    mbkmeans_hdf5_time <- system.time(mbkmeans::mini_batch(
-            sim_data_hdf5, clusters = k_centers, 
-            batch_size = batch_size, num_init = num_init, 
-            max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer, ...))[3]
-
-    list(sim_data = sim_data, 
-         kmeans_time = kmeans_time, 
-         mbkmeans_time=mbkmeans_time,
+         mbkmeans_hdf5_output = mbkmeans_hdf5_output,
+         kmeans_time = kmeans_time,
+         mbkmeans_time = mbkmeans_time,
          mbkmeans_hdf5_time = mbkmeans_hdf5_time)    
 }
-
 
 #bench_accuracy_calculate_ari
 bench_accuracy_calculate_ari <- function(sim_object){
@@ -199,19 +149,21 @@ bench_time_extract <- function(sim_object){
 
 ```
 
-
-
-### `batch_size = 1` (or .1 percent of data)
-```{r}
+```{r data}
+#data
 nC <- 1000
 nG <- 500
 mbkmeans_initializer = "random"
+```
+
+### `batch_size = 1` (or .1 percent of data)
+```{r .1%}
 
 
 # simulate data to assess accuracy
 save_bs_0001 <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.001, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -224,17 +176,8 @@ ari_output_bs_0001_ari <- bench_accuracy_calculate_ari(save_bs_0001)
 # extract wcss
 ari_output_bs_0001_wcss <- bench_accuracy_extract_wcss(save_bs_0001)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_0001 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.001, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
-
 # extract compute time
-time_output_bs_0001 <- bench_time_extract(save_bs_time_0001)
+time_output_bs_0001 <- bench_time_extract(save_bs_0001)
 ```
 
 ```{r}
@@ -268,11 +211,11 @@ p_bs_0001_time
 
 ### `batch_size = 5` (or .5 percent of data)
 
-```{r}
+```{r .5%}
 # simulate data
 save_bs_0005 <- mclapply(seq_len(B), 
                   n_cells = nC, n_genes = nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.005, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -283,17 +226,9 @@ ari_output_bs_0005_ari <- bench_accuracy_calculate_ari(save_bs_0005)
 # extract wcss
 ari_output_bs_0005_wcss <- bench_accuracy_extract_wcss(save_bs_0005)
 
-# simulate data to asses compute time 
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_0005 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.005, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
 
 # extract compute time
-time_output_bs_0005 <- bench_time_extract(save_bs_time_0005)
+time_output_bs_0005 <- bench_time_extract(save_bs_0005)
 ```
 
 ```{r}
@@ -325,10 +260,10 @@ p_bs_0005_time
 
 ### `batch_size = 10` (or 1 percent of data)
 
-```{r}
+```{r 1%}
 # simulate data
 save_bs_001 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.01, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -339,17 +274,8 @@ ari_output_bs_001_ari <- bench_accuracy_calculate_ari(save_bs_001)
 # extract wcss
 ari_output_bs_001_wcss <- bench_accuracy_extract_wcss(save_bs_001)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_001 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.01, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
-
 # extract compute time
-time_output_bs_001 <- bench_time_extract(save_bs_time_001)
+time_output_bs_001 <- bench_time_extract(save_bs_001)
 ```
 
 ```{r}
@@ -381,10 +307,10 @@ p_bs_001_time
 
 
 ### `batch_size = 50` (or 5 percent of data)
-```{r}
+```{r 5%}
 # simulate data
 save_bs_005 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.05, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -395,17 +321,9 @@ ari_output_bs_005_ari <- bench_accuracy_calculate_ari(save_bs_005)
 # extract wcss
 ari_output_bs_005_wcss <- bench_accuracy_extract_wcss(save_bs_005)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_005 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.05, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
 
 # extract compute time
-time_output_bs_005 <- bench_time_extract(save_bs_time_005)
+time_output_bs_005 <- bench_time_extract(save_bs_005)
 ```
 
 ```{r}
@@ -436,10 +354,10 @@ p_bs_005_time
 ```
 
 ### `batch_size = 250` (or 25 percent of data)
-```{r}
+```{r 25%}
 # simulate data
 save_bs_025 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.25, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -450,17 +368,9 @@ ari_output_bs_025_ari <- bench_accuracy_calculate_ari(save_bs_025)
 # extract wcss
 ari_output_bs_025_wcss <- bench_accuracy_extract_wcss(save_bs_025)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_025 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.25, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
 
 # extract compute time
-time_output_bs_025 <- bench_time_extract(save_bs_time_025)
+time_output_bs_025 <- bench_time_extract(save_bs_025)
 ```
 
 ```{r}
@@ -491,10 +401,10 @@ p_bs_025_time
 ```
 
 ### `batch_size = 500` (or 50 percent of data)
-```{r}
+```{r 50%}
 # simulate data
 save_bs_050 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*.50, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -505,17 +415,8 @@ ari_output_bs_050_ari <- bench_accuracy_calculate_ari(save_bs_050)
 # extract wcss
 ari_output_bs_050_wcss <- bench_accuracy_extract_wcss(save_bs_050)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_050 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*.50, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = FALSE)
-
 # extract compute time
-time_output_bs_050 <- bench_time_extract(save_bs_time_050)
+time_output_bs_050 <- bench_time_extract(save_bs_050)
 ```
 
 ```{r}
@@ -545,11 +446,58 @@ p_bs_050_time <- tidyr::gather(time_output_bs_050) %>%
 p_bs_050_time
 ```
 
-### `batch_size = 1000` (or 100 percent of data)
+### `batch_size = 999` (or 99 percent of data)
+```{r 100%}
+# simulate data
+save_bs_99 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
+                  bench_hdf5, k_centers = 3,
+                  batch_size = nC*.99, num_init = 10, max_iters = 100, 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
+                  mc.cores=cores, calc_wcss = TRUE)
+
+# calculate adjusted Rand Index 
+ari_output_bs_99_ari <- bench_accuracy_calculate_ari(save_bs_99)
+
+# extract wcss
+ari_output_bs_99_wcss <- bench_accuracy_extract_wcss(save_bs_99)
+
+# extract compute time
+time_output_bs_99 <- bench_time_extract(save_bs_99)
+```
+
 ```{r}
+# boxplots
+p_bs_99_ari <- tidyr::gather(ari_output_bs_99_ari) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_100_ari
+
+p_bs_99_wcss <- tidyr::gather(ari_output_bs_99_wcss) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_99_wcss
+
+p_bs_100_time <- tidyr::gather(time_output_bs_99) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_99_time
+```
+
+
+### `batch_size = 1000` (or 100 percent of data)
+```{r 100%}
 # simulate data
 save_bs_100 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
-                  bench_hdf5_accuracy, k_centers = 3,
+                  bench_hdf5, k_centers = 3,
                   batch_size = nC*1, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
@@ -560,17 +508,8 @@ ari_output_bs_100_ari <- bench_accuracy_calculate_ari(save_bs_100)
 # extract wcss
 ari_output_bs_100_wcss <- bench_accuracy_extract_wcss(save_bs_100)
 
-# simulate data to asses compute time
-# and we set: num_init = 1, calc_wcss = FALSE
-save_bs_time_100 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5_time, k_centers = 3,
-                  batch_size = nC*1, num_init = 1, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, ca lc_wcss = FALSE)
-
 # extract compute time
-time_output_bs_100 <- bench_time_extract(save_bs_time_100)
+time_output_bs_100 <- bench_time_extract(save_bs_100)
 ```
 
 ```{r}
