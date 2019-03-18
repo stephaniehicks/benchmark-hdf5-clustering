@@ -447,7 +447,7 @@ p_bs_050_time
 ```
 
 ### `batch_size = 999` (or 99 percent of data)
-```{r 100%}
+```{r 99%}
 # simulate data
 save_bs_99 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
@@ -473,7 +473,7 @@ p_bs_99_ari <- tidyr::gather(ari_output_bs_99_ari) %>%
     xlab("clustering method") + 
     ylab("adjusted rand index") + 
     ggtitle("batch_size = 999 (99% of data)")
-p_bs_100_ari
+p_bs_99_ari
 
 p_bs_99_wcss <- tidyr::gather(ari_output_bs_99_wcss) %>% 
     ggplot(aes(x=key, y = value)) + 
@@ -483,7 +483,7 @@ p_bs_99_wcss <- tidyr::gather(ari_output_bs_99_wcss) %>%
     ggtitle("batch_size = 999 (99% of data)")
 p_bs_99_wcss
 
-p_bs_100_time <- tidyr::gather(time_output_bs_99) %>% 
+p_bs_99_time <- tidyr::gather(time_output_bs_99) %>% 
     ggplot(aes(x=key, y = value)) + 
     geom_boxplot() + geom_jitter() + 
     xlab("clustering method") + 
@@ -590,7 +590,7 @@ dat_ari <- data.frame(
       # stack(ari_output_bs_100_ari)
       ), 
     "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*2))
+                         )), each = B*3))
 
 dat_ari$batch_size <- factor(dat_ari$batch_size, 
        levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
@@ -625,7 +625,7 @@ dat_wcss <- data.frame(
       # stack(ari_output_bs_100_wcss)
       ), 
     "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*2))
+                         )), each = B*3))
 
 dat_wcss$batch_size <- factor(dat_wcss$batch_size, 
        levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
@@ -662,7 +662,7 @@ dat_time <- data.frame(
       # stack(time_output_bs_100)
       ), 
     "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*2))
+                         )), each = B*3))
 
 dat_time$batch_size <- factor(dat_time$batch_size, 
        levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%", "100.0%"
