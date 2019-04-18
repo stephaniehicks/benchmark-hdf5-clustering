@@ -158,7 +158,7 @@ mbkmeans_initializer = "random"
 
 ### `batch_size = 1` (or .1 percent of data)
 ```{r .1%}
-
+print(Sys.time())
 
 # simulate data to assess accuracy
 save_bs_0001 <- mclapply(seq_len(B),
@@ -205,7 +205,6 @@ p_bs_0001_time <- tidyr::gather(time_output_bs_0001) %>%
     ylab("compute time") + 
     ggtitle("batch_size = 1 (0.1% of data)")
 p_bs_0001_time
-
 ```
 
 
@@ -494,7 +493,7 @@ p_bs_99_time
 
 
 ### `batch_size = 1000` (or 100 percent of data)
-```{r 100%}
+```{r 100%, warning=FALSE}
 # simulate data
 save_bs_100 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
@@ -685,6 +684,17 @@ ggplot(aes(x=batch_size, y=median_time, colour=ind, group=ind)) +
 print(p_out_time)
 #dev.off()
     
+
+```
+
+
+```{r}
+#to get information about RAM and CPUs on machine
+library(benchmarkme) 
+print(get_ram())
+print(get_cpu())
+print(sessionInfo())
+print(BiocManager::version())
 
 ```
 
