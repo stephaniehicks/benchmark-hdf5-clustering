@@ -15,7 +15,7 @@ library(mclust)
 library(dplyr)
 library(cowplot)
 library(parallel)
-library(rhdf5)
+library(HDF5Array)
 
 
 # can see how many cores are available
@@ -23,7 +23,7 @@ detectCores()
 
 # number of cores for parallelization
 cores <- 1
-B <- 100
+B <- 10
 
 ```
 
@@ -67,7 +67,8 @@ simulate_gauss_mix <- function(n_cells, n_genes,
 
 
 
-#bench_hdf5
+#' @title bench_hdf5
+#' @param i monte carlo simulation iteration
 bench_hdf5 <- function(i, n_cells, 
                            n_genes, k_centers, 
                            batch_size=batch_size, 
@@ -76,26 +77,28 @@ bench_hdf5 <- function(i, n_cells,
                            init_fraction = init_fraction, 
                            initializer = initializer, ...) {
     # simulate data 
-    sim_data<-simulate_gauss_mix(n_cells=n_cells, 
+    sim_data <- simulate_gauss_mix(n_cells=n_cells, 
                                    n_genes=n_genes)
-    data_matrix<-as.matrix(sim_data$obs_data)
-    sim_data_hdf5 <- as(data_matrix,"HDF5Matrix")
+    sim_data_hdf5 <- as(as.matrix(sim_data$obs_data),"HDF5Matrix")
+    
+    # save the hdf5 matrix into a file on-disk 
     
     # apply clustering methods 
-     kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
+    kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
                                    centers=k_centers))[3]
     
      mbkmeans_time <- system.time(mbkmeans_output <- mbkmeans::mini_batch(
             sim_data$obs_data, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer  ,...))[3]
+            initializer = initializer, ...))[3]
     
+    # this function needs to be adjusted to point to the HDF5 matrix on disk
     mbkmeans_hdf5_time <- system.time(mbkmeans_hdf5_output <- mbkmeans::mini_batch(
             sim_data_hdf5, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer,...))[3]
+            initializer = initializer))[3]
 
     list(sim_data = sim_data, 
          kmeans_output = kmeans_output,
@@ -107,6 +110,7 @@ bench_hdf5 <- function(i, n_cells,
 }
 
 #bench_accuracy_calculate_ari
+# maybe consider using something else beside plyr:ldply ? 
 bench_accuracy_calculate_ari <- function(sim_object){
   out <- plyr::ldply(sim_object, function(xx){
     ari_kmeans <- mclust::adjustedRandIndex(
