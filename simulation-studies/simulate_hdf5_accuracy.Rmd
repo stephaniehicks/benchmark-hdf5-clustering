@@ -10,7 +10,7 @@ output: html_document
 library(mbkmeans)
 library(rhdf5)
 library(scater)
-library(profvis)
+#library(profvis)
 library(mclust)
 library(dplyr)
 library(cowplot)
