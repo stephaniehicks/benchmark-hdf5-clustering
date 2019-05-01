@@ -1,0 +1,3 @@
+Maximum Memory Used: 56 
+Average Memory Used: 36.5 B 
+Median Memory Used: 36.5 B 
