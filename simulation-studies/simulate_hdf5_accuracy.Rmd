@@ -98,7 +98,7 @@ bench_hdf5 <- function(i, n_cells,
             sim_data_hdf5, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
-            initializer = initializer))[3]
+            initializer = initializer, ...))[3]
 
     list(sim_data = sim_data, 
          kmeans_output = kmeans_output,
