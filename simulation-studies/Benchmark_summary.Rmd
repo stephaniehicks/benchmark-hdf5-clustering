@@ -1,0 +1,404 @@
+---
+title: "bench_summary"
+author: "Ruoxi Liu"
+date: "5/7/2019"
+output: html_document
+---
+```{r}
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+```
+
+### Read in data
+```{r}
+air_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/ARI_Summary.txt",header = TRUE))
+
+wcss_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/WCSS_Summary.txt",header = TRUE))
+
+time_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/Time_Summary.txt",header = TRUE))
+
+```
+
+### `batch_size = 1` (or .1 percent of data)
+```{r}
+# boxplots
+batch_percent <- 0.001
+p_bs_0001_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 1 (0.1% of data)")
+p_bs_0001_ari
+
+p_bs_0001_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 1 (0.1% of data)")
+p_bs_0001_wcss
+
+p_bs_0001_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 1 (0.1% of data)")
+p_bs_0001_time
+```
+
+### `batch_size = 5` (or .5 percent of data)
+```{r}
+# boxplots
+batch_percent <- 0.005
+p_bs_0005_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 5 (0.5% of data)")
+p_bs_0005_ari
+
+p_bs_0005_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 5 (0.5% of data)")
+p_bs_0005_wcss
+
+p_bs_0005_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 5 (0.5% of data)")
+p_bs_0005_time
+```
+
+### `batch_size = 10` (or 1 percent of data)
+```{r}
+# boxplots
+batch_percent <- 0.01
+p_bs_001_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 10 (1% of data)")
+p_bs_001_ari
+
+p_bs_001_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 10 (1% of data)")
+p_bs_001_wcss
+
+p_bs_001_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 10 (1% of data)")
+p_bs_001_time
+```
+
+### `batch_size = 50` (or 5 percent of data)
+```{r}
+batch_percent <- 0.05
+p_bs_005_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 50 (5% of data)")
+p_bs_005_ari
+
+p_bs_005_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 50 (5% of data)")
+p_bs_005_wcss
+
+p_bs_005_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 50 (5% of data)")
+p_bs_005_time
+```
+
+### `batch_size = 250` (or 25 percent of data)
+
+```{r}
+# boxplots
+batch_percent <- 0.25
+p_bs_025_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 250 (25% of data)")
+p_bs_025_ari
+
+p_bs_025_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 250 (25% of data)")
+p_bs_025_wcss
+
+p_bs_025_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 250 (25% of data)")
+p_bs_025_time
+```
+
+### `batch_size = 500` (or 50 percent of data)
+
+```{r}
+# boxplots
+batch_percent <- 0.5
+p_bs_050_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 500 (50% of data)")
+p_bs_050_ari
+
+p_bs_050_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 500 (50% of data)")
+p_bs_050_wcss
+
+p_bs_050_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 500 (50% of data)")
+p_bs_050_time
+```
+
+### `batch_size = 999` (or 99 percent of data)
+
+```{r}
+# boxplots
+batch_percent <- 0.99
+p_bs_99_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_99_ari
+
+p_bs_99_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_99_wcss
+
+p_bs_99_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 999 (99% of data)")
+p_bs_99_time
+```
+
+### `batch_size = 1000` (or 100 percent of data)
+```{r}
+# boxplots
+batch_percent <- 1
+p_bs_100_ari <- tidyr::gather(air_total[which(air_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("adjusted rand index") + 
+    ggtitle("batch_size = 1000 (100% of data)")
+p_bs_100_ari
+
+p_bs_100_wcss <- tidyr::gather(wcss_total[which(wcss_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("within cluster sum of squares") + 
+    ggtitle("batch_size = 1000 (100% of data)")
+p_bs_100_wcss
+
+p_bs_100_time <- tidyr::gather(time_total[which(time_total$batch_size == batch_percent),][3:5]) %>% 
+    ggplot(aes(x=key, y = value)) + 
+    geom_boxplot() + geom_jitter() + 
+    xlab("clustering method") + 
+    ylab("compute time") + 
+    ggtitle("batch_size = 1000 (100% of data)")
+p_bs_100_time
+```
+
+
+### Summary
+
+First we will combine the boxplots together in 
+one plot. 
+```{r}
+p_out_ari <- plot_grid(p_bs_0001_ari, p_bs_0005_ari, p_bs_001_ari, 
+                   p_bs_005_ari, p_bs_025_ari, p_bs_050_ari, 
+                   p_bs_100_ari, ncol = 4, 
+                   labels = LETTERS[1:7], label_size = 30)
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
+#           mbkmeans_initializer,"_ari.pdf"), width=20, height=10)
+print(p_out_ari)
+#dev.off()
+
+p_out_wcss <- plot_grid(p_bs_0001_wcss, p_bs_0005_wcss, p_bs_001_wcss, 
+                   p_bs_005_wcss, p_bs_025_wcss, p_bs_050_wcss, 
+                   p_bs_100_wcss, ncol = 4, 
+                   labels = LETTERS[1:7], label_size = 30)
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
+#            mbkmeans_initializer,"_wcss.pdf"), width=20, height=10)
+print(p_out_wcss)
+# dev.off()
+
+p_out_time <- plot_grid(p_bs_0001_time, p_bs_0005_time, p_bs_001_time, 
+                   p_bs_005_time, p_bs_025_time, 
+                   p_bs_050_time, # p_bs_100_time, 
+                   ncol = 3, 
+                   labels = LETTERS[1:7], label_size = 30)
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/time_batch_size_", 
+#            mbkmeans_initializer,".pdf"), width=20, height=10)
+print(p_out_time)
+# dev.off()
+
+```
+
+Then we summarize by taking the average across the `B` 
+Monte Carlo simulations and plot the mean and standard 
+error for increasing sizes of `batch_sizes`. 
+
+```{r}
+dat_ari <- data.frame( 
+    rbind(stack(ari_output_bs_0001_ari),  
+      stack(ari_output_bs_0005_ari), 
+      stack(ari_output_bs_001_ari), 
+      stack(ari_output_bs_005_ari), 
+      stack(ari_output_bs_025_ari)#, 
+      # stack(ari_output_bs_050_ari), 
+      # stack(ari_output_bs_100_ari)
+      ), 
+    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
+                         )), each = B*3))
+
+dat_ari$batch_size <- factor(dat_ari$batch_size, 
+       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
+                ))
+
+p_out_ari <- dat_ari %>% 
+    group_by(batch_size, ind) %>% 
+    summarize(median_ari = median(values), 
+              se_ari = sd(values) / sqrt(n())) %>%
+ggplot(aes(x=batch_size, y=median_ari, colour=ind, group=ind)) + 
+    geom_line() + geom_point() + 
+    geom_errorbar(aes(ymin=median_ari-se_ari, 
+                      ymax=median_ari+se_ari), width=.1) +
+    xlab("batch size") + 
+    ylab("adjusted Rand Index") + 
+    theme(legend.position="top")
+
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
+#            mbkmeans_initializer,"_ari_combined.pdf"), width=10, height=5)
+print(p_out_ari)
+#dev.off()
+```
+
+```{r}
+dat_wcss <- data.frame( 
+    rbind(stack(ari_output_bs_0001_wcss),  
+      stack(ari_output_bs_0005_wcss), 
+      stack(ari_output_bs_001_wcss), 
+      stack(ari_output_bs_005_wcss), 
+      stack(ari_output_bs_025_wcss)#, 
+      # stack(ari_output_bs_050_wcss), 
+      # stack(ari_output_bs_100_wcss)
+      ), 
+    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
+                         )), each = B*3))
+
+dat_wcss$batch_size <- factor(dat_wcss$batch_size, 
+       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
+                ))
+
+p_out_wcss <- dat_wcss %>% 
+    group_by(batch_size, ind) %>% 
+    summarize(median_wcss = median(values), 
+              se_wcss = sd(values) / sqrt(n())) %>%
+ggplot(aes(x=batch_size, y=median_wcss, colour=ind, group=ind)) + 
+    geom_line() + geom_point() + 
+    geom_errorbar(aes(ymin=median_wcss-se_wcss, 
+                      ymax=median_wcss+se_wcss), width=.1) +
+    xlab("batch size") + 
+    ylab("within cluster sum of squares") + 
+    theme(legend.position="top")
+
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
+#           mbkmeans_initializer,"_wcss_combined.pdf"), width=10, height=5)
+print(p_out_wcss)
+
+#dev.off()
+```
+
+
+```{r}
+dat_time <- data.frame( 
+    rbind(stack(time_output_bs_0001),  
+      stack(time_output_bs_0005), 
+      stack(time_output_bs_001), 
+      stack(time_output_bs_005), 
+      stack(time_output_bs_025)#, 
+      # stack(time_output_bs_050), 
+      # stack(time_output_bs_100)
+      ), 
+    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
+                         )), each = B*3))
+
+dat_time$batch_size <- factor(dat_time$batch_size, 
+       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%", "100.0%"
+                ))
+
+p_out_time <- dat_time %>% 
+    group_by(batch_size, ind) %>% 
+    summarize(median_time = median(values), 
+              se_time = sd(values) / sqrt(n())) %>%
+ggplot(aes(x=batch_size, y=median_time, colour=ind, group=ind)) + 
+    geom_line() + geom_point() + 
+    geom_errorbar(aes(ymin=median_time-se_time, 
+                      ymax=median_time+se_time), width=.1) +
+    xlab("batch size") + 
+    ylab("compute time (seconds)") + 
+    theme(legend.position="top")
+
+# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/time_batch_size_", 
+#            mbkmeans_initializer,"_combined.pdf"), width=10, height=5)
+print(p_out_time)
+#dev.off()
+    
+
+```
