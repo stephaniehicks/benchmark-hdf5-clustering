@@ -23,7 +23,7 @@ detectCores()
 
 # number of cores for parallelization
 cores <- 1
-B <- 10
+B <- 3
 
 ```
 
@@ -165,540 +165,346 @@ mbkmeans_initializer = "random"
 print(Sys.time())
 
 # simulate data to assess accuracy
+batch_percent <- 0.001
 save_bs_0001 <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.001, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 
 
 # calculate adjusted Rand Index 
-ari_output_bs_0001_ari <- bench_accuracy_calculate_ari(save_bs_0001)
+ari_output_bs_0001_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_0001))
 
 # extract wcss
-ari_output_bs_0001_wcss <- bench_accuracy_extract_wcss(save_bs_0001)
+ari_output_bs_0001_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_0001))
 
 # extract compute time
-time_output_bs_0001 <- bench_time_extract(save_bs_0001)
+time_output_bs_0001 <- as.data.frame(bench_time_extract(save_bs_0001))
+
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_0001_ari <- data.frame(iteration = rownames(ari_output_bs_0001_ari),ari_output_bs_0001_ari)
+
+ari_output_bs_0001_ari <- cbind(batch_size = batch_percent, ari_output_bs_0001_ari)
+
+#wcss
+ari_output_bs_0001_wcss <- data.frame(iteration = rownames(ari_output_bs_0001_wcss),ari_output_bs_0001_wcss)
+
+ari_output_bs_0001_wcss <- cbind(batch_size = batch_percent, ari_output_bs_0001_wcss)
+
+#time
+time_output_bs_0001 <- data.frame(iteration = rownames(time_output_bs_0001),time_output_bs_0001)
+
+time_output_bs_0001 <- cbind(batch_size = batch_percent, time_output_bs_0001)
+
 ```
-
-```{r}
-# boxplots
-p_bs_0001_ari <- tidyr::gather(ari_output_bs_0001_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 1 (0.1% of data)")
-p_bs_0001_ari
-
-p_bs_0001_wcss <- tidyr::gather(ari_output_bs_0001_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 1 (0.1% of data)")
-p_bs_0001_wcss
-
-p_bs_0001_time <- tidyr::gather(time_output_bs_0001) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 1 (0.1% of data)")
-p_bs_0001_time
-```
-
 
 ### `batch_size = 5` (or .5 percent of data)
 
 ```{r .5%}
 # simulate data
+batch_percent <- 0.005
 save_bs_0005 <- mclapply(seq_len(B), 
                   n_cells = nC, n_genes = nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.005, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_0005_ari <- bench_accuracy_calculate_ari(save_bs_0005)
+ari_output_bs_0005_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_0005))
 
 # extract wcss
-ari_output_bs_0005_wcss <- bench_accuracy_extract_wcss(save_bs_0005)
+ari_output_bs_0005_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_0005))
 
 
 # extract compute time
-time_output_bs_0005 <- bench_time_extract(save_bs_0005)
-```
+time_output_bs_0005 <- as.data.frame(bench_time_extract(save_bs_0005))
 
-```{r}
-# boxplots
-p_bs_0005_ari <- tidyr::gather(ari_output_bs_0005_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 5 (0.5% of data)")
-p_bs_0005_ari
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_0005_ari <- data.frame(iteration = rownames(ari_output_bs_0005_ari),ari_output_bs_0005_ari)
 
-p_bs_0005_wcss <- tidyr::gather(ari_output_bs_0005_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 5 (0.5% of data)")
-p_bs_0005_wcss
+ari_output_bs_0005_ari <- cbind(batch_size = batch_percent, ari_output_bs_0005_ari)
 
-p_bs_0005_time <- tidyr::gather(time_output_bs_0005) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 5 (0.5% of data)")
-p_bs_0005_time
+#wcss
+ari_output_bs_0005_wcss <- data.frame(iteration = rownames(ari_output_bs_0005_wcss),ari_output_bs_0005_wcss)
+
+ari_output_bs_0005_wcss <- cbind(batch_size = batch_percent, ari_output_bs_0005_wcss)
+
+#time
+time_output_bs_0005 <- data.frame(iteration = rownames(time_output_bs_0005),time_output_bs_0005)
+
+time_output_bs_0005 <- cbind(batch_size = batch_percent, time_output_bs_0005)
+
 ```
 
 ### `batch_size = 10` (or 1 percent of data)
-
 ```{r 1%}
 # simulate data
+batch_percent <- 0.01
 save_bs_001 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.01, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_001_ari <- bench_accuracy_calculate_ari(save_bs_001)
+ari_output_bs_001_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_001))
 
 # extract wcss
-ari_output_bs_001_wcss <- bench_accuracy_extract_wcss(save_bs_001)
+ari_output_bs_001_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_001))
 
 # extract compute time
-time_output_bs_001 <- bench_time_extract(save_bs_001)
-```
+time_output_bs_001 <- as.data.frame(bench_time_extract(save_bs_001))
 
-```{r}
-# boxplots
-p_bs_001_ari <- tidyr::gather(ari_output_bs_001_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 10 (1% of data)")
-p_bs_001_ari
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_001_ari <- data.frame(iteration = rownames(ari_output_bs_001_ari),ari_output_bs_001_ari)
 
-p_bs_001_wcss <- tidyr::gather(ari_output_bs_001_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 10 (1% of data)")
-p_bs_001_wcss
+ari_output_bs_001_ari <- cbind(batch_size = batch_percent, ari_output_bs_001_ari)
 
-p_bs_001_time <- tidyr::gather(time_output_bs_001) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 10 (1% of data)")
-p_bs_001_time
+#wcss
+ari_output_bs_001_wcss <- data.frame(iteration = rownames(ari_output_bs_001_wcss),ari_output_bs_001_wcss)
+
+ari_output_bs_001_wcss <- cbind(batch_size = batch_percent, ari_output_bs_001_wcss)
+
+#time
+time_output_bs_001 <- data.frame(iteration = rownames(time_output_bs_001),time_output_bs_001)
+
+time_output_bs_001 <- cbind(batch_size = batch_percent, time_output_bs_001)
 ```
 
 
 ### `batch_size = 50` (or 5 percent of data)
 ```{r 5%}
 # simulate data
+batch_percent <- 0.05
 save_bs_005 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.05, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_005_ari <- bench_accuracy_calculate_ari(save_bs_005)
+ari_output_bs_005_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_005))
 
 # extract wcss
-ari_output_bs_005_wcss <- bench_accuracy_extract_wcss(save_bs_005)
+ari_output_bs_005_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_005))
 
 
 # extract compute time
-time_output_bs_005 <- bench_time_extract(save_bs_005)
-```
+time_output_bs_005 <- as.data.frame(bench_time_extract(save_bs_005))
 
-```{r}
-# boxplots
-p_bs_005_ari <- tidyr::gather(ari_output_bs_005_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 50 (5% of data)")
-p_bs_005_ari
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_005_ari <- data.frame(iteration = rownames(ari_output_bs_005_ari),ari_output_bs_005_ari)
 
-p_bs_005_wcss <- tidyr::gather(ari_output_bs_005_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 50 (5% of data)")
-p_bs_005_wcss
+ari_output_bs_005_ari <- cbind(batch_size = batch_percent, ari_output_bs_005_ari)
 
-p_bs_005_time <- tidyr::gather(time_output_bs_005) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 50 (5% of data)")
-p_bs_005_time
+#wcss
+ari_output_bs_005_wcss <- data.frame(iteration = rownames(ari_output_bs_005_wcss),ari_output_bs_005_wcss)
+
+ari_output_bs_005_wcss <- cbind(batch_size = batch_percent, ari_output_bs_005_wcss)
+
+#time
+time_output_bs_005 <- data.frame(iteration = rownames(time_output_bs_005),time_output_bs_005)
+
+time_output_bs_005 <- cbind(batch_size = batch_percent, time_output_bs_005)
 ```
 
 ### `batch_size = 250` (or 25 percent of data)
 ```{r 25%}
 # simulate data
+batch_percent <- 0.25
 save_bs_025 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.25, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_025_ari <- bench_accuracy_calculate_ari(save_bs_025)
+ari_output_bs_025_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_025))
 
 # extract wcss
-ari_output_bs_025_wcss <- bench_accuracy_extract_wcss(save_bs_025)
+ari_output_bs_025_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_025))
 
 
 # extract compute time
-time_output_bs_025 <- bench_time_extract(save_bs_025)
-```
+time_output_bs_025 <- as.data.frame(bench_time_extract(save_bs_025))
 
-```{r}
-# boxplots
-p_bs_025_ari <- tidyr::gather(ari_output_bs_025_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 250 (25% of data)")
-p_bs_025_ari
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_025_ari <- data.frame(iteration = rownames(ari_output_bs_025_ari),ari_output_bs_025_ari)
 
-p_bs_025_wcss <- tidyr::gather(ari_output_bs_025_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 250 (25% of data)")
-p_bs_025_wcss
+ari_output_bs_025_ari <- cbind(batch_size = batch_percent, ari_output_bs_025_ari)
 
-p_bs_025_time <- tidyr::gather(time_output_bs_025) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 250 (25% of data)")
-p_bs_025_time
+#wcss
+ari_output_bs_025_wcss <- data.frame(iteration = rownames(ari_output_bs_025_wcss),ari_output_bs_025_wcss)
+
+ari_output_bs_025_wcss <- cbind(batch_size = batch_percent, ari_output_bs_025_wcss)
+
+#time
+time_output_bs_025 <- data.frame(iteration = rownames(time_output_bs_025),time_output_bs_025)
+
+time_output_bs_025 <- cbind(batch_size = batch_percent, time_output_bs_025)
 ```
 
 ### `batch_size = 500` (or 50 percent of data)
 ```{r 50%}
 # simulate data
+batch_percent <- 0.50
 save_bs_050 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.50, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_050_ari <- bench_accuracy_calculate_ari(save_bs_050)
+ari_output_bs_050_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_050))
 
 # extract wcss
-ari_output_bs_050_wcss <- bench_accuracy_extract_wcss(save_bs_050)
+ari_output_bs_050_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_050))
 
 # extract compute time
-time_output_bs_050 <- bench_time_extract(save_bs_050)
+time_output_bs_050 <- as.data.frame(bench_time_extract(save_bs_050))
+
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_050_ari <- data.frame(iteration = rownames(ari_output_bs_050_ari),ari_output_bs_050_ari)
+
+ari_output_bs_050_ari <- cbind(batch_size = batch_percent, ari_output_bs_050_ari)
+
+#wcss
+ari_output_bs_050_wcss <- data.frame(iteration = rownames(ari_output_bs_050_wcss),ari_output_bs_050_wcss)
+
+ari_output_bs_050_wcss <- cbind(batch_size = batch_percent, ari_output_bs_050_wcss)
+
+#time
+time_output_bs_050 <- data.frame(iteration = rownames(time_output_bs_050),time_output_bs_050)
+
+time_output_bs_050 <- cbind(batch_size = batch_percent, time_output_bs_050)
 ```
 
-```{r}
-# boxplots
-p_bs_050_ari <- tidyr::gather(ari_output_bs_050_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 500 (50% of data)")
-p_bs_050_ari
-
-p_bs_050_wcss <- tidyr::gather(ari_output_bs_050_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 500 (50% of data)")
-p_bs_050_wcss
-
-p_bs_050_time <- tidyr::gather(time_output_bs_050) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 500 (50% of data)")
-p_bs_050_time
-```
-
-### `batch_size = 999` (or 99 percent of data)
 ```{r 99%}
 # simulate data
+batch_percent <- 0.99
 save_bs_99 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*.99, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_99_ari <- bench_accuracy_calculate_ari(save_bs_99)
+ari_output_bs_99_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_99))
 
 # extract wcss
-ari_output_bs_99_wcss <- bench_accuracy_extract_wcss(save_bs_99)
+ari_output_bs_99_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_99))
 
 # extract compute time
-time_output_bs_99 <- bench_time_extract(save_bs_99)
+time_output_bs_99 <- as.data.frame(bench_time_extract(save_bs_99))
+
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_99_ari <- data.frame(iteration = rownames(ari_output_bs_99_ari),ari_output_bs_99_ari)
+
+ari_output_bs_99_ari <- cbind(batch_size = batch_percent, ari_output_bs_99_ari)
+
+#wcss
+ari_output_bs_99_wcss <- data.frame(iteration = rownames(ari_output_bs_99_wcss),ari_output_bs_99_wcss)
+
+ari_output_bs_99_wcss <- cbind(batch_size = batch_percent, ari_output_bs_99_wcss)
+
+#time
+time_output_bs_99 <- data.frame(iteration = rownames(time_output_bs_99),time_output_bs_99)
+
+time_output_bs_99 <- cbind(batch_size = batch_percent, time_output_bs_99)
 ```
-
-```{r}
-# boxplots
-p_bs_99_ari <- tidyr::gather(ari_output_bs_99_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 999 (99% of data)")
-p_bs_99_ari
-
-p_bs_99_wcss <- tidyr::gather(ari_output_bs_99_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 999 (99% of data)")
-p_bs_99_wcss
-
-p_bs_99_time <- tidyr::gather(time_output_bs_99) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 999 (99% of data)")
-p_bs_99_time
-```
-
 
 ### `batch_size = 1000` (or 100 percent of data)
 ```{r 100%, warning=FALSE}
 # simulate data
+batch_percent <- 1
 save_bs_100 <- mclapply(seq_len(B), n_cells=nC, n_genes =nG, 
                   bench_hdf5, k_centers = 3,
-                  batch_size = nC*1, num_init = 10, max_iters = 100, 
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE)
 
 # calculate adjusted Rand Index 
-ari_output_bs_100_ari <- bench_accuracy_calculate_ari(save_bs_100)
+ari_output_bs_100_ari <- as.data.frame(bench_accuracy_calculate_ari(save_bs_100))
 
 # extract wcss
-ari_output_bs_100_wcss <- bench_accuracy_extract_wcss(save_bs_100)
+ari_output_bs_100_wcss <- as.data.frame(bench_accuracy_extract_wcss(save_bs_100))
 
 # extract compute time
-time_output_bs_100 <- bench_time_extract(save_bs_100)
+time_output_bs_100 <- as.data.frame(bench_time_extract(save_bs_100))
+
+# add in columns for batch size and iteration time (B)
+#ari
+ari_output_bs_100_ari <- data.frame(iteration = rownames(ari_output_bs_100_ari),ari_output_bs_100_ari)
+
+ari_output_bs_100_ari <- cbind(batch_size = batch_percent, ari_output_bs_100_ari)
+
+#wcss
+ari_output_bs_100_wcss <- data.frame(iteration = rownames(ari_output_bs_100_wcss),ari_output_bs_100_wcss)
+
+ari_output_bs_100_wcss <- cbind(batch_size = batch_percent, ari_output_bs_100_wcss)
+
+#time
+time_output_bs_100 <- data.frame(iteration = rownames(time_output_bs_100),time_output_bs_100)
+
+time_output_bs_100 <- cbind(batch_size = batch_percent, time_output_bs_100)
 ```
 
 ```{r}
-# boxplots
-p_bs_100_ari <- tidyr::gather(ari_output_bs_100_ari) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("adjusted rand index") + 
-    ggtitle("batch_size = 1000 (100% of data)")
-p_bs_100_ari
+# Combine the outputs
+ari_total <- do.call("rbind", list(ari_output_bs_0001_ari,ari_output_bs_0005_ari,ari_output_bs_001_ari, ari_output_bs_005_ari, ari_output_bs_025_ari,ari_output_bs_050_ari,ari_output_bs_99_ari,ari_output_bs_100_ari))
 
-p_bs_100_wcss <- tidyr::gather(ari_output_bs_100_wcss) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("within cluster sum of squares") + 
-    ggtitle("batch_size = 1000 (100% of data)")
-p_bs_100_wcss
+wcss_total <- do.call("rbind", list(ari_output_bs_0001_wcss,ari_output_bs_0005_wcss,ari_output_bs_001_wcss,ari_output_bs_005_wcss,ari_output_bs_025_wcss,ari_output_bs_050_wcss,ari_output_bs_99_wcss,ari_output_bs_100_wcss))
 
-p_bs_100_time <- tidyr::gather(time_output_bs_100) %>% 
-    ggplot(aes(x=key, y = value)) + 
-    geom_boxplot() + geom_jitter() + 
-    xlab("clustering method") + 
-    ylab("compute time") + 
-    ggtitle("batch_size = 1000 (100% of data)")
-p_bs_100_time
-```
-
-
-### Summary
-
-First we will combine the boxplots together in 
-one plot. 
-```{r}
-p_out_ari <- plot_grid(p_bs_0001_ari, p_bs_0005_ari, p_bs_001_ari, 
-                   p_bs_005_ari, p_bs_025_ari, p_bs_050_ari, 
-                   p_bs_100_ari, ncol = 4, 
-                   labels = LETTERS[1:7], label_size = 30)
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
-#           mbkmeans_initializer,"_ari.pdf"), width=20, height=10)
-print(p_out_ari)
-#dev.off()
-
-p_out_wcss <- plot_grid(p_bs_0001_wcss, p_bs_0005_wcss, p_bs_001_wcss, 
-                   p_bs_005_wcss, p_bs_025_wcss, p_bs_050_wcss, 
-                   p_bs_100_wcss, ncol = 4, 
-                   labels = LETTERS[1:7], label_size = 30)
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
-#            mbkmeans_initializer,"_wcss.pdf"), width=20, height=10)
-print(p_out_wcss)
-# dev.off()
-
-p_out_time <- plot_grid(p_bs_0001_time, p_bs_0005_time, p_bs_001_time, 
-                   p_bs_005_time, p_bs_025_time, 
-                   p_bs_050_time, # p_bs_100_time, 
-                   ncol = 3, 
-                   labels = LETTERS[1:7], label_size = 30)
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/time_batch_size_", 
-#            mbkmeans_initializer,".pdf"), width=20, height=10)
-print(p_out_time)
-# dev.off()
-
-```
-
-Then we summarize by taking the average across the `B` 
-Monte Carlo simulations and plot the mean and standard 
-error for increasing sizes of `batch_sizes`. 
-
-```{r}
-dat_ari <- data.frame( 
-    rbind(stack(ari_output_bs_0001_ari),  
-      stack(ari_output_bs_0005_ari), 
-      stack(ari_output_bs_001_ari), 
-      stack(ari_output_bs_005_ari), 
-      stack(ari_output_bs_025_ari)#, 
-      # stack(ari_output_bs_050_ari), 
-      # stack(ari_output_bs_100_ari)
-      ), 
-    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*3))
-
-dat_ari$batch_size <- factor(dat_ari$batch_size, 
-       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
-                ))
-
-p_out_ari <- dat_ari %>% 
-    group_by(batch_size, ind) %>% 
-    summarize(median_ari = median(values), 
-              se_ari = sd(values) / sqrt(n())) %>%
-ggplot(aes(x=batch_size, y=median_ari, colour=ind, group=ind)) + 
-    geom_line() + geom_point() + 
-    geom_errorbar(aes(ymin=median_ari-se_ari, 
-                      ymax=median_ari+se_ari), width=.1) +
-    xlab("batch size") + 
-    ylab("adjusted Rand Index") + 
-    theme(legend.position="top")
-
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
-#            mbkmeans_initializer,"_ari_combined.pdf"), width=10, height=5)
-print(p_out_ari)
-#dev.off()
+time_total <- do.call("rbind", list(time_output_bs_0001,time_output_bs_0005,time_output_bs_001,time_output_bs_005,time_output_bs_025,time_output_bs_050,time_output_bs_99,time_output_bs_100))
 ```
 
 ```{r}
-dat_wcss <- data.frame( 
-    rbind(stack(ari_output_bs_0001_wcss),  
-      stack(ari_output_bs_0005_wcss), 
-      stack(ari_output_bs_001_wcss), 
-      stack(ari_output_bs_005_wcss), 
-      stack(ari_output_bs_025_wcss)#, 
-      # stack(ari_output_bs_050_wcss), 
-      # stack(ari_output_bs_100_wcss)
-      ), 
-    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*3))
+time <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
+dir_name <- sprintf("Simulation_%s", time)
 
-dat_wcss$batch_size <- factor(dat_wcss$batch_size, 
-       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%, "100.0%"
-                ))
-
-p_out_wcss <- dat_wcss %>% 
-    group_by(batch_size, ind) %>% 
-    summarize(median_wcss = median(values), 
-              se_wcss = sd(values) / sqrt(n())) %>%
-ggplot(aes(x=batch_size, y=median_wcss, colour=ind, group=ind)) + 
-    geom_line() + geom_point() + 
-    geom_errorbar(aes(ymin=median_wcss-se_wcss, 
-                      ymax=median_wcss+se_wcss), width=.1) +
-    xlab("batch size") + 
-    ylab("within cluster sum of squares") + 
-    theme(legend.position="top")
-
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/accuracy_batch_size_", 
-#           mbkmeans_initializer,"_wcss_combined.pdf"), width=10, height=5)
-print(p_out_wcss)
-
-#dev.off()
+if(!dir.exists(dir_name)) {
+  dir.create(dir_name)
+}
 ```
-
 
 ```{r}
-dat_time <- data.frame( 
-    rbind(stack(time_output_bs_0001),  
-      stack(time_output_bs_0005), 
-      stack(time_output_bs_001), 
-      stack(time_output_bs_005), 
-      stack(time_output_bs_025)#, 
-      # stack(time_output_bs_050), 
-      # stack(time_output_bs_100)
-      ), 
-    "batch_size" = rep(scales::percent(c(.001, .005, .01, .05, .25#, .50, 1.00
-                         )), each = B*3))
+setwd(dir_name)
+sim_info <- data.frame(
+  Col1 = c("Number of Cores:","Monte Carlo Simulation Interation:",
+           "Number of Cells:","Number of Genes:"),
+  Col2 = c(cores, B, nC, nG)
+)
 
-dat_time$batch_size <- factor(dat_time$batch_size, 
-       levels=c("0.1%", "0.5%", "1.0%", "5.0%", "25.0%"#, "50.0%", "100.0%"
-                ))
+write.table(sim_info, file = "Simulation_Info.txt", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = FALSE)
 
-p_out_time <- dat_time %>% 
-    group_by(batch_size, ind) %>% 
-    summarize(median_time = median(values), 
-              se_time = sd(values) / sqrt(n())) %>%
-ggplot(aes(x=batch_size, y=median_time, colour=ind, group=ind)) + 
-    geom_line() + geom_point() + 
-    geom_errorbar(aes(ymin=median_time-se_time, 
-                      ymax=median_time+se_time), width=.1) +
-    xlab("batch size") + 
-    ylab("compute time (seconds)") + 
-    theme(legend.position="top")
+write.table(ari_total, file = "ARI_Summary.txt", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = TRUE)
 
-# pdf(paste0("/Users/summer/Downloads/package/benchmark-hdf5-clustering/simulation-studies/figs/time_batch_size_", 
-#            mbkmeans_initializer,"_combined.pdf"), width=10, height=5)
-print(p_out_time)
-#dev.off()
-    
+write.table(wcss_total, file = "WCSS_Summary.txt", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = TRUE)
 
+write.table(time_total, file = "Time_Summary.txt", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = TRUE)
 ```
-
 
 ```{r}
 #to get information about RAM and CPUs on machine
-library(benchmarkme) 
-print(get_ram())
-print(get_cpu())
-print(sessionInfo())
-print(BiocManager::version())
-
+#library(benchmarkme) 
+#print(get_ram())
+#print(get_cpu())
+#print(BiocManager::version())
+#print(sessionInfo())
 ```
 
