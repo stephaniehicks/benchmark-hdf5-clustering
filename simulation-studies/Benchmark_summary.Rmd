@@ -8,15 +8,23 @@ output: html_document
 library(tidyr)
 library(ggplot2)
 library(cowplot)
+library(here)
 ```
 
 ### Read in data
 ```{r}
-air_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/ARI_Summary.txt",header = TRUE))
 
-wcss_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/WCSS_Summary.txt",header = TRUE))
+air_total <- as.data.frame(read.table(here("simulation-studies", 
+                                           "Simulation_2019-05-06_12-26-00", "ARI_Summary.txt"),
+                                      header = TRUE))
 
-time_total <- as.data.frame(read.table("/Users/April30/mbkmeans/benchmark-hdf5-clustering/simulation-studies/Simulation_2019-05-06_12-26-00/Time_Summary.txt",header = TRUE))
+wcss_total <- as.data.frame(read.table(here("simulation-studies", 
+                                            "Simulation_2019-05-06_12-26-00", "WCSS_Summary.txt"),
+                                       header = TRUE))
+
+time_total <- as.data.frame(read.table(here("simulation-studies", 
+                                            "Simulation_2019-05-06_12-26-00","Time_Summary.txt"),
+                                       header = TRUE))
 
 ```
 
