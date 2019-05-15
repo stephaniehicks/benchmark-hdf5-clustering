@@ -16,6 +16,7 @@ library(dplyr)
 library(cowplot)
 library(parallel)
 library(HDF5Array)
+library(profvis)
 
 
 # can see how many cores are available
@@ -63,10 +64,10 @@ simulate_gauss_mix <- function(n_cells, n_genes,
        "true_data" = samples1, 
        "obs_data" = A1)
 }
+```
 
 
-
-
+```{r functions}
 #' @title bench_hdf5
 #' @param i monte carlo simulation iteration
 #' @param method  kmeans, mbkmeans_nohdf5, mbkmeans_hdf5
@@ -77,7 +78,7 @@ bench_hdf5 <- function(i, n_cells,
                            max_iters = max_iters, 
                            init_fraction = init_fraction, 
                            initializer = initializer, 
-                       method = "kmeans", ...) {
+                           method = "kmeans", ...) {
     # simulate data 
     sim_data <- simulate_gauss_mix(n_cells=n_cells, 
                                    n_genes=n_genes)
@@ -86,34 +87,125 @@ bench_hdf5 <- function(i, n_cells,
     # save the hdf5 matrix into a file on-disk 
     
     # apply clustering methods 
-    if(method == "kmeans"){ 
-      kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
+    if(method == "kmeans"){
+      memory_compare <- profvis({
+        kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
                                    centers=k_centers))[3]
+      
+      })
+      
+      htmlwidgets::saveWidget(memory_compare,"memory_compare_kmeans.html")
+      
+      outputlist <- list(sim_data = sim_data, 
+           kmeans_output = kmeans_output,
+           kmeans_time = kmeans_time)
+      
+      
     }
     
-    
-     mbkmeans_time <- system.time(mbkmeans_output <- mbkmeans::mini_batch(
+    if(method == "mbkmeans"){
+      memory_compare <- profvis({
+      mbkmeans_time <- system.time(mbkmeans_output <- mbkmeans::mini_batch(
             sim_data$obs_data, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
             initializer = initializer, ...))[3]
+      })
+      
+      htmlwidgets::saveWidget(memory_compare,"memory_compare_mbkmeans.html")
+     
+     outputlist <- list(sim_data = sim_data, 
+         mbkmeans_output = mbkmeans_output,
+         mbkmeans_time = mbkmeans_time) 
+     
+    }
     
     # this function needs to be adjusted to point to the HDF5 matrix on disk
-    mbkmeans_hdf5_time <- system.time(mbkmeans_hdf5_output <- mbkmeans::mini_batch(
-            sim_data_hdf5, clusters = k_centers, 
+    if(method == "hdf5"){
+      memory_compare <- profvis({
+        mbkmeans_hdf5_time <- system.time(mbkmeans_hdf5_output <- mbkmeans::mini_batch(
+              sim_data_hdf5, clusters = k_centers, 
+              batch_size = batch_size, num_init = num_init, 
+              max_iters = max_iters, init_fraction = init_fraction,
+              initializer = initializer, ...))[3]
+      })
+      
+      htmlwidgets::saveWidget(memory_compare,"memory_compare_hdf5.html")
+    
+      outputlist <- list(sim_data = sim_data, 
+        mbkmeans_hdf5_output = mbkmeans_hdf5_output,
+        mbkmeans_hdf5_time = mbkmeans_hdf5_time)    
+    }
+
+  outputlist
+}
+```
+
+```{r}
+# Memory Profiling with Rprof
+bench_hdf5 <- function(i, n_cells, 
+                           n_genes, k_centers, 
+                           batch_size=batch_size, 
+                           num_init = num_init, 
+                           max_iters = max_iters, 
+                           init_fraction = init_fraction, 
+                           initializer = initializer, 
+                           method = "kmeans", ...) {
+    # simulate data 
+    sim_data <- simulate_gauss_mix(n_cells=n_cells, 
+                                   n_genes=n_genes)
+    sim_data_hdf5 <- as(as.matrix(sim_data$obs_data),"HDF5Matrix")
+    
+    # save the hdf5 matrix into a file on-disk 
+    
+    # apply clustering methods 
+    if(method == "kmeans"){
+      Rprof("kmeans.out", append = TRUE, memory.profiling = TRUE)
+      kmeans_time <- system.time(kmeans_output <- stats::kmeans(sim_data$obs_data, 
+                                   centers=k_centers))[3]
+      Rprof(NULL)
+
+      outputlist <- list(sim_data = sim_data, 
+           kmeans_output = kmeans_output,
+           kmeans_time = kmeans_time)
+    }
+    
+    if(method == "mbkmeans"){
+      Rprof("mbkmeans.out", append = TRUE, memory.profiling = TRUE)
+      mbkmeans_time <- system.time(mbkmeans_output <- mbkmeans::mini_batch(
+            sim_data$obs_data, clusters = k_centers, 
             batch_size = batch_size, num_init = num_init, 
             max_iters = max_iters, init_fraction = init_fraction,
             initializer = initializer, ...))[3]
-
-    list(sim_data = sim_data, 
-         kmeans_output = kmeans_output,
+      Rprof(NULL)
+      
+     outputlist <- list(sim_data = sim_data, 
          mbkmeans_output = mbkmeans_output,
-         mbkmeans_hdf5_output = mbkmeans_hdf5_output,
-         kmeans_time = kmeans_time,
-         mbkmeans_time = mbkmeans_time,
-         mbkmeans_hdf5_time = mbkmeans_hdf5_time)    
-}
+         mbkmeans_time = mbkmeans_time) 
+     
+    }
+    
+    # this function needs to be adjusted to point to the HDF5 matrix on disk
+    if(method == "hdf5"){
+      Rprof("hdf5_2.out", append = TRUE, memory.profiling = TRUE)
+      mbkmeans_hdf5_time <- system.time(mbkmeans_hdf5_output <- mbkmeans::mini_batch(
+              sim_data_hdf5, clusters = k_centers, 
+              batch_size = batch_size, num_init = num_init, 
+              max_iters = max_iters, init_fraction = init_fraction,
+              initializer = initializer, ...))[3]
+     Rprof(NULL)
+    
+      outputlist <- list(sim_data = sim_data, 
+        mbkmeans_hdf5_output = mbkmeans_hdf5_output,
+        mbkmeans_hdf5_time = mbkmeans_hdf5_tim)    
+    }
 
+  outputlist
+}
+```
+
+
+```{r functions}
 #bench_accuracy_calculate_ari
 # maybe consider using something else beside plyr:ldply ? 
 bench_accuracy_calculate_ari <- function(sim_object){
@@ -170,30 +262,32 @@ mbkmeans_initializer = "random"
 print(Sys.time())
 
 # simulate data to assess accuracy
-batch_percent <- 0.001
-save_bs_0001 <- mclapply(seq_len(B),
-                  n_cells = nC, n_genes = nG, 
-                  bench_hdf5, k_centers = 3,
-                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
-                  init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = TRUE, 
-                  method = "kmeans")
 
-save_bs_0001 <- mclapply(seq_len(B),
+#batch_percent <- 0.001
+batch_percent <- 0.25
+save_bs_0001_km <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
                   bench_hdf5, k_centers = 3,
                   batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
-                  mc.cores=cores, calc_wcss = TRUE, 
-                  method = "mbkmeans_nohdf5")
+                  mc.cores=cores, calc_wcss = TRUE)
 
-save_bs_0001 <- mclapply(seq_len(B),
+save_bs_0001_mbkm <- mclapply(seq_len(B),
                   n_cells = nC, n_genes = nG, 
                   bench_hdf5, k_centers = 3,
                   batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
                   init_fraction = .1, initializer = mbkmeans_initializer, 
                   mc.cores=cores, calc_wcss = TRUE, 
-                  method = "mbkmeans_nohdf5")
+                  method = "mbkmeans")
+
+
+save_bs_0001_hdf5 <- mclapply(seq_len(B),
+                  n_cells = nC, n_genes = nG, 
+                  bench_hdf5, k_centers = 3,
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
+                  mc.cores=cores, calc_wcss = TRUE, 
+                  method = "hdf5")
 
 
 
@@ -528,5 +622,86 @@ write.table(time_total, file = "Time_Summary.txt", append = FALSE, sep = " ", de
 #print(get_cpu())
 #print(BiocManager::version())
 #print(sessionInfo())
+```
+
+```{r}
+#memory
+
+batch_percent <- 0.001
+
+
+memory_compare <- profvis({
+save_bs_0001_km <- mclapply(seq_len(B),
+                  n_cells = nC, n_genes = nG, 
+                  bench_hdf5, k_centers = 3,
+                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
+                  init_fraction = .1, initializer = mbkmeans_initializer, 
+                  mc.cores=cores, calc_wcss = TRUE)
+
+#save_bs_0001_mbkm <- mclapply(seq_len(B),
+#                  n_cells = nC, n_genes = nG, 
+#                  bench_hdf5, k_centers = 3,
+#                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
+#                  init_fraction = .1, initializer = mbkmeans_initializer, 
+#                  mc.cores=cores, calc_wcss = TRUE, 
+#                  method = "mbkmeans")
+#
+#save_bs_0001_hdf5 <- mclapply(seq_len(B),
+#                  n_cells = nC, n_genes = nG, 
+#                  bench_hdf5, k_centers = 3,
+#                  batch_size = nC*batch_percent, num_init = 10, max_iters = 100, 
+#                  init_fraction = .1, initializer = mbkmeans_initializer, 
+#                  mc.cores=cores, calc_wcss = TRUE, 
+#                  method = "hdf5")
+
+})
+
+htmlwidgets::saveWidget(memory_compare,"memory_compare2.html")
+#browseURL("memory_compare.html")
+```
+
+```{r}
+sim_data <- simulate_gauss_mix(n_cells=1000, 
+                                   n_genes=500)
+sim_data_hdf5 <- as(as.matrix(sim_data$obs_data),"HDF5Matrix")
+
+object.size(sim_data)
+object.size(sim_data_hdf5)
+
+memory_compare <- profvis({
+  
+km_test <- stats::kmeans(sim_data$obs_data, centers=3)
+
+mbkmeans_test <- mbkmeans::mini_batch(
+            sim_data$obs_data, clusters = 3, 
+            batch_size = 250, num_init = 10, 
+            max_iters = 100, init_fraction = 0.25,
+            initializer = "random")
+
+hdf5_test <- mbkmeans::mini_batch(
+            sim_data_hdf5, clusters = 3, 
+            batch_size = 250, num_init = 10, 
+            max_iters = 100, init_fraction = 0.25,
+            initializer = "random")
+
+})
+
+htmlwidgets::saveWidget(memory_compare,"memory_compare_test.html")
+
+typeof(sim_data_hdf5)
+object.size(hdf5_test)
+object.size(hdf5_test)
+object.size(mbkmeans_test)
+```
+
+```{r}
+sim_data <- simulate_gauss_mix(n_cells=1000, n_genes=500)
+sim_data_hdf5 <- as(as.matrix(sim_data$obs_data),"HDF5Matrix")
+
+Rprof("kmeans2.out", append = TRUE, memory.profiling = TRUE)
+km_test <- stats::kmeans(sim_data$obs_data, centers=3)
+Rprof(NULL)
+summaryRprof("kmeans2.out", memory = "both")
+
 ```
 
