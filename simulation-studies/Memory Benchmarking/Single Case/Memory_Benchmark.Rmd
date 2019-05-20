@@ -5,107 +5,90 @@ date: "5/17/2019"
 output: html_document
 ---
 ```{r setup, include=FALSE, warning=FALSE}
-# package
 library(mbkmeans)
 library(rhdf5)
-library(scater)
-library(mclust)
-library(dplyr)
-library(cowplot)
-library(parallel)
 library(HDF5Array)
 library(profvis)
 ```
 
-```{r functions}
-#simulate_gauss_mix
-simulate_gauss_mix <- function(n_cells, n_genes,
-                               k = 3, x_mus = c(0,5,5), 
-                               x_sds = c(1,0.1,1), 
-                               y_mus = c(5,5,0), 
-                               y_sds = c(1,0.1,1), 
-                               prop1 = c(0.3,0.5,0.2))
-{ 
-  
-  if(k != length(x_mus)){stop("k is not same as length of x_mus")} 
-  if(k != length(x_sds)){stop("k is not same as length of x_sds")} 
-  if(k != length(y_mus)){stop("k is not same as length of y_mus")} 
-  if(k != length(y_sds)){stop("k is not same as length of y_sds")} 
-  if(k != length(prop1)){stop("k is not same as length of prop1")} 
-  
-  comp1 <- sample(seq_len(k), prob=prop1, size=n_cells, replace=TRUE)
-  
-  # Sampling locations for cells in each component
-  samples1 <- cbind(rnorm(n=n_cells, mean=x_mus[comp1],sd=x_sds[comp1]),
-                    rnorm(n=n_cells, mean=y_mus[comp1],sd=y_sds[comp1]))
-  
-  # Random projection to D dimensional space, to mimic high-dimensional expression data.
-  proj <- matrix(rnorm(n_genes*n_cells), nrow=n_genes, ncol=2)
-  A1 <- samples1 %*% t(proj)
-  
-  # Add normally distributed noise.
-  A1 <- A1 + rnorm(n_genes*n_cells)
-  rownames(A1) <- paste0("Cell", seq_len(n_cells), "-1")
-  colnames(A1) <- paste0("Gene", seq_len(n_genes))
-
-  list("true_center" = cbind("x" = x_mus, "y" = y_mus),
-       "true_cluster_id" = comp1,
-       "true_data" = samples1, 
-       "obs_data" = A1)
-}
-```
+Simulate random data from `rnorm()` and save 
+data as a `HDF5Matrix` object. 
 
 ```{r}
-sim_data <- simulate_gauss_mix(n_cells=1000, 
-                                   n_genes=500)
-sim_data_hdf5 <- as(as.matrix(sim_data$obs_data),"HDF5Matrix")
+n_cells <- 1000
+n_genes <- 500
 
+obs_data <- matrix(rnorm(n_cells*n_genes ), 
+                   nrow = n_genes, ncol = n_cells)
+sim_data_hdf5 <- as(obs_data,"HDF5Matrix")
+```
+
+## Memory profiling using `profvis()`
+
+Apply memory profiling to `stats::kmeans` with data in memory
+
+```{r}
 memory_compare1 <- profvis({
-  
-km_test <- stats::kmeans(sim_data$obs_data, centers=3, iter.max = 100, nstart = 10)
-
+  km_test <- stats::kmeans(obs_data, centers=3, 
+                           iter.max = 100, nstart = 10)
 })
 
-htmlwidgets::saveWidget(memory_compare1,"profvis_kmeans.html")
+htmlwidgets::saveWidget(memory_compare1, "profvis_kmeans.html")
+```
 
+Apply memory profiling to `mbkmeans::mini_batch()` with data in memory
+
+```{r}
 memory_compare2 <- profvis({
-  
-mbkmeans_test <- mbkmeans::mini_batch(
-            sim_data$obs_data, clusters = 3, 
+  mbkmeans_test <- mbkmeans::mini_batch(
+            obs_data, clusters = 3, 
             batch_size = 250, num_init = 10, 
             max_iters = 100, init_fraction = 0.1,
             initializer = "random")
 })
 
-htmlwidgets::saveWidget(memory_compare2,"profvis_mbkmeans.html")
+htmlwidgets::saveWidget(memory_compare2, "profvis_mbkmeans.html")
+```
 
+Apply memory profiling to `mbkmeans::mini_batch()` with HDF5 file
 
+```{r}
 memory_compare3 <- profvis({
 hdf5_test <- mbkmeans::mini_batch(
             sim_data_hdf5, clusters = 3, 
             batch_size = 250, num_init = 10, 
             max_iters = 100, init_fraction = 0.1,
             initializer = "random")
-
 })
 
-htmlwidgets::saveWidget(memory_compare3,"profvis_hdf5.html")
+htmlwidgets::saveWidget(memory_compare3, "profvis_hdf5.html")
 ```
 
+## Memory profiling using `Rprof()`
+
+Apply memory profiling to `stats::kmeans` with data in memory
 
 ```{r}
 Rprof("Rprof_kmeans.out", append = TRUE, memory.profiling = TRUE)
-km_test <- stats::kmeans(sim_data$obs_data, centers=3, iter.max = 100, nstart = 10)
+km_test <- stats::kmeans(obs_data, centers=3, iter.max = 100, nstart = 10)
 Rprof(NULL)
+```
 
+Apply memory profiling to `mbkmeans::mini_batch()` with data in memory
+
+```{r}
 Rprof("Rprof_mbkmeans.out", append = TRUE, memory.profiling = TRUE)
 mbkmeans_test <- mbkmeans::mini_batch(
-            sim_data$obs_data, clusters = 3, 
+            obs_data, clusters = 3, 
             batch_size = 250, num_init = 10, 
             max_iters = 100, init_fraction = 0.1,
             initializer = "random")
 Rprof(NULL)
+```
 
+Apply memory profiling to `mbkmeans::mini_batch()` with HDF5 file
+
+```{r}
 Rprof("Rprof_hdf5.out", append = TRUE, memory.profiling = TRUE)
 hdf5_test <- mbkmeans::mini_batch(
             sim_data_hdf5, clusters = 3, 
@@ -113,10 +96,4 @@ hdf5_test <- mbkmeans::mini_batch(
             max_iters = 100, init_fraction = 0.1,
             initializer = "random")
 Rprof(NULL)
-
 ```
-
-```{r}
-
-```
- 
