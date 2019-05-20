@@ -114,7 +114,9 @@ hdf5_test <- mbkmeans::mini_batch(
             initializer = "random")
 Rprof(NULL)
 
+```
 
+```{r}
 
 ```
  
