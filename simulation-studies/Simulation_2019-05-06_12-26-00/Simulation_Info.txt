@@ -1,4 +1,0 @@
-"Number of Cores:" 1
-"Monte Carlo Simulation Interation:" 3
-"Number of Cells:" 1000
-"Number of Genes:" 500
