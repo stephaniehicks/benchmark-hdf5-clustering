@@ -4,3 +4,4 @@
 .Ruserdata
 simulation-studies/figs/*
 .DS_Store
+.Rapp.history

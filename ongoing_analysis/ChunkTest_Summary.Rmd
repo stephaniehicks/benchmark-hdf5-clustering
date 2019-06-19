@@ -1,0 +1,52 @@
+---
+title: "chunksize"
+author: "Ruoxi Liu"
+date: "6/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 12, fig.height = 10)
+```
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(grid)
+```
+
+```{r}
+chunk <- read.csv(file = "chunktestsmall.csv",header=TRUE, sep=",")[,1:5]
+```
+
+```{r}
+chunk %>% 
+  dplyr::group_by(dimension, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = observations, y = mean, color = dimension)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Observation vs. time w/ increading Batch Size") + 
+  facet_wrap(~batch_size)
+```
+
+```{r}
+chunk %>% 
+  dplyr::filter(dimension != "one") %>%
+  dplyr::group_by(dimension, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = observations, y = mean, color = dimension)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Observation vs. time w/ increading Batch Size") + 
+  facet_wrap(~batch_size)
+```
+
