@@ -1,0 +1,27 @@
+---
+title: "test"
+author: "Ruoxi Liu"
+date: "6/20/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r functions}
+#Bash script will be submited in main/ and use the current working directory (main/ will be wd)
+
+here::here() #here() will tell you your project root directory
+
+
+#source("/scripts/simulate_gauss_mix.R") 
+
+#with correct wd
+#source("../scripts/simulate_gauss_mix.R") 
+
+#with here
+source(here::here("scripts","simulate_gauss_mix.R"))
+
+#R.utils::sourceDirectory(here("scripts"))
+```

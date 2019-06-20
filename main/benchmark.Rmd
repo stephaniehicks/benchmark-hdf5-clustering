@@ -26,11 +26,13 @@ B <- 3
 #Bash script will be submited in main/ and use the current working directory (main/ will be wd)
 
 here::here() #here() will tell you your project root directory
-#why not /main?
 
-#why this doesn't work?
 source("/scripts/simulate_gauss_mix.R") 
 
+#with correct wd
+source("../scripts/simulate_gauss_mix.R") 
+
+#with here
 source(here::here("scripts","simulate_gauss_mix.R"))
 
 R.utils::sourceDirectory(here("scripts"))
