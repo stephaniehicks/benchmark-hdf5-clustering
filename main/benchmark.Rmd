@@ -1,0 +1,192 @@
+---
+title: "simulate_hdf5_accuracy"
+author: "Ruoxi Liu"
+date: "3/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+# package
+library(mbkmeans)
+library(rhdf5)
+library(mclust)
+library(dplyr)
+library(parallel)
+library(HDF5Array)
+library(benchmarkme)
+#library(scater)
+#library(cowplot)
+
+# number of cores for parallelization
+cores <- 1
+B <- 3
+```
+
+```{r functions}
+#Bash script will be submited in main/ and use the current working directory (main/ will be wd)
+
+here::here() #here() will tell you your project root directory
+#why not /main?
+
+#why this doesn't work?
+source("/scripts/simulate_gauss_mix.R") 
+
+source(here::here("scripts","simulate_gauss_mix.R"))
+
+R.utils::sourceDirectory(here("scripts"))
+```
+
+```{r}
+nC = 100
+nG = 10
+k = 3
+batch = 0.01
+initialzier = "random"
+method = "kmeans"
+mode = "acc"
+```
+
+```{r}
+result <- mclapply(seq_len(B), bench_hdf5, 
+                     n_cells = nC, n_genes = nG, 
+                     k_centers = k,
+                     batch_size = nC*batch, num_init = 10, max_iters = 100, 
+                     init_fraction = 0.1, initializer = initializer, method = method,                        mode = mode, mc.cores=cores)
+```
+
+
+
+
+```{r}
+# kmeans ari & wcss
+#loop through the method argument
+for (nC in c(1000,5000)){
+  for (nG in c(500)){
+    for (batch in c(0.001, 0.005)){
+      for (k in c(2,3)){
+        for (init in c("random")){
+        #"kmeans++"
+        hdf5_output <- bench_hdf5(n_cells = nC, 
+                           n_genes = nG, k_centers = k, 
+                           batch_size = nC*batch, 
+                           num_init = 10, 
+                           max_iters = 100, 
+                           init_fraction = 0.1, 
+                           initializer = init, 
+                           method = "hdf5", memory = FALSE, calc_wcss = TRUE)
+        #profile_output <- mclapply(seq_len(B),
+        #          n_cells = nC, n_genes = nG, 
+        #          bench_hdf5, k_centers = k,
+        #          batch_size = nC*batch, num_init = 10, max_iters = 100, 
+        #          init_fraction = .1, initializer = mbkmeans_initializer,
+        #          method = "kmeans", memory = FALSE,  
+        #          mc.cores=cores, calc_wcss = TRUE)
+        #need to write calculate_ari(kmeans_output[[B]])
+        #or do not use mclapply, use while loop
+      
+        ari <- calculate_ari(kmeans_output)
+        wcss <- calculate_wcss(kmeans_output)
+        temp_table <- data.frame(B = 1, observations = nC, genes = nG, batch_size = batch,  
+                               k = k, initializer = init, method = "kmeans", ari = ari, wcss = wcss )
+        output_table <- rbind(output_table, temp_table)
+        rm(temp_table)
+        }
+      }
+    }
+  }
+}
+write.table(output_table, file = "output_table.csv", sep = ",", col.names = TRUE)
+```
+
+```{r,warning=FALSE}
+kmeans_output <- bench_hdf5(n_cells = nC, 
+                           n_genes = nG, k_centers = k, 
+                           batch_size = nC*batch, 
+                           num_init = 10, 
+                           max_iters = 1, 
+                           init_fraction = 0.1, 
+                           initializer = init, 
+                           method = "kmeans", memory = FALSE, calc_wcss = TRUE)
+```
+
+
+
+```{r}
+now <- format(Sys.time(), "%b%d%H%M%S")
+file_name <- paste0("profile_table_test_", now, ".csv")
+
+profile_table <- data.frame(matrix(vector(), 0, 8,
+                dimnames=list(c(), c("B", "observations", "genes","batch_size","k",
+                                     "initializer", "method","memory"))),
+                stringsAsFactors=F)
+
+write.table(profile_table, file = file_name, sep = ",", col.names = TRUE, append = TRUE)
+rm(profile_table)
+rm(now)
+invisible(gc())
+```
+
+```{r}
+# kmeans time & memory
+# didn't add in loops for nG and initializer
+nG <- 500
+init <- "random"
+cluster_meth <- "kmeans"
+
+  for (nC in c(1000, 5000, 10000, 25000)){
+    for (batch in c(0.001, 0.005, 0.01, 0.05, 0.1, 0.2)){
+      for (k in c(2,3)){
+        B <- 1
+        while (B < 4){
+          profile <- bench_hdf5(n_cells = nC, 
+                           n_genes = nG, k_centers = k, 
+                           batch_size = nC*batch, 
+                           num_init = 10, 
+                           max_iters = 100, 
+                           init_fraction = 0.1, 
+                           initializer = init, 
+                           method = cluster_meth, memory = TRUE)
+
+        profile_mem <- profile$max_mem
+      
+        temp_table <- data.frame(B, nC, nG, batch, k, init, cluster_meth, 1)
+        write.table(temp_table, file = file_name, sep = ",", append = TRUE, quote = FALSE,
+                  col.names = FALSE, row.names = FALSE)
+        rm(profile_mem)
+        rm(temp_table)
+        B <- B+1
+        }
+    }
+  }
+}
+```
+
+```{r}
+# combine two tables
+output_table <- read.table("output_table.csv", sep = ",", header = TRUE)
+profile_table <- read.table("profile_table.csv", sep = ",", header = TRUE)[,6:7]
+table_final <- cbind(output_table,profile_table) #join (leftjoin)
+```
+
+
+```{r}
+kmeans_profile <- bench_hdf5(B, n_cells = 1000, 
+                           n_genes = 100, k_centers = 3, 
+                           batch_size = nC*0.001, 
+                           num_init = 10, 
+                           max_iters = 100, 
+                           init_fraction = 0.1, 
+                           initializer = mbkmeans_initializer, 
+                           method = "kmeans", memory = TRUE)
+kmeans_profile
+```
+```{r}
+kmeans_profile <- bench_hdf5(B, n_cells = 1000, 
+                           n_genes = 100, k_centers = 3, 
+                           batch_size = nC*0.001, 
+                           num_init = 10, 
+                           max_iters = 100, 
+                           init_fraction = 0.1, 
+                           initializer = mbkmeans_initializer, 
+                           method = "kmeans", memory = TRUE)
+```

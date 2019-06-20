@@ -1,0 +1,56 @@
+---
+title: "nC_1m_nG_1k_mem"
+author: "Ruoxi Liu"
+date: "6/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 12)
+```
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(grid)
+```
+
+```{r}
+km_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/km_combined.csv",header=TRUE, sep=",")
+mbkm_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/mbkm_combined.csv",header=TRUE, sep=",")
+hdf5_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/hdf5_combined.csv",header=TRUE, sep=",")
+
+final_table <- rbind(km_table, mbkm_table, hdf5_table)
+```
+
+Fix batch size and k (study effects of observation)
+```{r, warning=FALSE}
+final_table %>% 
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(memory), 
+                   sd = sd(memory)) %>% 
+  ggplot(aes(x = observations, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Observation vs. Memroy w/ increading Batch Size") + 
+  facet_wrap(~batch_size)+
+  theme(axis.text=element_text(size = 12), axis.title = element_text(size=16))
+```
+
+Fix observation and k (study effects of batch size)
+```{r, warning=FALSE}
+final_table %>% 
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(memory), 
+                   sd = sd(memory)) %>% 
+  ggplot(aes(x = batch_size, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
+        labs(title = "Batch Size vs. Memroy w/ increading Observation") + 
+  facet_wrap(~observations, scales = "free")
+```
