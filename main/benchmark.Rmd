@@ -53,10 +53,6 @@ if (init){
   }
 }
 ```
-```{r}
-init = FALSE
-```
-
 
 ```{r, warning=FALSE}
 if (!init){
