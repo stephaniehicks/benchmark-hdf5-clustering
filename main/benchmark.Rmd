@@ -40,20 +40,6 @@ batch <- as.numeric(commandArgs(trailingOnly=T)[11])
 k <- as.numeric(commandArgs(trailingOnly=T)[12])
 initializer <- commandArgs(trailingOnly=T)[13]
 init <- as.logical(commandArgs(trailingOnly=T)[14])
-
-#cores <- 1
-#nC = 500000
-#nG = 100
-#k = 3
-#batch = 0.01
-initializer = "random"
-#method = "hdf5"
-#mode = "mem"
-#size = "large"
-#dir_name = "Jun20_mbkmeans_1"
-#serial = 1
-#file_name = "Jun20_mbkmeans_1.csv"
-#init = TRUE
 ```
 
 ```{r, warning=FALSE}
