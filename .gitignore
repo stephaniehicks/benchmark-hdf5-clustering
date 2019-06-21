@@ -5,3 +5,5 @@
 simulation-studies/figs/*
 .DS_Store
 .Rapp.history
+data/*
+output_files/*
