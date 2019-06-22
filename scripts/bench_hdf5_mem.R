@@ -70,7 +70,7 @@ bench_hdf5_mem <- function(i, n_cells,
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
     
-      rm(mydata)
+      rm(sim_data_hdf5)
       rm(profile)
       invisible(gc())
     }
@@ -125,7 +125,7 @@ bench_hdf5_mem <- function(i, n_cells,
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
-      rm(mydata)
+      rm(sim_data_hdf5)
       rm(profile)
       invisible(gc())
     }

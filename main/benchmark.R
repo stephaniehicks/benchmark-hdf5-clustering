@@ -1,30 +1,32 @@
-library(mbkmeans)
-library(rhdf5)
-library(mclust)
-library(dplyr)
-library(parallel)
-library(HDF5Array)
-library(benchmarkme)
-library(here)
+suppressPackageStartupMessages(library(mbkmeans))
+suppressPackageStartupMessages(library(rhdf5))
+suppressPackageStartupMessages(library(mclust))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(benchmarkme))
+suppressPackageStartupMessages(library(here))
 
 #Bash script will be submited in main/ and use the current working directory (main/ will be cwd)
 #here() will return the top directory, which is benchmark_hdf5_clustering
+source(here("scripts","simulate_gauss_mix.R"))
 source(here("scripts","bench_hdf5_mem.R"))
 
 #loading in parameters
-mode <- commandArgs(trailingOnly=T)[2]
-method <- commandArgs(trailingOnly=T)[3]
-size <- commandArgs(trailingOnly=T)[4]
-B_name <- commandArgs(trailingOnly=T)[5]
-file_name <- commandArgs(trailingOnly=T)[6]
-dir_name <- commandArgs(trailingOnly=T)[7]
-cores <- as.numeric(commandArgs(trailingOnly=T)[8])
-nC <- as.numeric(commandArgs(trailingOnly=T)[9])
-nG <- as.numeric(commandArgs(trailingOnly=T)[10])
-batch <- as.numeric(commandArgs(trailingOnly=T)[11])
-k <- as.numeric(commandArgs(trailingOnly=T)[12])
-initializer <- commandArgs(trailingOnly=T)[13]
-init <- as.logical(commandArgs(trailingOnly=T)[14])
+init <- as.logical(commandArgs(trailingOnly=T)[2])
+mode <- commandArgs(trailingOnly=T)[3]
+dir_name <- commandArgs(trailingOnly=T)[4]
+file_name <- commandArgs(trailingOnly=T)[5]
+method <- commandArgs(trailingOnly=T)[6]
+size <- commandArgs(trailingOnly=T)[7]
+B_name <- commandArgs(trailingOnly=T)[8]
+cores <- as.numeric(commandArgs(trailingOnly=T)[9])
+nC <- as.numeric(commandArgs(trailingOnly=T)[10])
+nG <- as.numeric(commandArgs(trailingOnly=T)[11])
+batch <- as.numeric(commandArgs(trailingOnly=T)[12])
+k <- as.numeric(commandArgs(trailingOnly=T)[13])
+initializer <- commandArgs(trailingOnly=T)[14]
+
 
 if (init){
   if (mode == "mem"){
