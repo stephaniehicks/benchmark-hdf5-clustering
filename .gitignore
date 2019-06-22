@@ -7,7 +7,5 @@ simulation-studies/figs/*
 .Rapp.history
 data/*
 output_files/*
-main/Memory/test.sh
 *.sh.e*
 *.sh.o*
-main/Memory/test.R

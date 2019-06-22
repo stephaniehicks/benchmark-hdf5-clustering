@@ -15,7 +15,7 @@ bench_hdf5_mem <- function(i, n_cells,
                        max_iters = max_iters, 
                        init_fraction = init_fraction, 
                        initializer = initializer, 
-                       method, size, dir_name, serial) {
+                       method, size, dir_name, B_name) {
   
   now <- format(Sys.time(), "%b%d%H%M%S")
   out_name <- paste0(method,"_",n_cells,"_",batch,"_", now, ".out")
@@ -79,7 +79,7 @@ bench_hdf5_mem <- function(i, n_cells,
   if (size == "large"){
     if (method == "kmeans"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
-      mydata <- readRDS(file = here("data", paste0("sim_data_",as.character(nC),"_", serial, ".rds")))
+      mydata <- readRDS(file = here("data", paste0("sim_data_",as.character(nC),"_", B_name, ".rds")))
       stats::kmeans(mydata, centers=k_centers, iter.max = max_iters, nstart = num_init)
       Rprof(NULL)
       
@@ -94,7 +94,7 @@ bench_hdf5_mem <- function(i, n_cells,
     
     if (method == "mbkmeans"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
-      mydata <- readRDS(file = here("data", paste0("sim_data_",as.character(nC),"_", serial, ".rds")))
+      mydata <- readRDS(file = here("data", paste0("sim_data_",as.character(nC),"_", B_name, ".rds")))
       mbkmeans::mini_batch(mydata, clusters = k_centers, 
                            batch_size = batch_size, num_init = num_init, 
                            max_iters = max_iters, init_fraction = init_fraction,
@@ -113,7 +113,7 @@ bench_hdf5_mem <- function(i, n_cells,
     
     if (method == "hdf5"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
-      sim_data_hdf5 <- HDF5Array(file = here("data",paste0("sim_data_",as.character(nC),"_", serial, ".h5")),
+      sim_data_hdf5 <- HDF5Array(file = here("data",paste0("sim_data_",as.character(nC),"_", B_name, ".h5")),
                                  name = "obs")
       mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                            batch_size = batch_size, num_init = num_init, 
