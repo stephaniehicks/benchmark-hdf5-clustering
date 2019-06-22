@@ -1,5 +1,5 @@
 ---
-title: "nC_1m_nG_1k_mem"
+title: "Benchmark Summary"
 author: "Ruoxi Liu"
 date: "6/19/2019"
 output: html_document
@@ -15,14 +15,18 @@ library(ggplot2)
 library(gridExtra)
 library(dplyr)
 library(grid)
+library(here)
 ```
 
 ```{r}
-km_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/km_combined.csv",header=TRUE, sep=",")
-mbkm_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/mbkm_combined.csv",header=TRUE, sep=",")
-hdf5_table <- read.csv(file = "/Users/April30/1-nC1m_nG1k\ Memroy\ Benchmark/hdf5_combined.csv",header=TRUE, sep=",")
+files <- list.files(path= here("output_tables"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
-final_table <- rbind(km_table, mbkm_table, hdf5_table)
+final_table <- NULL
+
+for (i in (1:length(files))){
+  temp_table <- read.csv(file = files[i], header=TRUE, sep=",")
+  final_table <- rbind(final_table, temp_table)
+}
 ```
 
 Fix batch size and k (study effects of observation)
@@ -37,8 +41,7 @@ final_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "Observation vs. Memroy w/ increading Batch Size") + 
-  facet_wrap(~batch_size)+
-  theme(axis.text=element_text(size = 12), axis.title = element_text(size=16))
+  facet_wrap(~batch_size)
 ```
 
 Fix observation and k (study effects of batch size)
