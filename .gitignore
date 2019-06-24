@@ -9,3 +9,5 @@ data/*
 output_files/*
 *.sh.e*
 *.sh.o*
+main/figs/*
+main/*.html
