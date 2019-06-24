@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 12)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 6)
 ```
 
 ```{r}
@@ -30,35 +30,34 @@ for (i in (1:length(files))){
 }
 final_table <- final_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size = factor(scales::percent(final_table$batch_size), 
+         batch_size_perc = factor(scales::percent(final_table$batch_size), 
                              levels = c("0.5%", "1.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
 levels(final_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
-levels(final_table$batch_size) <- levels(final_table$batch_size)[c(1,2,4:6,3)]
 ```
 
 Fix batch size and k (study effects of observation)
 ```{r, warning=FALSE}
 p1 <- final_table %>% 
-  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
-  ggplot(aes(x = observations, y = mean, color = method)) +
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing Memory Usage for Increasing Batch Size") + 
-        xlab("Number of cells") + 
+        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
         ylab("Memory (Mb)") + 
-  facet_wrap(~batch_size) + 
+  facet_wrap(~batch_size_perc) + 
   theme(legend.position = "top", legend.justification= "center") + 
   scale_color_discrete(name = "Method")
 
 p1
 ```
 
-```{r, eval=FALSE}
-pdf(here("main", "figs", "memory_obs.pdf"), width = 8, height=6)
+```{r, include=FALSE}
+pdf(here("main", "figs", "memory_obs.pdf"), width = 10, height=6)
 print(p1)
 dev.off()
 ```
@@ -70,9 +69,13 @@ final_table %>%
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
   ggplot(aes(x = batch_size, y = mean, color = method)) +
-          geom_line()+
+          geom_line() +
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Batch Size vs. Memroy w/ increading Observation") + 
-  facet_wrap(~observations, scales = "free")
+        labs(title = "Assessing Memory Usage for Increasing Batch Size\n(fixed number of observations") + 
+        xlab("Batch size") + 
+        ylab("Memory (Mb)") + 
+  facet_wrap(~observations, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
 ```
