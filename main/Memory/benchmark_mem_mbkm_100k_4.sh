@@ -7,7 +7,7 @@ module load conda_R/devel
 mode="mem"
 method="mbkmeans"
 size="small"
-B_name="2" #if needs to paralle across B, will set to 1, 2 or 3
+B_name="4" #if needs to paralle across B, will set to 1, 2 or 3
 cores=1
 nC=(100000)
 nG=(1000)

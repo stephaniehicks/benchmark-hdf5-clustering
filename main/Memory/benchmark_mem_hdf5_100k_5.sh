@@ -1,13 +1,13 @@
-#$ -l mem_free=6G,h_vmem=6G
+#$ -l mem_free=8G,h_vmem=8G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
 module load conda_R/devel
 
 mode="mem"
-method="mbkmeans"
+method="hdf5"
 size="small"
-B_name="2" #if needs to paralle across B, will set to 1, 2 or 3
+B_name="5" #if needs to paralle across B, will set to 1, 2 or 3
 cores=1
 nC=(100000)
 nG=(1000)
