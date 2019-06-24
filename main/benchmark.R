@@ -91,5 +91,14 @@ if (!init){
       }
     }
     invisible(gc())
+    
+    sink(file = here("output_files", dir_name, "info.txt"))
+    cat("RAM Info:\n")
+    print(get_ram())
+    cat("CPU Info: \n")
+    print(get_cpu())
+    cat("Session Info:\n")
+    print(sessionInfo())
+    sink()
   }
 } 
