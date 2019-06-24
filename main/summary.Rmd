@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.width = 12)
 ```{r}
 library(tidyr)
 library(ggplot2)
+library(cowplot)
 library(gridExtra)
 library(dplyr)
 library(grid)
@@ -27,11 +28,17 @@ for (i in (1:length(files))){
   temp_table <- read.csv(file = files[i], header=TRUE, sep=",")
   final_table <- rbind(final_table, temp_table)
 }
+final_table <- final_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size = factor(scales::percent(final_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(final_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+levels(final_table$batch_size) <- levels(final_table$batch_size)[c(1,2,4:6,3)]
 ```
 
 Fix batch size and k (study effects of observation)
 ```{r, warning=FALSE}
-final_table %>% 
+p1 <- final_table %>% 
   dplyr::group_by(method, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -40,8 +47,20 @@ final_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Observation vs. Memroy w/ increading Batch Size") + 
-  facet_wrap(~batch_size)
+        labs(title = "Assessing Memory Usage for Increasing Batch Size") + 
+        xlab("Number of cells") + 
+        ylab("Memory (Mb)") + 
+  facet_wrap(~batch_size) + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p1
+```
+
+```{r, eval=FALSE}
+pdf(here("main", "figs", "memory_obs.pdf"), width = 8, height=6)
+print(p1)
+dev.off()
 ```
 
 Fix observation and k (study effects of batch size)
