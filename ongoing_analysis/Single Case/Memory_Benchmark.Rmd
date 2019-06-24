@@ -1,0 +1,161 @@
+---
+title: "Memory_Benchmark"
+author: "Ruoxi Liu"
+date: "5/17/2019"
+output: html_document
+---
+```{r setup, include=FALSE, warning=FALSE}
+library(mbkmeans)
+library(rhdf5)
+library(HDF5Array)
+library(here)
+library(profvis)
+```
+
+Simulate random data from `rnorm()` and save 
+data as a `HDF5Matrix` object. 
+
+```{r}
+n_cells <- 5000
+n_genes <- 1000
+
+obs_data <- matrix(rnorm(n_cells*n_genes), nrow = n_genes, ncol = n_cells)
+
+saveRDS(obs_data, file = here("ongoing_analysis", "Single Case", "sim_data.rds"))
+
+h5File <- here("ongoing_analysis", "Single Case","sim_data.h5")
+h5createFile(h5File)
+h5createDataset(file = h5File, dataset = "obs", 
+                dims = dim(obs_data), chunk = c(1,n_genes),
+                level = 0)
+h5write(obs_data, file = h5File, name = "obs" )
+
+rm(obs_data)
+invisible(gc())
+```
+
+## Memory profiling using `Rprof()`
+Apply memory profiling to `stats::kmeans` with data in memory
+
+```{r}
+Rprof(filename = here("ongoing_analysis", "Single Case", "Rprof_kmeans.out"), append = FALSE, memory.profiling = TRUE)
+obs_data <- readRDS(file = here("ongoing_analysis", "Single Case", "sim_data.rds"))
+km_test <- stats::kmeans(obs_data, centers=3, iter.max = 100, nstart = 10)
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis", "Single Case", "Rprof_kmeans.out"), 
+                        chunksize = 1000000, memory = "both", diff = FALSE)
+
+write.csv(profile$by.total, here("ongoing_analysis", "Single Case", "Rprof_km.csv"))
+rm(obs_data)
+rm(km_test)
+rm(profile)
+invisible(gc())
+```
+
+Apply memory profiling to `mbkmeans::mini_batch()` with data in memory
+```{r}
+Rprof(filename = here("ongoing_analysis", "Single Case", "Rprof_mbkmeans.out"), append = FALSE, memory.profiling = TRUE)
+obs_data <- readRDS(file = here("ongoing_analysis", "Single Case", "sim_data.rds"))
+mbkmeans_test <- mbkmeans::mini_batch(
+            obs_data, clusters = 3, 
+            batch_size = 50, num_init = 10, 
+            max_iters = 100, init_fraction = 0.1,
+            initializer = "random")
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis", "Single Case", "Rprof_mbkmeans.out"), 
+                        chunksize = 1000000, memory = "both", diff = FALSE)
+
+write.csv(profile$by.total, here("ongoing_analysis", "Single Case", "Rprof_mbkm.csv"))
+rm(obs_data)
+rm(mbkmeans_test)
+rm(profile)
+invisible(gc())
+```
+
+Apply memory profiling to `mbkmeans::mini_batch()` with HDF5 file
+
+```{r}
+Rprof(filename = here("ongoing_analysis", "Single Case", "Rprof_hdf5.out"), append = TRUE, memory.profiling = TRUE)
+sim_data_hdf5 <- HDF5Array(file = here("ongoing_analysis", "Single Case","sim_data.h5"), name = "obs")
+hdf5_test <- mbkmeans::mini_batch(
+            sim_data_hdf5, clusters = 3, 
+            batch_size = 50, num_init = 10, 
+            max_iters = 100, init_fraction = 0.1,
+            initializer = "random")
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis", "Single Case", "Rprof_hdf5.out"), 
+                        chunksize = 1000000, memory = "both", diff = FALSE)
+
+write.csv(profile$by.total, here("ongoing_analysis", "Single Case", "Rprof_hdf5.csv"))
+rm(obs_data)
+rm(hdf5_test)
+rm(profile)
+invisible(gc())
+```
+
+## Memory profiling using `profvis()`
+
+Apply memory profiling to `stats::kmeans` with data in memory
+
+```{r}
+memory_compare1 <- profvis({
+  obs_data <- readRDS(file = here("ongoing_analysis", "Single Case", "sim_data.rds"))
+  km_test <- stats::kmeans(obs_data, centers=3, 
+                           iter.max = 100, nstart = 10)
+})
+
+htmlwidgets::saveWidget(memory_compare1, here("ongoing_analysis", "Single Case", "profvis_kmeans.html"))
+rm(obs_data)
+rm(km_test)
+rm(memory_compare1)
+invisible(gc())
+```
+
+Apply memory profiling to `mbkmeans::mini_batch()` with data in memory
+
+```{r}
+memory_compare2 <- profvis({
+  obs_data <- readRDS(file = here("ongoing_analysis", "Single Case", "sim_data.rds"))
+  mbkmeans_test <- mbkmeans::mini_batch(
+            obs_data, clusters = 3, 
+            batch_size = 50, num_init = 10, 
+            max_iters = 100, init_fraction = 0.1,
+            initializer = "random")
+})
+
+htmlwidgets::saveWidget(memory_compare2, "profvis_mbkmeans.html")
+rm(obs_data)
+rm(mbkmeans_test)
+rm(memory_compare2)
+invisible(gc())
+```
+
+Apply memory profiling to `mbkmeans::mini_batch()` with HDF5 file
+
+```{r}
+memory_compare3 <- profvis({
+sim_data_hdf5 <- HDF5Array(file = here("ongoing_analysis", "Single Case","sim_data.h5"), name = "obs")
+hdf5_test <- mbkmeans::mini_batch(
+            sim_data_hdf5, clusters = 3, 
+            batch_size = 50, num_init = 10, 
+            max_iters = 100, init_fraction = 0.1,
+            initializer = "random")
+})
+
+htmlwidgets::saveWidget(memory_compare3, "profvis_hdf5.html")
+rm(obs_data)
+rm(hdf5_test)
+rm(memory_compare3)
+invisible(gc())
+```
+
+```{r}
+library(benchmarkme)
+print(get_ram())
+print(get_cpu())
+print(sessionInfo())
+```
+
