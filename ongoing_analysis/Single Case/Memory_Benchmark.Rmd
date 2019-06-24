@@ -126,7 +126,7 @@ memory_compare2 <- profvis({
             initializer = "random")
 })
 
-htmlwidgets::saveWidget(memory_compare2, "profvis_mbkmeans.html")
+htmlwidgets::saveWidget(memory_compare2, here("ongoing_analysis", "Single Case", "profvis_mbkmeans.html"))
 rm(obs_data)
 rm(mbkmeans_test)
 rm(memory_compare2)
@@ -145,8 +145,8 @@ hdf5_test <- mbkmeans::mini_batch(
             initializer = "random")
 })
 
-htmlwidgets::saveWidget(memory_compare3, "profvis_hdf5.html")
-rm(obs_data)
+htmlwidgets::saveWidget(memory_compare3, here("ongoing_analysis", "Single Case", "profvis_hdf5.html"))
+rm(sim_data_hdf5)
 rm(hdf5_test)
 rm(memory_compare3)
 invisible(gc())
@@ -154,8 +154,10 @@ invisible(gc())
 
 ```{r}
 library(benchmarkme)
+sink(file = here("ongoing_analysis", "Single Case","info.txt"))
 print(get_ram())
 print(get_cpu())
 print(sessionInfo())
+sink()
 ```
 
