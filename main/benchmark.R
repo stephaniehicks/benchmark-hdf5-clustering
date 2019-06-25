@@ -65,7 +65,7 @@ if (!init){
       rm(sim_data)
       invisible(gc())
     }
-    
+
     cluster_mem <- mclapply(1, bench_hdf5_mem, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,

@@ -28,7 +28,7 @@ bench_hdf5_mem <- function(i, n_cells,
       stats::kmeans(mydata, centers=k_centers, iter.max = max_iters, nstart = num_init)
       Rprof(NULL)
     
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = 1000000, 
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
 
@@ -48,7 +48,7 @@ bench_hdf5_mem <- function(i, n_cells,
     
       Rprof(NULL)
     
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name),chunksize = 1000000, 
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name),chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
     
@@ -66,7 +66,7 @@ bench_hdf5_mem <- function(i, n_cells,
                          initializer = initializer, calc_wcss = FALSE)
       Rprof(NULL)
     
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = 1000000, 
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
     
@@ -83,7 +83,7 @@ bench_hdf5_mem <- function(i, n_cells,
       stats::kmeans(mydata, centers=k_centers, iter.max = max_iters, nstart = num_init)
       Rprof(NULL)
       
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = 1000000, 
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
@@ -102,7 +102,7 @@ bench_hdf5_mem <- function(i, n_cells,
       
       Rprof(NULL)
       
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name),chunksize = 1000000,
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name),chunksize = -1L,
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
@@ -121,7 +121,7 @@ bench_hdf5_mem <- function(i, n_cells,
                            initializer = initializer, calc_wcss = FALSE)
       Rprof(NULL)
       
-      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = 1000000, 
+      profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
