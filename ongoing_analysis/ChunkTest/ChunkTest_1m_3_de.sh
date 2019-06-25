@@ -1,6 +1,4 @@
-$ head ChunkTest_1m_d1.sh
-
-#$ -l mem_free=50G,h_vmem=50G
+#$ -l mem_free=24G,h_vmem=24G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
@@ -9,10 +7,11 @@ module load conda_R/devel
 init=true
 CURRDATE="$(date +'%T')"
 FILE="csv"
-serial="12"
+serial="3"
 file_name="${CURRDATE}_${serial}.${FILE}"
 
-data_name="/users/rliu/data/sim_data_1m_1.rds"
+data_name="sim_data_1e+06_3.h5"
+data_name_de="sim_data_1e+06_3_de.h5"
 
 Rscript --slave ChunkTest.R --args $init $file_name
 
@@ -26,7 +25,7 @@ chunk="default"
 for i in "${nC[@]}"; do 
 	for j in "${nG[@]}"; do 
 		for k in "${batch[@]}"; do 
-			Rscript --slave ChunkTest.R --args $init $file_name $chunk $i $j $k $data_name
+			Rscript --slave ChunkTest.R --args $init $file_name $chunk $i $j $k $data_name $data_name_de
 		done
 	done
 done
