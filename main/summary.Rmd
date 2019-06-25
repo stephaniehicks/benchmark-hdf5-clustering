@@ -31,7 +31,7 @@ for (i in (1:length(files))){
 final_table <- final_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(final_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
 levels(final_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
 ```
 
