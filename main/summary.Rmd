@@ -56,12 +56,6 @@ p1 <- final_table %>%
 p1
 ```
 
-```{r, include=FALSE}
-pdf(here("main", "figs", "memory_obs.pdf"), width = 10, height=6)
-print(p1)
-dev.off()
-```
-
 Fix observation and k (study effects of batch size)
 ```{r, warning=FALSE}
 final_table %>% 

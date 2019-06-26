@@ -44,6 +44,22 @@ if (init){
     write.table(profile_table, file = here("output_tables", file_name), 
                 sep = ",", col.names = TRUE)
   }
+  
+  if (mode == "acc"){
+    if(!file.exists(here("output_files"))){
+      dir.create(here("output_files"))
+    }
+    
+    dir.create(here("output_files", dir_name))
+    
+    profile_table <- data.frame(matrix(vector(), 0, 9, 
+                                       dimnames=list(c(), c("B", "observations", "genes",
+                                                            "batch_size","k",
+                                                            "initializer", "method","ARI","WCSS"))),
+                                stringsAsFactors=F)
+    write.table(profile_table, file = here("output_tables", file_name), 
+                sep = ",", col.names = TRUE)
+  }
 }
   
 if (!init){
