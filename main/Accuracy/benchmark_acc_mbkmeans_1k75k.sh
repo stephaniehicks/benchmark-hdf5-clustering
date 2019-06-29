@@ -1,5 +1,5 @@
-#$-pe local 5
-#$ -l mem_free=4G,h_vmem=4G
+#$-pe local 10
+#$ -l mem_free=8G,h_vmem=8G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
@@ -8,10 +8,10 @@ module load conda_R/devel
 mode="acc"
 method="mbkmeans"
 size="small"
-B=5
-B_name="5" #if needs to paralle across B, will set to 1, 2 or 3
-cores=5
-nC=(1000 5000)
+B=20
+B_name="20" #if needs to paralle across B, will set to 1, 2 or 3
+cores=10
+nC=(1000 5000 25000 75000)
 nG=(1000)
 batch=(0.005 0.01 0.05 0.1 0.2 0.5 0.8 1)
 center=(3)

@@ -42,8 +42,8 @@ bench_hdf5_acc <- function(i, n_cells,
       max_iters = max_iters, init_fraction = init_fraction,
       initializer = initializer, calc_wcss = TRUE)
     
-    output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$cluster, 
-                   cluster_wcss = cluster_output$withinss)
+    output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$Clusters, 
+                   cluster_wcss = cluster_output$WCSS_per_cluster)
   }
   
   if(method == "hdf5"){
@@ -53,8 +53,8 @@ bench_hdf5_acc <- function(i, n_cells,
       max_iters = max_iters, init_fraction = init_fraction,
       initializer = initializer, calc_wcss = TRUE)
     
-    output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$cluster, 
-                   cluster_wcss = cluster_output$withinss)
+    output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$Clusters, 
+                   cluster_wcss = cluster_output$WCSS_per_cluster)
   }
   return(output)
 }
