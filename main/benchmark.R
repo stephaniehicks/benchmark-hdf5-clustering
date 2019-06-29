@@ -10,6 +10,8 @@ suppressPackageStartupMessages(library(here))
 #Bash script will be submited in main/ and use the current working directory (main/ will be cwd)
 #here() will return the top directory, which is benchmark_hdf5_clustering
 source(here("scripts","simulate_gauss_mix.R"))
+source(here("scripts","calculate_ari_wcss.R"))
+source(here("scripts","bench_hdf5_acc.R"))
 source(here("scripts","bench_hdf5_mem.R"))
 
 #loading in parameters
@@ -26,6 +28,8 @@ nG <- as.numeric(commandArgs(trailingOnly=T)[11])
 batch <- as.numeric(commandArgs(trailingOnly=T)[12])
 k <- as.numeric(commandArgs(trailingOnly=T)[13])
 initializer <- commandArgs(trailingOnly=T)[14]
+B <- commandArgs(trailingOnly=T)[15]
+
 
 
 if (init){
@@ -60,6 +64,22 @@ if (init){
     write.table(profile_table, file = here("output_tables", file_name), 
                 sep = ",", col.names = TRUE)
   }
+  
+  if (mode == "time"){
+    if(!file.exists(here("output_files"))){
+      dir.create(here("output_files"))
+    }
+    
+    dir.create(here("output_files", dir_name))
+    
+    profile_table <- data.frame(matrix(vector(), 0, 8, 
+                                       dimnames=list(c(), c("B", "observations", "genes",
+                                                            "batch_size","k",
+                                                            "initializer", "method","time"))),
+                                stringsAsFactors=F)
+    write.table(profile_table, file = here("output_tables", file_name), 
+                sep = ",", col.names = TRUE)
+  }
 }
   
 if (!init){
@@ -81,7 +101,6 @@ if (!init){
       rm(sim_data)
       invisible(gc())
     }
-
     cluster_mem <- mclapply(1, bench_hdf5_mem, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
@@ -117,4 +136,24 @@ if (!init){
     print(sessionInfo())
     sink()
   }
+  
+  if (mode == "acc"){
+    cluster_output <- mclapply(seq_len(B), bench_hdf5_acc, 
+                               n_cells = nC, n_genes = nG, 
+                               k_centers = k,
+                               batch_size = nC*batch, num_init = 10, max_iters = 100,
+                               init_fraction = 0.1, initializer = initializer, 
+                               method = method, size = size, mc.cores=cores)
+  
+    cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, mc.cores=cores)
+  
+    for (i in B){
+      temp_table <- data.frame(B, nC, nG, batch, k, initializer, 
+                              method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss)
+      write.table(temp_table, file = here("output_tables", file_name), sep = ",", 
+                append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
+    }
+  }
+  
+  
 } 
