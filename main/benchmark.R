@@ -50,13 +50,7 @@ if (init){
   }
   
   if (mode == "acc"){
-    if(!file.exists(here("output_files"))){
-      dir.create(here("output_files"))
-    }
-    
-    dir.create(here("output_files", dir_name))
-    
-    profile_table <- data.frame(matrix(vector(), 0, 9, 
+   profile_table <- data.frame(matrix(vector(), 0, 9, 
                                        dimnames=list(c(), c("B", "observations", "genes",
                                                             "batch_size","k",
                                                             "initializer", "method","ARI","WCSS"))),
@@ -66,12 +60,7 @@ if (init){
   }
   
   if (mode == "time"){
-    if(!file.exists(here("output_files"))){
-      dir.create(here("output_files"))
-    }
-    
-    dir.create(here("output_files", dir_name))
-    
+
     profile_table <- data.frame(matrix(vector(), 0, 8, 
                                        dimnames=list(c(), c("B", "observations", "genes",
                                                             "batch_size","k",
@@ -154,6 +143,4 @@ if (!init){
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
   }
-  
-  
 } 
