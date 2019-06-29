@@ -38,6 +38,7 @@ levels(final_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
 Fix batch size and k (study effects of observation)
 ```{r, warning=FALSE}
 p1 <- final_table %>% 
+  #dplyr::filter(!(method == "kmeans"))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -66,7 +67,7 @@ final_table %>%
           geom_line() +
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Assessing Memory Usage for Increasing Batch Size\n(fixed number of observations") + 
+        labs(title = "Assessing Memory Usage for Increasing Batch Size\n(fixed number of observations)") + 
         xlab("Batch size") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~observations, scales = "free") + 

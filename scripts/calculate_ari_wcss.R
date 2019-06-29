@@ -1,13 +1,10 @@
-#' @title calculate_ari
-calculate_ari <- function(sim_object){
+#' @title calculate_acc
+calculate_acc <- function(i, sim_object){
   ari <- mclust::adjustedRandIndex(
-    sim_object$sim_data$true_cluster_id, 
-    as.numeric(sim_object$cluster_output$cluster))
-  return(ari)
-}
-
-#' @title calculate_wcss
-calculate_wcss <- function(sim_object){
-  wcss <- sum(sim_object$cluster_output$withinss)
-  return(wcss)
+    sim_object[[i]]$true_cluster, 
+    as.numeric(sim_object[[i]]$cluster_output))
+  wcss <- sum(sim_object[[i]]$cluster_wcss)
+  
+  output_list <- list(ari=ari, wcss=wcss)
+  return(output_list)
 }
