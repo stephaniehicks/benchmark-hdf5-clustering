@@ -11,3 +11,5 @@ output_files/*
 *.sh.o*
 main/figs/*
 main/*.html
+*.sh.pe*
+*.sh.po*

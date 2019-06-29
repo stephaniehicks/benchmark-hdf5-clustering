@@ -1,4 +1,5 @@
-#$ -l mem_free=12G,h_vmem=12G
+#$ -l h_fsize=20G
+#$ -l h_vmem=50G,mem_free=50G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
