@@ -136,8 +136,8 @@ if (!init){
   
     cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, mc.cores=cores)
   
-    for (i in B){
-      temp_table <- data.frame(B, nC, nG, batch, k, initializer, 
+    for (i in seq_len(B)){
+      temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss)
       write.table(temp_table, file = here("output_tables", file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
