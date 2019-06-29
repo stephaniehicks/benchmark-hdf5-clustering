@@ -1,4 +1,4 @@
-#$ -l mem_free=24G,h_vmem=24G
+#$ -l mem_free=10G,h_vmem=10G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
@@ -19,7 +19,7 @@ init=false
 
 nC=(1000000)
 nG=(1000)
-batch=(0.001 0.005 0.01 0.05 0.2)
+batch=(0.05 0.2)
 chunk="full"
 
 for i in "${nC[@]}"; do 
