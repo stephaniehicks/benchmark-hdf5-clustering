@@ -8,10 +8,10 @@ module load conda_R/devel
 mode="acc"
 method="kmeans"
 size="small"
-B=20
-B_name="20" #if needs to paralle across B, will set to 1, 2 or 3
+B=80
+B_name="80" #if needs to paralle across B, will set to 1, 2 or 3
 cores=10
-nC=(1000 5000 25000 75000)
+nC=(75000)
 nG=(1000)
 batch=(0.005 0.01 0.05 0.1 0.2 0.5 0.8 1)
 center=(3)
