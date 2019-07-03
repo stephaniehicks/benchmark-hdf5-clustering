@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 6)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 15, fig.height = 6)
 ```
 
 ```{r}
@@ -98,7 +98,7 @@ levels(acc_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
 ```
 
 ARI
-```{r, warning=FALSE}
+```{r, warning=FALSE, fig.width = 15}
 p_ari_obs_line <- acc_table %>% 
   #dplyr::filter(!(method == "kmeans"))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
@@ -118,7 +118,7 @@ p_ari_obs_line <- acc_table %>%
 
 p_ari_obs_line
 ```
-```{r}
+```{r,fig.width = 15}
 p_ari_obs_box <- acc_table %>% 
   dplyr::filter(!(ARI<0.95))%>%
   #dplyr::filter(observations == 1000)%>% 
@@ -135,7 +135,7 @@ p_ari_obs_box <- acc_table %>%
 p_ari_obs_box
 ```
 
-```{r}
+```{r,fig.width = 15}
 p_ari_obs_box <- acc_table %>% 
   dplyr::filter(!(ARI<0.95))%>%
   ggplot(aes(x = batch_size_perc, y = ARI, color = method)) +
