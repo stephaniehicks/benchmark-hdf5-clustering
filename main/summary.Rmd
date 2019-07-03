@@ -19,26 +19,28 @@ library(grid)
 library(here)
 ```
 
+Memory Summary
 ```{r}
-files <- list.files(path= here("output_tables"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+files_mem <- list.files(path= here("output_tables", "mem"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
-final_table <- NULL
+mem_table <- NULL
 
-for (i in (1:length(files))){
-  temp_table <- read.csv(file = files[i], header=TRUE, sep=",")
-  final_table <- rbind(final_table, temp_table)
+for (i in (1:length(files_mem))){
+  temp_table <- read.csv(file = files_mem[i], header=TRUE, sep=",")
+  mem_table <- rbind(mem_table, temp_table)
 }
-final_table <- final_table %>% 
+mem_table <- mem_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size_perc = factor(scales::percent(final_table$batch_size), 
+         batch_size_perc = factor(scales::percent(mem_table$batch_size), 
                              levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
-levels(final_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+levels(mem_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
 ```
 
-Fix batch size and k (study effects of observation)
+Fix batch size and k (study observation vs. memory)
 ```{r, warning=FALSE}
-p1 <- final_table %>% 
-  #dplyr::filter(!(method == "kmeans"))%>%
+p_mem_obs <- mem_table %>%
+  #dplyr::filter(!(method %in% c("mbkmeans", "mbkmean_hdf5")))%>%
+  dplyr::filter(!(observations %in% c(500000,1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -54,12 +56,12 @@ p1 <- final_table %>%
   theme(legend.position = "top", legend.justification= "center") + 
   scale_color_discrete(name = "Method")
 
-p1
+p_mem_obs
 ```
 
 Fix observation and k (study effects of batch size)
 ```{r, warning=FALSE}
-final_table %>% 
+p_mem_batch <- mem_table %>%
   dplyr::group_by(method, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -73,4 +75,130 @@ final_table %>%
   facet_wrap(~observations, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") + 
   scale_color_discrete(name = "Method")
+
+p_mem_batch
+```
+
+Accuracy Summary
+```{r}
+files_acc <- list.files(path= here("output_tables", "acc"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+acc_table <- NULL
+
+for (i in (1:length(files_acc))){
+  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
+  acc_table <- rbind(acc_table, temp_table)
+}
+acc_table <- acc_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(acc_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", 
+                                        "10.0%", "20.0%", "50.0%","80.0%", "100.0%")))
+levels(acc_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+```
+
+ARI
+```{r, warning=FALSE}
+p_ari_obs_line <- acc_table %>% 
+  #dplyr::filter(!(method == "kmeans"))%>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing ARI for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Memory (Mb)") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_ari_obs_line
+```
+```{r}
+p_ari_obs_box <- acc_table %>% 
+  dplyr::filter(!(ARI<0.95))%>%
+  #dplyr::filter(observations == 1000)%>% 
+  ggplot(aes(x = factor(observations/1e3), y = ARI, color = method)) +
+        geom_boxplot() + 
+        #geom_jitter() +
+        labs(title = "Assessing ARI for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("ARI") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_ari_obs_box
+```
+
+```{r}
+p_ari_obs_box <- acc_table %>% 
+  dplyr::filter(!(ARI<0.95))%>%
+  ggplot(aes(x = batch_size_perc, y = ARI, color = method)) +
+        geom_boxplot() + 
+        #geom_jitter() +
+        labs(title = "Assessing ARI for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch Size") + 
+        ylab("ARI") + 
+  facet_wrap(~factor(observations), scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_ari_obs_box
+```
+
+WCSS
+```{r, warning=FALSE}
+p_wcss_obs_line <- acc_table %>% 
+  #dplyr::filter(observations %in% c(1000,5000))%>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(WCSS), 
+                   sd = sd(WCSS)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing WCSS for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("WCSS") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_wcss_obs_line
+```
+
+```{r}
+p_obs_wcss_box <- acc_table %>% 
+  dplyr::filter(observations %in% c(1000,5000))%>% 
+  ggplot(aes(x = factor(observations/1e3), y = WCSS, color = method)) +
+        geom_boxplot() + 
+        labs(title = "Assessing WCSS for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("WCSS") + 
+  facet_wrap(~batch_size_perc) + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_obs_wcss_box
+```
+
+```{r}
+p_wcss_batch_box <- acc_table %>% 
+  ggplot(aes(x = batch_size_perc, y = WCSS, color = method)) +
+        geom_boxplot() + 
+        #geom_jitter() +
+        labs(title = "Assessing WCSS for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch Size") + 
+        ylab("WCSS") + 
+  facet_wrap(~factor(observations), scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  scale_color_discrete(name = "Method")
+
+p_wcss_batch_box
 ```

@@ -1,6 +1,5 @@
 #' @title bench_hdf5_acc
 #' @param i monte carlo simulation iteration; keep this for mclapply
-#' @param dir_name the name of directory to save the .out files
 
 bench_hdf5_acc <- function(i, n_cells, 
                            n_genes, 
@@ -10,20 +9,20 @@ bench_hdf5_acc <- function(i, n_cells,
                            max_iters = max_iters, 
                            init_fraction = init_fraction, 
                            initializer = initializer, 
-                           method, size) {
+                           method, size, sim_center) {
   if (size == "small"){
-    sim_data <- simulate_gauss_mix(n_cells=nC, n_genes=nG, k = k)
+    sim_data <- simulate_gauss_mix(n_cells=n_cells, n_genes=n_genes, k = sim_center)
     
     if (method == "hdf5"){
-      sim_data_hdf5 <- writeHDF5Array(as.matrix(sim_data$obs_data), chunkdim=c(1, nG))
+      sim_data_hdf5 <- writeHDF5Array(as.matrix(sim_data$obs_data), chunkdim=c(1, n_genes))
     }
   }
   
   if (size == "large"){
-    sim_data <- readRDS(file = paste0("/fastscratch/myscratch/rliu/","sim_data_",as.character(nC),"_", i, ".rds"))
+    sim_data <- readRDS(file = paste0("/fastscratch/myscratch/rliu/","sim_data_",as.character(n_cells),"_", i, ".rds"))
     
     if (method == "hdf5"){
-      sim_data_hdf5 <- HDF5Array(file = paste0("/fastscratch/myscratch/rliu/","obs_data_",as.character(nC),"_", i, ".h5"),
+      sim_data_hdf5 <- HDF5Array(file = paste0("/fastscratch/myscratch/rliu/","obs_data_",as.character(n_cells),"_", i, ".h5"),
                                name = "obs")
     }
   }  

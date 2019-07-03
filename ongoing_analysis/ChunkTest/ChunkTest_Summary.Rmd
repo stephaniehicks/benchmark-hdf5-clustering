@@ -15,14 +15,22 @@ library(ggplot2)
 library(gridExtra)
 library(dplyr)
 library(grid)
+library(here)
 ```
 
 ```{r}
-chunk <- read.csv(file = "chunktestsmall.csv",header=TRUE, sep=",")[,1:5]
+files <- list.files(path= here("ongoing_analysis","ChunkTest"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+final_table <- NULL
+
+for (i in (1:length(files))){
+  temp_table <- read.csv(file = files[i], header=TRUE, sep=",")[,1:5]
+  final_table <- rbind(final_table, temp_table)
+}
 ```
 
 ```{r}
-chunk %>% 
+final_table %>% 
   dplyr::group_by(dimension, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(time), 
                    sd = sd(time)) %>% 
@@ -36,7 +44,7 @@ chunk %>%
 ```
 
 ```{r}
-chunk %>% 
+final_table %>% 
   dplyr::filter(dimension != "one") %>%
   dplyr::group_by(dimension, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(time), 
