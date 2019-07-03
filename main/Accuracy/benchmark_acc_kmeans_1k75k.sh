@@ -1,4 +1,4 @@
-#$-pe local 20
+#$-pe local 5
 #$ -l mem_free=4G,h_vmem=4G
 #$ -cwd
 #$ -m e
@@ -8,9 +8,9 @@ module load conda_R/devel
 mode="acc"
 method="kmeans"
 size="small"
-B=20
-B_name="20" #if needs to paralle across B, will set to 1, 2 or 3
-cores=20
+B=5
+B_name="5" #if needs to paralle across B, will set to 1, 2 or 3
+cores=5
 nC=(500 2000 4000 6000 8000 10000)
 nG=(1000)
 batch=(0.005 0.01 0.05 0.1 0.2 0.35 0.5)
