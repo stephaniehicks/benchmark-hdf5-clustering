@@ -187,6 +187,29 @@ p_obs_wcss_box <- acc_table %>%
 
 p_obs_wcss_box
 ```
+```{r}
+p_wcss_batch_line <- acc_table %>% 
+  #dplyr::filter(method == "kmeans")%>%
+  #dplyr::filter( observations == 1000)%>%
+  #dplyr::filter(observations %in% c(1000,5000))%>%
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(WCSS), 
+                   sd = sd(WCSS)) %>% 
+  ggplot(aes(x = batch_size, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+          #      position=position_dodge(0.05))+
+        labs(title = "Assessing WCSS for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch Size") + 
+        ylab("WCSS")+ 
+  facet_wrap(~factor(observations), scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center")+ 
+  scale_color_discrete(name = "Method")
+
+p_wcss_batch_line
+```
+
 
 ```{r}
 p_wcss_batch_box <- acc_table %>% 
