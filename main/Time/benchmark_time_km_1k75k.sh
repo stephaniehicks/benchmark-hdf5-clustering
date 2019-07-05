@@ -1,6 +1,6 @@
 #$-pe local 10
 #$ -l mem_free=8G,h_vmem=8G
-#$ -q shared.q@compute-1[01-12]
+#$ -q shared.q@compute-10[1-9]
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
