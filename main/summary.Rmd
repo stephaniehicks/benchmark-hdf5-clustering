@@ -250,6 +250,7 @@ levels(time_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
 Fix batch size and k (study observation vs. time)
 ```{r, warning=FALSE}
 p_elp_time_obs <- time_table %>%
+  dplyr::filter(!(method == "mbkmean_hdf5"))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(elapsed_time), 
                    sd = sd(elapsed_time)) %>% 
@@ -262,9 +263,9 @@ p_elp_time_obs <- time_table %>%
         xlab("Number of cells (thousands)") + 
         ylab("Time (Seconds)") + 
   facet_wrap(~batch_size_perc, scale = "free") + 
-  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
-        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
-        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  #theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+  #      axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+  #      legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
   scale_color_discrete(name = "Method")
 
 p_elp_time_obs
