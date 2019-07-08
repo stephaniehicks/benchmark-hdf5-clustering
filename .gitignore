@@ -13,3 +13,4 @@ main/figs/*
 main/*.html
 *.sh.pe*
 *.sh.po*
+main/case_studies/data/*
