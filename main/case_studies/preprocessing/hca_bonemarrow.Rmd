@@ -28,7 +28,11 @@ eh <- ExperimentHub()
 query(eh, "HCAData")
 
 ##change to ica_bone_marrow
-#sce <- HCAData("ica_bone_marrow")
+sce <- HCAData("ica_bone_marrow")
+sce 
+
+## Check that the counts object is a HDF5Array
+seed(counts(sce))
 
 #hub <- ExperimentHub::ExperimentHub()
 #rowData <- query(hub, "/Users/April30/Library/Caches/ExperimentHub/ica_bone_marrow_rowData.rds")
@@ -50,6 +54,15 @@ sce
 assay(sce)
 ```
 
+We will pick a subset of cells to debug code
+
+```{r}
+set.seed(1234)
+keep_cells <- sample(1:ncol(sce),size = 100)
+sce <- sce[,keep_cells]
+```
+
+
 # Quality control and 
 
 ## Removing low-quality cells
@@ -59,10 +72,9 @@ QC measures and filter out the low-quality samples.
 
 ```{r}
 library(scater)
-sce <- sce[,sample(1:ncol(sce),size = 1000)]
-system.time(sce <- calculateQCMetrics(sce)) 
-                          #feature_controls = list(Mito = grep("^MT", rowData(sce)$Symbol))))
-                          #BPPARAM = MulticoreParam(1)))
+system.time(sce <- calculateQCMetrics(sce, 
+                          feature_controls = list(Mito = grep("^MT", rowData(sce)$Symbol)),
+                          BPPARAM = BiocParallel::MulticoreParam(1)))
 ```
 
 We remove cells with high proportion of mitocondrial 
