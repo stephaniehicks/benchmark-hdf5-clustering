@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 15, fig.height = 6)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 10)
 ```
 
 ```{r}
@@ -40,7 +40,7 @@ Fix batch size and k (study observation vs. memory)
 ```{r, warning=FALSE}
 p_mem_obs <- mem_table %>%
   #dplyr::filter(!(method %in% c("mbkmeans", "mbkmean_hdf5")))%>%
-  dplyr::filter(!(observations %in% c(500000,1000000)))%>%
+  #dplyr::filter(!(observations %in% c(500000,1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -53,7 +53,9 @@ p_mem_obs <- mem_table %>%
         xlab("Number of cells (thousands)") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~batch_size_perc) + 
-  theme(legend.position = "top", legend.justification= "center") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) + 
   scale_color_discrete(name = "Method")
 
 p_mem_obs
@@ -73,7 +75,9 @@ p_mem_batch <- mem_table %>%
         xlab("Batch size") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~observations, scales = "free") + 
-  theme(legend.position = "top", legend.justification= "center") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
   scale_color_discrete(name = "Method")
 
 p_mem_batch
@@ -224,4 +228,149 @@ p_wcss_batch_box <- acc_table %>%
   scale_color_discrete(name = "Method")
 
 p_wcss_batch_box
+```
+
+Time Summary
+```{r}
+files_time <- list.files(path= here("output_tables", "time"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+time_table <- NULL
+
+for (i in (1:length(files_time))){
+  temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
+  time_table <- rbind(time_table, temp_table)
+}
+time_table <- time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(time_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(time_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+```
+
+Fix batch size and k (study observation vs. time)
+```{r, warning=FALSE}
+p_elp_time_obs <- time_table %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(elapsed_time), 
+                   sd = sd(elapsed_time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_elp_time_obs
+```
+```{r, warning=FALSE}
+p_user_time_obs <- time_table %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(user_time), 
+                   sd = sd(user_time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_user_time_obs
+```
+```{r, warning=FALSE}
+p_sys_time_obs <- time_table %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(system_time), 
+                   sd = sd(system_time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_sys_time_obs
+```
+Fix observation and k (study effects of batch size)
+```{r, warning=FALSE}
+p_elp_time_batch <- time_table %>%
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(elapsed_time), 
+                   sd = sd(elapsed_time)) %>% 
+  ggplot(aes(x = batch_size, y = mean, color = method)) +
+          geom_line() +
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
+        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch size") + 
+        ylab("ime (Seconds)") + 
+  facet_wrap(~observations, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_elp_time_batch
+```
+
+```{r, warning=FALSE}
+p_user_time_batch <- time_table %>%
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(user_time), 
+                   sd = sd(user_time)) %>% 
+  ggplot(aes(x = batch_size, y = mean, color = method)) +
+          geom_line() +
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
+        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch size") + 
+        ylab("ime (Seconds)") + 
+  facet_wrap(~observations, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_user_time_batch
+```
+
+```{r, warning=FALSE}
+p_sys_time_batch <- time_table %>%
+  dplyr::group_by(method, observations, batch_size) %>% 
+  dplyr::summarize(mean = mean(system_time), 
+                   sd = sd(system_time)) %>% 
+  ggplot(aes(x = batch_size, y = mean, color = method)) +
+          geom_line() +
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
+        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
+        xlab("Batch size") + 
+        ylab("ime (Seconds)") + 
+  facet_wrap(~observations, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center", plot.title = element_text(size=50),
+        axis.text=element_text(size=18), axis.title=element_text(size=20,face="bold"),
+        legend.title=element_text(size=30), legend.text=element_text(size=30)) +  
+  scale_color_discrete(name = "Method")
+
+p_sys_time_batch
 ```
