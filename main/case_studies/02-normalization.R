@@ -12,17 +12,26 @@
 library(scran)
 
 # **Ruxoi**: add code to load cluster labels and sce object here
+library(HDF5Array)
+clusters <- readRDS(file = here("main/case_studies/data/full/hca_bonemarrow", 
+                                "hca_bonemarrow_cluster_full.rds"))
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/hca_bonemarrow", 
+                                               "hca_bonemarrow_preprocessed"),  prefix="")
 
 # next comes calculating size factors
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters,
-                                     BPPARAM=MulticoreParam(6))
+                                     BPPARAM=MulticoreParam(10))
+
+saveHDF5SummarizedExperiment(sce, 
+                             dir = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_normalized"), 
+                             prefix="", replace=FALSE, 
+                             chunkdim=c(dim(counts(sce))[1],1), 
+                             level=NULL, verbose=FALSE)
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.
 
-plot(sce$total_counts, sizeFactors(sce), log="xy", 
-     xlab="Total reads", ylab="scran size factors")
-
+plot(sce$total_counts, sizeFactors(sce), log="xy", xlab="Total reads", ylab="scran size factors")
 
 # Finally, we compute normalized log-expression values with 
 # the `normalize()` function from the `scater` package.
@@ -42,6 +51,11 @@ logcounts(sce)
 
 library(pryr)
 object_size(sce)
+#128MB
 
 # **Ruoxi**: can you save this new sce object? 
-
+saveHDF5SummarizedExperiment(sce, 
+                             dir = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_normalized_final"), 
+                             prefix="", replace=FALSE, 
+                             chunkdim=c(dim(counts(sce))[1],1), 
+                             level=NULL, verbose=FALSE)

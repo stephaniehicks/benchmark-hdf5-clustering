@@ -1,0 +1,96 @@
+---
+title: Preprocessing TENxPBMC68k Data
+author: Davide Risso, Stephanie Hicks, Ruoxi Liu
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      error = FALSE, message = FALSE, 
+                      cache = FALSE)
+```
+
+
+# Data 
+
+We use one of the TENxPBMC Data. 
+The preview data are available in the 
+[`TENxPBMCData` Bioconductor package](https://bioconductor.org/packages/release/data/experiment/html/TENxPBMCData.html). In this analysis, we will use the 
+`pbmc68k` dataset. 
+
+## Data import 
+```{r}
+library(TENxPBMCData)
+tenx_pbmc68k <- TENxPBMCData(dataset = "pbmc68k")
+tenx_pbmc68k
+
+## Check that the counts object is a HDF5Array
+seed(counts(tenx_pbmc68k))
+assay(tenx_pbmc68k)
+```
+
+We will pick a subset of cells to debug code
+
+```{r}
+set.seed(1234)
+keep_cells <- sample(1:ncol(tenx_pbmc68k),size = 100)
+tenx_pbmc68k <- tenx_pbmc68k[,keep_cells]
+```
+
+
+# Quality control and 
+
+## Removing low-quality cells
+
+First, we use the `scater` package to compute a set of 
+QC measures and filter out the low-quality samples.
+
+```{r}
+library(scater)
+system.time(tenx_pbmc68k <- calculateQCMetrics(tenx_pbmc68k, 
+                          feature_controls = 
+                            list(Mito = grep("^MT", rowData(tenx_pbmc68k)$Symbol)),
+                          BPPARAM = BiocParallel::MulticoreParam(10)))
+```
+
+We remove cells with high proportion of mitocondrial 
+reads, using it as a proxy for cell damage. 
+
+```{r}
+high_mito <- isOutlier(tenx_pbmc68k$pct_counts_Mito, 
+                       nmads = 3, type="higher")
+table(high_mito)
+
+tenx_pbmc68k <- tenx_pbmc68k[,!high_mito]
+tenx_pbmc68k
+```
+
+## Removing lowly expressed genes
+
+Next, we remove the lowly expressed genes. Here, 
+we keep only those genes that have at least 1 UMI 
+in at least 5% of the data. These threshold are
+dataset-specific and may need to be taylored to 
+specific applications.
+
+```{r}
+num_reads <- 1
+num_cells <- 0.05*ncol(tenx_pbmc68k)
+system.time(keep <- which(DelayedArray::rowSums(counts(tenx_pbmc68k) >= num_reads ) >= num_cells))
+tenx_pbmc68k <- tenx_pbmc68k[keep,]
+tenx_pbmc68k
+```
+
+These leaves us with `length(keep)` genes.
+
+
+Save tenx_pbmc68k object to /data/full
+```{r}
+library(HDF5Array)
+library(here)
+saveHDF5SummarizedExperiment(tenx_pbmc68k, 
+                             dir = here("main/case_studies/data/full", "tenx_pbmc68k"), 
+                             prefix="", replace=FALSE, 
+                             chunkdim=c(dim(counts(tenx_pbmc68k))[1],1), 
+                             level=NULL, verbose=FALSE)
+```

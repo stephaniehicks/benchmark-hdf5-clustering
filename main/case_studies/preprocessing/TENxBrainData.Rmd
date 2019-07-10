@@ -1,5 +1,5 @@
 ---
-title: Preprocessing HCA Bone Marrow data
+title: Preprocessing TENx Brain Data
 author: Davide Risso, Stephanie Hicks, Ruoxi Liu
 output: html_document
 ---
@@ -10,31 +10,25 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE,
                       cache = FALSE)
 ```
 
-
-# Data 
-
-We use one of the Human Cell Atlas preview datasets. 
-The preview data are available in the 
-[`HCAData` Bioconductor package](https://bioconductor.org/packages/release/data/experiment/html/HCAData.html). In this analysis, we will use the 
-`ica_bone_marrow` dataset. 
-
 ## Data import 
 ```{r}
-library(HCAData)
-library(ExperimentHub)
-library(SingleCellExperiment)
-
-eh <- ExperimentHub()
-query(eh, "HCAData")
-
-##change to ica_bone_marrow
-sce <- HCAData("ica_bone_marrow")
-sce 
+library(TENxBrainData)
+tenx <- TENxBrainData()
+tenx
 
 ## Check that the counts object is a HDF5Array
-seed(counts(sce))
-assay(sce)
+seed(counts(tenx))
+assay(tenx)
 ```
+
+We will pick a subset of cells to debug code
+
+```{r}
+#set.seed(1234)
+#keep_cells <- sample(1:ncol(tenx),size = 100)
+#tenx <- tenx[,keep_cells]
+```
+
 
 # Quality control and 
 
@@ -45,8 +39,8 @@ QC measures and filter out the low-quality samples.
 
 ```{r}
 library(scater)
-system.time(sce <- calculateQCMetrics(sce, 
-                          feature_controls = list(Mito = grep("^MT", rowData(sce)$Symbol)),
+system.time(tenx <- calculateQCMetrics(tenx, 
+                          feature_controls = list(Mito = grep("^MT", rowData(tenx)$Symbol)),
                           BPPARAM = BiocParallel::MulticoreParam(10)))
 ```
 
@@ -54,12 +48,12 @@ We remove cells with high proportion of mitocondrial
 reads, using it as a proxy for cell damage. 
 
 ```{r}
-high_mito <- isOutlier(sce$pct_counts_Mito, 
+high_mito <- isOutlier(tenx$pct_counts_Mito, 
                        nmads = 3, type="higher")
 table(high_mito)
 
-sce <- sce[,!high_mito]
-sce
+tenx <- tenx[,!high_mito]
+tenx
 ```
 
 ## Removing lowly expressed genes
@@ -72,23 +66,23 @@ specific applications.
 
 ```{r}
 num_reads <- 1
-num_cells <- 0.05*ncol(sce)
-system.time(keep <- which(DelayedArray::rowSums(counts(sce) >= num_reads ) >= num_cells))
-sce <- sce[keep,]
-sce
+num_cells <- 0.05*ncol(tenx)
+system.time(keep <- which(DelayedArray::rowSums(counts(tenx) >= num_reads ) >= num_cells))
+tenx <- tenx[keep,]
+tenx
 ```
 
 These leaves us with `length(keep)` genes.
 
 
-Save sce object to /data/full
+Save tenx object to /data/full
 ```{r}
 library(HDF5Array)
 library(here)
-saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full","hca_bonemarrow_preprocessed"),
+saveHDF5SummarizedExperiment(tenx, 
+                             dir = here("main/case_studies/data/full", "hca_bonemarrow"), 
                              prefix="", replace=FALSE, 
-                             chunkdim=c(dim(counts(sce))[1],1), 
+                             chunkdim=c(dim(counts(tenx))[1],1), 
                              level=NULL, verbose=FALSE)
 ```
 
