@@ -1,0 +1,7 @@
+Data,Cells,Genes,Step,Method,User_time,System_time,Elapsed_time
+hca_bonemarrow,333253,4475,01_full cluster,mbkmeans-hdf5,311.963,10.044,325.379hca_bonemarrow,333253,4475,03_realize logcounts,,1341.674,21.451,1375.884
+hca_bonemarrow,333253,4475,03_realize logcounts,,1341.674,21.451,1375.884
+hca_bonemarrow,333253,4475,03_find var,,795.329,12.127,808.536
+hca_bonemarrow,333253,4475,03_realize logcounts,,1344.398,20.953,1369.588
+hca_bonemarrow,333253,4475,03_find var,,725.724,12.294,738.929
+hca_bonemarrow,333253,4475,03_pca,,6285.026,169.119,7469.656
