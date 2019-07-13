@@ -28,22 +28,22 @@
 #' 
 #' @author Stephanie Hicks
 #' 
-k <- sim_center
-set.seed(123)
-x_mus <- sample(c(-5, 0, 5), k, replace=TRUE)
-set.seed(1234)
-x_sds <- sample(c(0.1, 0.5, 1), k, replace=TRUE)
-set.seed(321)
-y_mus <- sample(c(-5, 0, 5), k, replace=TRUE)
-set.seed(1234)
-y_sds <- sample(c(0.1, 0.5, 1), k, replace=TRUE)
+#k <- sim_center
+#set.seed(123)
+#x_mus <- sample(c(-5, 0, 5), k, replace=TRUE)
+#set.seed(1234)
+#x_sds <- sample(c(0.1, 0.5, 1), k, replace=TRUE)
+#set.seed(321)
+#y_mus <- sample(c(-5, 0, 5), k, replace=TRUE)
+#set.seed(1234)
+#y_sds <- sample(c(0.1, 0.5, 1), k, replace=TRUE)
 
 
 simulate_gauss_mix <- function(n_cells, n_genes,
-                               k, x_mus = x_mus, 
-                               x_sds = x_sds, 
-                               y_mus = y_mus, 
-                               y_sds = y_sds, 
+                               k, x_mus = c(0,5,5), 
+                               x_sds = c(1,0.1,1), 
+                               y_mus = c(5,5,0), 
+                               y_sds = c(1,0.1,1), 
                                prop1 = c(0.3,0.5,0.2))
 { 
   
