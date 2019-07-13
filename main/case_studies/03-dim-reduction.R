@@ -47,7 +47,7 @@ reducedDim(sce, "PCA") <- pca$x
 # **Ruxoi**: save the PCs somewhere e.g. 
 saveRDS(pca, file=here("main/case_studies/data/pca/hca_bonemarrow/hca_bonemarrow_pca.rds"))
 saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_pca"), 
+                             dir = here("main/case_studies/data/pca/hca_bonemarrow", "hca_bonemarrow_pca"), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)

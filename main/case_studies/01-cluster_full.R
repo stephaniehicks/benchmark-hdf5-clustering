@@ -26,6 +26,7 @@ temp_table <- data.frame("hca_bonemarrow", dim(counts(sce))[2], dim(counts(sce))
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
+rm(time)
 
 # **Ruxoi**: add code to save cluster labels here
 saveRDS(clusters, file = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_cluster_full.rds"))

@@ -1,4 +1,9 @@
 # Cluster with mbkmeans on the PCs
+
+# regular mbkmeans and kmeans
+# load in pca.rds for kmeans
+# benchmark both memory and time
+
 set.seed(1234)
 system.time(wcss <- lapply(10:20, function(k) {
   cl <- mbkmeans(sce, reduceMethod = "PCA", clusters = k,

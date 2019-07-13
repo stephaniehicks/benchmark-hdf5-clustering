@@ -30,8 +30,7 @@ saveHDF5SummarizedExperiment(sce,
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.
-
-plot(sce$total_counts, sizeFactors(sce), log="xy", xlab="Total reads", ylab="scran size factors")
+#plot(sce$total_counts, sizeFactors(sce), log="xy", xlab="Total reads", ylab="scran size factors")
 
 # Finally, we compute normalized log-expression values with 
 # the `normalize()` function from the `scater` package.
