@@ -7,7 +7,7 @@ suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(benchmarkme))
 suppressPackageStartupMessages(library(here))
 
-rhdf5::h5disableFileLocking()
+#rhdf5::h5disableFileLocking()
 
 #Bash script will be submited in main/ and use the current working directory (main/ will be cwd)
 #here() will return the top directory, which is benchmark_hdf5_clustering
