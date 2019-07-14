@@ -7,8 +7,6 @@ suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(benchmarkme))
 suppressPackageStartupMessages(library(here))
 
-#rhdf5::h5disableFileLocking()
-
 #Bash script will be submited in main/ and use the current working directory (main/ will be cwd)
 #here() will return the top directory, which is benchmark_hdf5_clustering
 source(here("scripts","simulate_gauss_mix.R"))
@@ -34,7 +32,11 @@ initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
 sim_center <- commandArgs(trailingOnly=T)[16]
 
-
+if (mode == "mem"){
+  if (size == "large"){
+    rhdf5::h5disableFileLocking()
+  }
+}
 
 if (init){
   if (mode == "mem"){
