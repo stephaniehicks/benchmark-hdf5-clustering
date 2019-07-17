@@ -1,4 +1,4 @@
-#$ -l mem_free=10G,h_vmem=10G
+#$ -l mem_free=15G,h_vmem=15G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
@@ -12,7 +12,7 @@ B_name="1" #if needs to paralle across B, will set to 1, 2 or 3
 cores=1
 nC=(500000)
 nG=(1000)
-batch=(0.005 0.01 0.05 0.1 0.2 0.5 0.8)
+batch=(0.8)
 center=(3)
 sim_center=3
 initializer="random"
