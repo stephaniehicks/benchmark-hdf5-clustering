@@ -16,3 +16,5 @@ main/*.html
 main/case_studies/data/*
 main/Memory/untitled.sh
 main/case_studies/output/Memory_output/*
+main/case_studies/preprocessing/*.html
+
