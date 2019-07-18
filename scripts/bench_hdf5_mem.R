@@ -113,20 +113,20 @@ bench_hdf5_mem <- function(i, n_cells,
     
     if (method == "hdf5"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
-      print("here1")
+      #print("here1")
       sim_data_hdf5 <- HDF5Array(file = paste0("/fastscratch/myscratch/rliu/","obs_data_",as.character(n_cells),"_", B_name, ".h5"),
                                  name = "obs")
-      print("here2")
+      #print("here2")
       mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                            batch_size = batch_size, num_init = num_init, 
                            max_iters = max_iters, init_fraction = init_fraction,
                            initializer = initializer, calc_wcss = FALSE)
-      print("here3")
+      #print("here3")
       Rprof(NULL)
       
       profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
                               memory = "tseries", diff = FALSE)
-      print("here4")
+      #print("here4")
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
       rm(sim_data_hdf5)

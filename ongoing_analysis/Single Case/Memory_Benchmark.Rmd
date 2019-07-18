@@ -78,7 +78,7 @@ Apply memory profiling to `mbkmeans::mini_batch()` with HDF5 file
 
 ```{r}
 Rprof(filename = here("ongoing_analysis", "Single Case", "Rprof_hdf5.out"), append = TRUE, memory.profiling = TRUE)
-sim_data_hdf5 <- HDF5Array(file = here("ongoing_analysis", "Single Case","sim_data.h5"), name = "obs")
+sim_data_hdf5 <- HDF5Array(file = here("benchmark-hdf5-clustering/ongoing_analysis", "Single Case","sim_data.h5"), name = "obs")
 hdf5_test <- mbkmeans::mini_batch(
             sim_data_hdf5, clusters = 3, 
             batch_size = 50, num_init = 10, 
