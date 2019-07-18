@@ -31,7 +31,7 @@ library(mbkmeans)
 if (mode == "time"){
   invisible(gc())
   time.start <- proc.time()
-  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", paste0(data_name, "_preprocessed")), prefix="")
+  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
   set.seed(1234)
   clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch))
   time.end <- proc.time()
@@ -48,7 +48,7 @@ if (mode == "memory"){
   out_name <- paste0(data_name, "_", now)
   
   Rprof(filename = here("main/case_studies/output/Memory_output",out_name), append = FALSE, memory.profiling = TRUE)
-  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", paste0(data_name, "_preprocessed")), prefix="")
+  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
   mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch))
   Rprof(NULL)
   
@@ -63,7 +63,7 @@ if (mode == "memory"){
 
 # **Ruxoi**: add code to save cluster labels here
 if (B_name == "1"){
-  saveRDS(clusters, file = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_cluster_full.rds"))
+  saveRDS(clusters, file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
 }
 
 

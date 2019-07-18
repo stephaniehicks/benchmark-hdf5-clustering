@@ -93,7 +93,7 @@ Save sce object to /data/full
 library(HDF5Array)
 library(here)
 saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full","hca_cordblood_preprocessed"),
+                             dir = here("main/case_studies/data/full/hca_cordblood","hca_cordblood_preprocessed"),
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)

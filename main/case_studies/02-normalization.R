@@ -8,25 +8,18 @@
 # beneficial to run a quick clustering on the raw data to compute better
 # size factors. This ensures that we do not pool cells that are very different. 
 # Note taat this is not the final clustering to identify cell sub-populations.
+data_name <- commandArgs(trailingOnly=T)[2]
 
 library(scran)
 
 # **Ruxoi**: add code to load cluster labels and sce object here
 library(HDF5Array)
-clusters <- readRDS(file = here("main/case_studies/data/full/hca_bonemarrow", 
-                                "hca_bonemarrow_cluster_full.rds"))
-sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/hca_bonemarrow", 
-                                               "hca_bonemarrow_preprocessed"),  prefix="")
+clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
 
 # next comes calculating size factors
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters,
                                      BPPARAM=MulticoreParam(10))
-
-saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_normalized"), 
-                             prefix="", replace=FALSE, 
-                             chunkdim=c(dim(counts(sce))[1],1), 
-                             level=NULL, verbose=FALSE)
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.
@@ -50,11 +43,11 @@ logcounts(sce)
 
 library(pryr)
 object_size(sce)
-#128MB
+
 
 # **Ruoxi**: can you save this new sce object? 
 saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_normalized_final"), 
+                             dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)

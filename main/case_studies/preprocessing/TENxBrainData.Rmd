@@ -89,7 +89,7 @@ Save tenx object to /data/full
 library(HDF5Array)
 library(here)
 saveHDF5SummarizedExperiment(tenx, 
-                             dir = here("main/case_studies/data/full", "TENxBrainData_preprocessed"), 
+                             dir = here("main/case_studies/data/full/TENxBrainData", "TENxBrainData_preprocessed"), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(tenx))[1],1), 
                              level=NULL, verbose=FALSE)

@@ -89,7 +89,7 @@ Save tenx_pbmc68k object to /data/full
 library(HDF5Array)
 library(here)
 saveHDF5SummarizedExperiment(tenx_pbmc68k, 
-                             dir = here("main/case_studies/data/full", "tenx_pbmc68k_preprocessed"), 
+                             dir = here("main/case_studies/data/full/tenx_pbmc68k", "tenx_pbmc68k_preprocessed"), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(tenx_pbmc68k))[1],1), 
                              level=NULL, verbose=FALSE)
