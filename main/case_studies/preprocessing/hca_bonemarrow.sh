@@ -1,5 +1,5 @@
 #$-pe local 10
-#$ -l mem_free=4G,h_vmem=4G
+#$ -l mem_free=15G,h_vmem=15G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
