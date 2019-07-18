@@ -29,15 +29,6 @@ seed(counts(tenx_pbmc68k))
 assay(tenx_pbmc68k)
 ```
 
-We will pick a subset of cells to debug code
-
-```{r}
-set.seed(1234)
-keep_cells <- sample(1:ncol(tenx_pbmc68k),size = 100)
-tenx_pbmc68k <- tenx_pbmc68k[,keep_cells]
-```
-
-
 # Quality control and 
 
 ## Removing low-quality cells
@@ -53,6 +44,15 @@ system.time(tenx_pbmc68k <- calculateQCMetrics(tenx_pbmc68k,
                           BPPARAM = BiocParallel::MulticoreParam(10)))
 ```
 
+Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
+```{r, fig.width=8, fig.height=4}
+par(mfrow=c(1,3))
+plot(tenx_pbmc68k$total_features_by_counts,tenx_pbmc68k$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
+hist(tenx_pbmc68k$total_counts/1e4, xlab="Library sizes (thousands)", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
+hist(tenx_pbmc68k$total_features_by_counts, xlab="Number of expressed genes", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
+```
 We remove cells with high proportion of mitocondrial 
 reads, using it as a proxy for cell damage. 
 

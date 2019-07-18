@@ -21,11 +21,7 @@ The preview data are available in the
 ## Data import 
 ```{r}
 library(HCAData)
-library(ExperimentHub)
 library(SingleCellExperiment)
-
-eh <- ExperimentHub()
-query(eh, "HCAData")
 
 ##change to ica_bone_marrow
 sce <- HCAData("ica_cord_blood")
@@ -49,6 +45,17 @@ system.time(sce <- calculateQCMetrics(sce,
                           feature_controls = list(Mito = grep("^MT", rowData(sce)$Symbol)),
                           BPPARAM = BiocParallel::MulticoreParam(10)))
 ```
+
+Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
+```{r, fig.width=8, fig.height=4}
+par(mfrow=c(1,3))
+plot(sce$total_features_by_counts,sce$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
+hist(sce$total_counts/1e4, xlab="Library sizes (thousands)", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
+hist(sce$total_features_by_counts, xlab="Number of expressed genes", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
+```
+
 
 We remove cells with high proportion of mitocondrial 
 reads, using it as a proxy for cell damage. 

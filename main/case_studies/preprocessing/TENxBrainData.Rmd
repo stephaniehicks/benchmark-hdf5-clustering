@@ -29,7 +29,6 @@ We will pick a subset of cells to debug code
 #tenx <- tenx[,keep_cells]
 ```
 
-
 # Quality control and 
 
 ## Removing low-quality cells
@@ -40,8 +39,18 @@ QC measures and filter out the low-quality samples.
 ```{r}
 library(scater)
 system.time(tenx <- calculateQCMetrics(tenx, 
-                          feature_controls = list(Mito = grep("^MT", rowData(tenx)$Symbol)),
+                          feature_controls = list(Mito = grep("^mt", rowData(tenx)$Symbol)),
                           BPPARAM = BiocParallel::MulticoreParam(10)))
+```
+
+Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
+```{r, fig.width=8, fig.height=4}
+par(mfrow=c(1,3))
+plot(tenx$total_features_by_counts,tenx$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
+hist(tenx$total_counts/1e4, xlab="Library sizes (thousands)", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
+hist(tenx$total_features_by_counts, xlab="Number of expressed genes", main="",
+     breaks=20, col="grey80", ylab="Number of cells")
 ```
 
 We remove cells with high proportion of mitocondrial 
