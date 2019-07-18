@@ -12,23 +12,58 @@
 
 
 # **Ruxoi**: add code to load in SCE object here
-library(HDF5Array)
-sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/hca_bonemarrow", 
-                                        "hca_bonemarrow_preprocessed"),  prefix="")
+data_name <- commandArgs(trailingOnly=T)[2]
+mode <- commandArgs(trailingOnly=T)[3]
+B_name <- commandArgs(trailingOnly=T)[4]
+batch <- 0.001
 
+if (data_name == "TENxBrainData"){
+  k <- 30
+}else{
+  k <- 15
+}
+
+library(HDF5Array)
+library(here)
 library(mbkmeans)
-set.seed(1234)
 
 # we only need to time this step for mbkmeans (clustering on the full dataset)
-time <- system.time(clusters <- mbkmeans(counts(sce), clusters=10, 
-                                 batch_size = 100))
-temp_table <- data.frame("hca_bonemarrow", dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", "", time[1], time[2],time[3])
-write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
-            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
-rm(temp_table)
-rm(time)
+if (mode == "time"){
+  invisible(gc())
+  time.start <- proc.time()
+  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", paste0(data_name, "_preprocessed")), prefix="")
+  set.seed(1234)
+  clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch))
+  time.end <- proc.time()
+  time <- time.end - time.start
+  
+  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", "mbkmeans-hdf5", B_name, time[1], time[2],time[3])
+  write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+              append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+}
+
+if (mode == "memory"){
+  invisible(gc())
+  now <- format(Sys.time(), "%b%d%H%M%OS3")
+  out_name <- paste0(data_name, "_", now)
+  
+  Rprof(filename = here("main/case_studies/output/Memory_output",out_name), append = FALSE, memory.profiling = TRUE)
+  sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", paste0(data_name, "_preprocessed")), prefix="")
+  mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch))
+  Rprof(NULL)
+  
+  profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output",out_name), chunksize = -1L, 
+                          memory = "tseries", diff = FALSE)
+  max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
+  
+  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", "mbkmeans-hdf5", B_name, max_mem)
+  write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
+              append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+}
 
 # **Ruxoi**: add code to save cluster labels here
-saveRDS(clusters, file = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_cluster_full.rds"))
+if (B_name == "1"){
+  saveRDS(clusters, file = here("main/case_studies/data/full/hca_bonemarrow", "hca_bonemarrow_cluster_full.rds"))
+}
 
 
