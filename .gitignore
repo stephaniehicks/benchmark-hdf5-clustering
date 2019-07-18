@@ -15,3 +15,4 @@ main/*.html
 *.sh.po*
 main/case_studies/data/*
 main/Memory/untitled.sh
+main/case_studies/output/Memory_output/*
