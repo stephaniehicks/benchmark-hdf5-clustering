@@ -36,13 +36,13 @@ sce <- scater::normalize(sce)
 # factors in the object, also the normalized data are 
 # stored as a `DelayedMatrix`.
 
-logcounts(sce)
+#logcounts(sce)
 
 # This allows us to store in memory only the `colData` 
 # and `rowData`, resulting in a fairly small object.
 
-library(pryr)
-object_size(sce)
+#library(pryr)
+#object_size(sce)
 
 
 # **Ruoxi**: can you save this new sce object? 

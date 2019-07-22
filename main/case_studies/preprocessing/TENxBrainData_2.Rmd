@@ -1,5 +1,5 @@
 ---
-title: Preprocessing HCA Cord Blood data
+title: Preprocessing TENx Brain Data
 author: Davide Risso, Stephanie Hicks, Ruoxi Liu
 output: html_document
 ---
@@ -10,26 +10,23 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE,
                       cache = FALSE)
 ```
 
-
-# Data 
-
-We use one of the Human Cell Atlas preview datasets. 
-The preview data are available in the 
-[`HCAData` Bioconductor package](https://bioconductor.org/packages/release/data/experiment/html/HCAData.html). In this analysis, we will use the 
-`ica_bone_marrow` dataset. 
-
 ## Data import 
 ```{r}
-library(HCAData)
-library(SingleCellExperiment)
-
-##change to ica_bone_marrow
-sce <- HCAData("ica_cord_blood")
-sce 
+library(TENxBrainData)
+tenx <- TENxBrainData()
+tenx
 
 ## Check that the counts object is a HDF5Array
-seed(counts(sce))
-assay(sce)
+seed(counts(tenx))
+assay(tenx)
+```
+
+We will pick a subset of cells to debug code
+
+```{r}
+#set.seed(1234)
+#keep_cells <- sample(1:ncol(tenx),size = 100)
+#tenx <- tenx[,keep_cells]
 ```
 
 # Quality control and 
@@ -41,32 +38,31 @@ QC measures and filter out the low-quality samples.
 
 ```{r}
 library(scater)
-system.time(sce <- calculateQCMetrics(sce, 
-                          feature_controls = list(Mito = grep("^MT", rowData(sce)$Symbol)),
+system.time(tenx <- calculateQCMetrics(tenx, 
+                          feature_controls = list(Mito = grep("^mt", rowData(tenx)$Symbol)),
                           BPPARAM = BiocParallel::MulticoreParam(10)))
 ```
 
 Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
 ```{r, fig.width=8, fig.height=4}
 #par(mfrow=c(1,3))
-#plot(sce$total_features_by_counts,sce$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
-#hist(sce$total_counts/1e4, xlab="Library sizes (thousands)", main="",
+#plot(tenx$total_features_by_counts,tenx$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
+#hist(tenx$total_counts/1e4, xlab="Library sizes (thousands)", main="",
 #     breaks=20, col="grey80", ylab="Number of cells")
-#hist(sce$total_features_by_counts, xlab="Number of expressed genes", main="",
+#hist(tenx$total_features_by_counts, xlab="Number of expressed genes", main="",
 #     breaks=20, col="grey80", ylab="Number of cells")
 ```
-
 
 We remove cells with high proportion of mitocondrial 
 reads, using it as a proxy for cell damage. 
 
 ```{r}
-high_mito <- isOutlier(sce$pct_counts_Mito, 
+high_mito <- isOutlier(tenx$pct_counts_Mito, 
                        nmads = 3, type="higher")
 table(high_mito)
 
-sce <- sce[,!high_mito]
-sce
+tenx <- tenx[,!high_mito]
+tenx
 ```
 
 ## Removing lowly expressed genes
@@ -79,23 +75,23 @@ specific applications.
 
 ```{r}
 num_reads <- 1
-num_cells <- 0.025*ncol(sce)
-system.time(keep <- which(DelayedArray::rowSums(counts(sce) >= num_reads ) >= num_cells))
-sce <- sce[keep,]
-sce
+num_cells <- 0.025*ncol(tenx)
+system.time(keep <- which(DelayedArray::rowSums(counts(tenx) >= num_reads ) >= num_cells))
+tenx <- tenx[keep,]
+tenx
 ```
 
 These leaves us with `length(keep)` genes.
 
 
-Save sce object to /data/full
+Save tenx object to /data/full
 ```{r}
 library(HDF5Array)
 library(here)
-saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full/hca_cordblood","hca_cordblood_preprocessed"),
+saveHDF5SummarizedExperiment(tenx, 
+                             dir = here("main/case_studies/data/full/TENxBrainData", "TENxBrainData_preprocessed"), 
                              prefix="", replace=FALSE, 
-                             chunkdim=c(dim(counts(sce))[1],1), 
+                             chunkdim=c(dim(counts(tenx))[1],1), 
                              level=NULL, verbose=FALSE)
 ```
 

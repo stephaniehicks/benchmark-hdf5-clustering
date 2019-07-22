@@ -45,12 +45,12 @@ system.time(tenx <- calculateQCMetrics(tenx,
 
 Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
 ```{r, fig.width=8, fig.height=4}
-par(mfrow=c(1,3))
-plot(tenx$total_features_by_counts,tenx$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
-hist(tenx$total_counts/1e4, xlab="Library sizes (thousands)", main="",
-     breaks=20, col="grey80", ylab="Number of cells")
-hist(tenx$total_features_by_counts, xlab="Number of expressed genes", main="",
-     breaks=20, col="grey80", ylab="Number of cells")
+#par(mfrow=c(1,3))
+#plot(tenx$total_features_by_counts,tenx$pct_counts_Mito, ylab="Percentage of Mito", xlab="Total Number of Genes Detected")
+#hist(tenx$total_counts/1e4, xlab="Library sizes (thousands)", main="",
+#     breaks=20, col="grey80", ylab="Number of cells")
+#hist(tenx$total_features_by_counts, xlab="Number of expressed genes", main="",
+#     breaks=20, col="grey80", ylab="Number of cells")
 ```
 
 We remove cells with high proportion of mitocondrial 
@@ -75,7 +75,7 @@ specific applications.
 
 ```{r}
 num_reads <- 1
-num_cells <- 0.05*ncol(tenx)
+num_cells <- 0.01*ncol(tenx)
 system.time(keep <- which(DelayedArray::rowSums(counts(tenx) >= num_reads ) >= num_cells))
 tenx <- tenx[keep,]
 tenx

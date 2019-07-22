@@ -16,7 +16,7 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", da
 
 setRealizationBackend("HDF5Array")
 time <- system.time(logcounts(sce) <- realize(logcounts(sce)))
-temp_table <- data.frame("hca_bonemarrow", dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "", B_name, time[1], time[2],time[3])
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "", B_name, time[1], time[2],time[3])
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -25,7 +25,7 @@ invisible(gc())
 
 ## find most variable genes
 time <- system.time(vars <- DelayedMatrixStats::rowVars(logcounts(sce)))
-temp_table <- data.frame("hca_bonemarrow", dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "", B_name, time[1], time[2],time[3])
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "", B_name, time[1], time[2],time[3])
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -42,7 +42,7 @@ time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                         BSPARAM = RandomParam(deferred = FALSE),
                                         BPPARAM = MulticoreParam(10)))
 
-temp_table <- data.frame("hca_bonemarrow", dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "", B_name, time[1], time[2],time[3])
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "", B_name, time[1], time[2],time[3])
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)

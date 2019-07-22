@@ -15,7 +15,8 @@
 data_name <- commandArgs(trailingOnly=T)[2]
 mode <- commandArgs(trailingOnly=T)[3]
 B_name <- commandArgs(trailingOnly=T)[4]
-batch <- 0.001
+method <- commandArgs(trailingOnly=T)[5]
+batch <- 0.01
 
 if (data_name == "TENxBrainData"){
   k <- 30
