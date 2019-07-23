@@ -75,7 +75,7 @@ specific applications.
 
 ```{r}
 num_reads <- 1
-num_cells <- 0.025*ncol(tenx_pbmc68k)
+num_cells <- 0.01*ncol(tenx_pbmc68k)
 system.time(keep <- which(DelayedArray::rowSums(counts(tenx_pbmc68k) >= num_reads ) >= num_cells))
 tenx_pbmc68k <- tenx_pbmc68k[keep,]
 tenx_pbmc68k

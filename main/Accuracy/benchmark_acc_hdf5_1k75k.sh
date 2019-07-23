@@ -8,8 +8,8 @@ module load conda_R/devel
 mode="acc"
 method="hdf5"
 size="small"
-B=200
-B_name="200"
+B=20
+B_name="20"
 cores=20
 nC=(500 2000 4000 6000 8000 10000)
 nG=(1000)
