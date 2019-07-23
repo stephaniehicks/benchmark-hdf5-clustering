@@ -13,7 +13,7 @@ set.seed(1234)
 time <- system.time(wcss <- lapply(k_list, function(k) {
                  mbkmeans(sce, reduceMethod = "PCA", clusters = k,
                  batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=10, max_iters=100,
-                 calc_wcss = TRUE)
+                 calc_wcss = TRUE)$WCSS_per_cluster
 }))
 temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "", B_name, time[1], time[2],time[3])
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
@@ -23,10 +23,13 @@ rm(temp_table)
 
 wcss_list <- c()
 for (i in seq_along(k_list)){
-  wcss_list <- c(wcss_list, sum(wcss[[i]]$WCSS_per_cluster))
+  wcss_list <- c(wcss_list, sum(wcss[[i]]))
 }
-min_k <- which.min(wcss_list)
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], min_k)
-write.table(temp_table, file = here("main/case_studies/output/Optimal_k.csv"), sep = ",", 
-            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+pdf(paste0(data_name, "_", "plots.pdf"))
+plot(seq_along(k_list), wcss_list, xlab="Number of centers", ylab="WCSS")
+dev.off()
+
+#temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], min_k)
+#write.table(temp_table, file = here("main/case_studies/output/Optimal_k.csv"), sep = ",", 
+#            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")

@@ -8,7 +8,6 @@ library(BiocSingular)
 library(BiocParallel)
 library(DelayedMatrixStats)
 
-# **Ruoxi**: load the sce object
 library(HDF5Array)
 library(here)
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")),  prefix="")
@@ -57,4 +56,3 @@ saveHDF5SummarizedExperiment(sce,
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)
-        

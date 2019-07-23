@@ -10,9 +10,8 @@
 # Note taat this is not the final clustering to identify cell sub-populations.
 data_name <- commandArgs(trailingOnly=T)[2]
 
+time.start <- proc.time()
 library(scran)
-
-# **Ruxoi**: add code to load cluster labels and sce object here
 library(HDF5Array)
 clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
@@ -45,9 +44,14 @@ sce <- scater::normalize(sce)
 #object_size(sce)
 
 
-# **Ruoxi**: can you save this new sce object? 
+#Save the new sce object? 
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)
+time.end <- proc.time()
+time <- time.end - time.start
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "", 1, time[1], time[2],time[3])
+write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
