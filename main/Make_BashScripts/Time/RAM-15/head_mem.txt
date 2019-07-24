@@ -1,0 +1,11 @@
+#$ -pe local 10
+#$ -l mem_free=15G,h_vmem=15G
+#$ -q shared.q@compute-10[1-9] #need to submit to nodes with same CPU type
+#$ -cwd
+#$ -m e
+#$ -M rliu38@jhu.edu
+
+#need to keep the values same in line #1 and line #8-10 
+B=10
+B_name="10"
+cores=10
