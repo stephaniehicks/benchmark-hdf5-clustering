@@ -4,7 +4,7 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
-module load conda_R/devel
+#module load conda_R/devel
 
 mode="time"
 method="hdf5"
