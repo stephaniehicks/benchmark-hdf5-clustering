@@ -1,0 +1,47 @@
+---
+title: "Untitled"
+author: "Ruoxi Liu"
+date: "7/25/2019"
+output: html_document
+---
+```{r}
+library(HDF5Array)
+library(mbkmeans)
+sce <- loadHDF5SummarizedExperiment(dir = "/users/rliu/benchmark-hdf5-clustering/main/case_studies/data/full/hca_bonemarrow/hca_bonemarrow_preprocessed", prefix="")
+set.seed(1234)
+keep_cells <- sample(1:ncol(sce),size = 1000)
+set.seed(1234)
+keep_genes <- sample(1:nrow(sce),size = 1000)
+sce_test <- sce[keep_genes,keep_cells]
+sce_test
+```
+This takes forever to run...(this is just a 1000*1000 data!)
+```{r}
+time.start <- proc.time()
+cluster <- mbkmeans(counts(sce_test), clusters=10, batch_size = as.integer(dim(counts(sce_test))[2]*0.01))
+time.end <- proc.time()
+time.end - time.start
+```
+
+But if we save `sce_test` in the optimal way:
+```{r}
+saveHDF5SummarizedExperiment(sce_test, 
+                             dir ="/users/rliu/benchmark-hdf5-clustering/main/case_studies/data/full/hca_bonemarrow/hca_bonemarrow_1000x1000",
+                             prefix="", replace=FALSE, 
+                             chunkdim=c(dim(counts(sce_test))[1],1), 
+                             level=NULL, verbose=FALSE)
+```
+And reload the data:
+```{r}
+rm(sec_test)
+time.start2 <- proc.time()
+sce_test <- loadHDF5SummarizedExperiment(dir="/users/rliu/benchmark-hdf5-clustering/main/case_studies/data/full/hca_bonemarrow/hca_bonemarrow_1000x1000", prefix="")
+cluster <- mbkmeans(counts(sce_test), clusters=10, batch_size = as.integer(dim(counts(sce_test))[2]*0.01))
+time.end2 <- proc.time()
+time.end2 - time.start2
+```
+ user  system elapsed 
+  0.937   0.100   1.171  (with R Devel)
+  
+ user  system elapsed
+  0.431   0.027   0.493 (R 3.6.1)
