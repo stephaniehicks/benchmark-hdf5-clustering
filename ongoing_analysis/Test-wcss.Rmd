@@ -46,6 +46,7 @@ for (i in test_list){
   set.seed(1234)
   wcss <- mbkmeans(counts(hca), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), calc_wcss = TRUE)$WCSS_per_cluster
   wcss_list <- c(wcss_list, wcss)
+  rm(hca)
 }
 print(wcss_list)
 ```
