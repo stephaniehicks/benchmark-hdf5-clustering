@@ -81,4 +81,5 @@ repeat{
   }
 }
 
+print(time_list)
 print(sessionInfo())
