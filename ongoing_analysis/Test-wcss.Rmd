@@ -50,11 +50,26 @@ for (i in test_list){
 }
 print(wcss_list)
 ```
-wcss_list
-[1]  148723957  308100591  406914008 1875926259 2758062054
 
 ```{r}
-wcss_list <- c(14872395, 308100591, 406914008, 1875926259, 2758062054)
 plot(test_list, wcss_list)
+```
+```{r}
+test_list <- c(1000,5000,10000,50000,100000)
+wcss_list_km <- c()
+for (i in test_list){
+  hca <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/hca_bonemarrow", paste0("hca_bonemarrow_", i, "x3000")), prefix="")
+  hca_matrix <- t(as.matrix(counts(hca)))
+  set.seed(1234)
+  wcss <- stats::kmeans(hca_matrix, centers=15, iter.max = 100)$withinss
+  wcss_list_km <- c(wcss_list_km, sum(wcss))
+  rm(hca)
+  rm(hca_matrix)
+}
+print(wcss_list)
+```
+
+```{r}
+plot(test_list, wcss_list_km)
 ```
 
