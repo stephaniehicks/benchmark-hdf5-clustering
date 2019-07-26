@@ -39,19 +39,22 @@ batch <- 0.01
 ```
 
 ```{r}
-test_list <- c(1000,5000,10000,50000,100000,300000)
+test_list <- c(1000,5000,10000,50000,100000)
 wcss_list <- c()
 for (i in test_list){
   hca <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/hca_bonemarrow", paste0("hca_bonemarrow_", i, "x3000")), prefix="")
   set.seed(1234)
-  wcss <- mbkmeans(counts(hca), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), calc_wcss = TRUE)$WCSS_per_cluster
-  wcss_list <- c(wcss_list, wcss)
+  wcss <- mbkmeans(counts(hca), clusters=k, batch_size = as.integer(dim(counts(hca))[2]*batch), calc_wcss = TRUE)$WCSS_per_cluster
+  wcss_list <- c(wcss_list, sum(wcss))
   rm(hca)
 }
 print(wcss_list)
 ```
+wcss_list
+[1]  148723957  308100591  406914008 1875926259 2758062054
 
 ```{r}
+wcss_list <- c(14872395, 308100591, 406914008, 1875926259, 2758062054)
 plot(test_list, wcss_list)
 ```
 
