@@ -118,7 +118,7 @@ if (!init){
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
                             batch_size = nC*batch, num_init = 10, max_iters = 100,
-                            init_fraction = 0.1, initializer = initializer, 
+                            init_fraction = min(0.1,batch), initializer = initializer, 
                             method = method, size = size, dir_name = dir_name, 
                             B_name = B_name, mc.cores=cores)
     
