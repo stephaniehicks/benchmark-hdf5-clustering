@@ -1,6 +1,7 @@
-#Change the path to where "benchmark-hdf5-clustering" locates
-benchmark_path="/Users/April30"
-cd ${benchmark_path}/benchmark-hdf5-clustering/main/
+# Change the path to where "benchmark-hdf5-clustering" locates
+# If you open this file with a .Rproject file, the PWD points to where the .Rproj is
+benchmark_path=$PWD
+cd ${benchmark_path}/main/
 
 mkdir Accuracy_Local
 mkdir Memory_Local

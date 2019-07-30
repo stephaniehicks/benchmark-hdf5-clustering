@@ -5,7 +5,9 @@
 #$ -m e
 #$ -M rliu38@jhu.edu
 
-#need to keep the values same in line #1 and line #8-10 
+#need to keep the values same in line #1 and line #9 
+cores=10
+
 B=10
 B_name="10"
-cores=10
+
