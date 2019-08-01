@@ -1,3 +1,0 @@
-"B","observations","genes","batch_size","k","initializer","method","memory"
-2,1e+06,1000,0.005,3,random,hdf5,934.218646708911
-2,1e+06,1000,0.01,3,random,hdf5,933.747417153913

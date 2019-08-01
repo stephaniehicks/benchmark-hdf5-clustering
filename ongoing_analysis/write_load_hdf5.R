@@ -1,20 +1,29 @@
 library(rhdf5)
 
-#Save and load as HDF5 object with the follwoing code
-data <- readRDS("sim_data_1m_3.rds")
-sim_data <- as.matrix(data$obs_data)
+sim_data<-simulate_gauss_mix(n_cells=1000000, 
+                             n_genes=1000, k=3)
 
-h5File <- 'sim_data_1m_3.h5'
+saveRDS(sim_data$obs_data, file = "/fastscratch/myscratch/rliu/obs_data_1e+06_1.rds")
+
+#Save and load as HDF5 object with the follwoing code 
+sim_data <- readRDS("/fastscratch/myscratch/rliu/obs_data_5e+05_3.rds")
+#sim_data <- as.matrix(data$obs_data)
+
+rhdf5::h5disableFileLocking()
+h5File <- '/fastscratch/myscratch/rliu/obs_data_5e+05_3.h5'
 h5createFile(h5File)
 h5createDataset(file = h5File, dataset = "obs", 
                 dims = dim(sim_data), chunk = c(1,1000),
                 level = 0)
 h5write(sim_data, file = h5File, name = "obs" )
 
-h5.uncmp <- HDF5Array(file = 'sim_data.h5', 
+h5.uncmp <- HDF5Array(file = h5File, 
                          name = "obs")
 
-sim_hdf5 <- as(sim_data,"HDF5Matrix")
+rm(sim_data)
+rm(h5.uncmp)
+
+#sim_hdf5 <- as(sim_data,"HDF5Matrix")
 
 
 ###############h5write doesn't create hdf5 object##############

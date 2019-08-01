@@ -32,12 +32,10 @@ initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
 sim_center <- commandArgs(trailingOnly=T)[16]
 
-if (mode == "mem"){
-  if (size == "large"){
-    rhdf5::h5disableFileLocking()
-  }
+if (size == "large"){
+  rhdf5::h5disableFileLocking()
 }
-
+    
 if (init){
   if (mode == "mem"){
     if(!file.exists(here("output_files"))){

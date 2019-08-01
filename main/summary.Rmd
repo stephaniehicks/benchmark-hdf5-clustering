@@ -40,7 +40,7 @@ Fix batch size and k (study observation vs. memory)
 ```{r, warning=FALSE}
 p_mem_obs <- mem_table %>%
   #dplyr::filter(!(method %in% c("mbkmeans", "mbkmean_hdf5")))%>%
-  #dplyr::filter(!(observations %in% c(500000,1000000)))%>%
+  dplyr::filter(!(observations %in% c(500000,1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
