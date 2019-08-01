@@ -7,7 +7,9 @@ library(HDF5Array)
 library(benchmarkme)
 library(here)
 
-BiocManager::install()
+if(!(R.Version()$version.string == "R version 3.6.1 (2019-07-05)")){
+  print("Please update R to 3.6.1")
+}
 
 if(!(packageVersion("rhdf5") == "2.29.2")){
   devtools::install_github("grimbough/rhdf5")
