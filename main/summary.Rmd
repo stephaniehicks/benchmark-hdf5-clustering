@@ -33,14 +33,14 @@ mem_table <- mem_table %>%
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(mem_table$batch_size), 
                              levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
-levels(mem_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+levels(mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
 Fix batch size and k (study observation vs. memory)
 ```{r, warning=FALSE}
 p_mem_obs <- mem_table %>%
   #dplyr::filter(!(method %in% c("mbkmeans", "mbkmean_hdf5")))%>%
-  dplyr::filter(!(observations %in% c(500000,1000000)))%>%
+  #dplyr::filter(!(observations %in% c(500000,1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -57,6 +57,45 @@ p_mem_obs <- mem_table %>%
   scale_color_discrete(name = "Method")
 
 p_mem_obs
+```
+```{r}
+files_mem_old <- list.files(path= here("output_tables", "mem", "Before_Patch_0707"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+mem_table_old <- NULL
+
+for (i in (1:length(files_mem_old))){
+  temp_table <- read.csv(file = files_mem_old[i], header=TRUE, sep=",")
+  mem_table_old<- rbind(mem_table_old, temp_table)
+}
+mem_table_old <- mem_table_old %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(mem_table_old$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(mem_table_old$method) <- c("kmeans-old", "mbkmeans-old", "mbkmean_hdf5-old")
+
+mem_table_total <- rbind(mem_table, mem_table_old)
+```
+
+```{r, warning=FALSE}
+p_mem_obs_total <- mem_table_total %>%
+  dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmean_hdf5-old","mbkmean_hdf5-new" )))%>%
+  #dplyr::filter(!(observations %in% c(500000,1000000)))%>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(memory), 
+                   sd = sd(memory)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Memory (Mb)") + 
+  facet_wrap(~batch_size_perc) + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_mem_obs_total
 ```
 
 Fix observation and k (study effects of batch size)
