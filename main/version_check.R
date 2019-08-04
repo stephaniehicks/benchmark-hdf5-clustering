@@ -15,10 +15,6 @@ if(!(packageVersion("rhdf5") == "2.29.2")){
   devtools::install_github("grimbough/rhdf5")
 }
 
-if(!(packageVersion("mclust") == "5.4.5")){
-  install.packages("mclust")
-}
-
 if(!(packageVersion("BiocGenerics") == "0.31.5")){
   devtools::install_github("Bioconductor/BiocGenerics")
 }
@@ -31,16 +27,16 @@ if(!(packageVersion("IRanges") == "2.19.10")){
   devtools::install_github("Bioconductor/IRanges")
 }
 
+if(!(packageVersion("DelayedArray") == "0.11.4")){
+  devtools::install_github("Bioconductor/DelayedArray")
+}
+
 if(!(packageVersion("HDF5Array") == "1.13.4")){
   devtools::install_github("Bioconductor/HDF5Array")
 }
 
 if(!(packageVersion("BiocParallel") == "1.19.0")){
   devtools::install_github("Bioconductor/BiocParallel")
-}
-
-if(!(packageVersion("DelayedArray") == "0.11.4")){
-  devtools::install_github("Bioconductor/DelayedArray")
 }
 
 if(!(packageVersion("ClusterR") == "1.2.0")){
@@ -61,6 +57,10 @@ if(!(packageVersion("SummarizedExperiment") == "1.15.6")){
 
 if(!(packageVersion("SingleCellExperiment") == "1.7.2")){
   devtools::install_github("drisso/SingleCellExperiment")
+}
+
+if(!(packageVersion("mclust") == "5.4.5")){
+  install.packages("mclust")
 }
 
 if(!(packageVersion("beachmat") == "2.1.2")){
