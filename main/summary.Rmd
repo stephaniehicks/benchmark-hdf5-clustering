@@ -78,7 +78,7 @@ mem_table_total <- rbind(mem_table, mem_table_old)
 
 ```{r, warning=FALSE}
 p_mem_obs_total <- mem_table_total %>%
-  dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmean_hdf5-old","mbkmean_hdf5-new" )))%>%
+  dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmeans-old","mbkmeans-new" )))%>%
   #dplyr::filter(!(observations %in% c(500000,1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
@@ -302,8 +302,10 @@ p_wcss_batch_line
 Time Summary
 ```{r}
 files_time <- list.files(path= here("output_tables", "time"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+files_time_old <- list.files(path= here("output_tables", "time", "Before_Patch_0707"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
 time_table <- NULL
+time_table_old <- NULL
 
 for (i in (1:length(files_time))){
   temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
@@ -314,12 +316,24 @@ time_table <- time_table %>%
          batch_size_perc = factor(scales::percent(time_table$batch_size), 
                              levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
 levels(time_table$method) <- c("kmeans", "mbkmeans", "mbkmean_hdf5")
+
+for (i in (1:length(files_time_old))){
+  temp_table <- read.csv(file = files_time_old[i], header=TRUE, sep=",")
+  time_table_old <- rbind(time_table_old, temp_table)
+}
+time_table_old <- time_table_old %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(time_table_old$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(time_table_old$method) <- c("kmeans-old", "mbkmeans-old", "mbkmean_hdf5-old")
+
+time_table_total <- rbind(time_table, time_table_old)
 ```
 
 Fix batch size and k (study observation vs. time)
 ```{r, warning=FALSE}
 p_elp_time_obs <- time_table %>%
-  #dplyr::filter(!(method == "mbkmean_hdf5"))%>%
+  dplyr::filter(!(method == "kmeans"))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(elapsed_time), 
                    sd = sd(elapsed_time)) %>% 
@@ -336,6 +350,27 @@ p_elp_time_obs <- time_table %>%
 
 p_elp_time_obs
 ```
+```{r, warning=FALSE}
+p_elp_time_obs_total <- time_table_total %>%
+  dplyr::filter(!(method %in% c("kmeans", "kmeans-old")))%>%
+  dplyr::filter(!(observations %in% c(500000,1000000, 100000, 175000, 250000)))%>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(elapsed_time), 
+                   sd = sd(elapsed_time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(~batch_size_perc, scale = "free") + 
+  scale_color_discrete(name = "Method")
+
+p_elp_time_obs_total
+```
+
 ```{r, warning=FALSE}
 p_user_time_obs <- time_table %>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
