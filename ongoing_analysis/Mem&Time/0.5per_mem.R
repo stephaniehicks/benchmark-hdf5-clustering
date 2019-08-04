@@ -17,7 +17,6 @@ nG <- 1000
 sim_center <- 3
 now <- format(Sys.time(), "%b%d%H%M%OS3")
 
-saveRDS(sim_data, here("ongoing_analysis/Mem&Time/data", paste0(now, "_", nC, "_sim_data.rds")))
 sim_data <- simulate_gauss_mix(n_cells=nC, n_genes=nG, k = sim_center)
 h5File <- here("ongoing_analysis/Mem&Time/data", paste0(now, "_", nC, "_sim_data.h5"))
 h5createFile(h5File)
