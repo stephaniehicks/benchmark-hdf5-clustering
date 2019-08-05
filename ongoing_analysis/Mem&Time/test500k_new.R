@@ -7,7 +7,9 @@ suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(benchmarkme))
 suppressPackageStartupMessages(library(here))
 
-Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
+now <- format(Sys.time(), "%b%d%H%M%OS3")
+
+Rprof(filename = here("ongoing_analysis/Mem&Time/data", paste0(now, "_500k", ".out")), append = FALSE, memory.profiling = TRUE)
 sim_data_hdf5 <- HDF5Array(file = "/users/rliu/benchmark-hdf5-clustering/ongoing_analysis/Mem&Time/data/Aug04165921.388_5e+05_sim_data.h5",
                            name = "obs")
 mbkmeans::mini_batch(sim_data_hdf5, clusters = 3, 
@@ -17,7 +19,7 @@ mbkmeans::mini_batch(sim_data_hdf5, clusters = 3,
 
 Rprof(NULL)
 
-profile <- summaryRprof(filename = here("ongoing_analysis/Mem&Time/data", paste0(now, "_", nC, ".out")), chunksize = -1L, 
+profile <- summaryRprof(filename = here("ongoing_analysis/Mem&Time/data", paste0(now, "_500k", ".out")), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
 
