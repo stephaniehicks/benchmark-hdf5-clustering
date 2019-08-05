@@ -37,7 +37,7 @@ profile <- summaryRprof(filename = here("ongoing_analysis/Mem&Time/data", paste0
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
 
-temp_table <- data.frame(nC, nG, init_per, max_mem)
+temp_table <- data.frame(500000, 1000, 0.005, max_mem, "old data")
 write.table(temp_table, file = here("ongoing_analysis/Mem&Time/Output.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
