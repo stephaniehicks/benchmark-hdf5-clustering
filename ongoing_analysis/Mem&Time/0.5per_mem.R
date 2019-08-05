@@ -1,4 +1,4 @@
-rhdf5::h5disableFileLocking()
+#rhdf5::h5disableFileLocking()
 
 suppressPackageStartupMessages(library(mbkmeans))
 suppressPackageStartupMessages(library(rhdf5))
