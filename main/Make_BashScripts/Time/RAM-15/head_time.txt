@@ -10,4 +10,5 @@ cores=10
 
 B=10
 B_name="10"
+data_path="/fastscratch/myscratch/rliu/Aug_data"
 

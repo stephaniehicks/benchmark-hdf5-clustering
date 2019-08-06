@@ -2,3 +2,5 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
+
+data_path="/fastscratch/myscratch/rliu/Aug_data"
