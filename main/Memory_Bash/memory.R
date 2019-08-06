@@ -24,17 +24,17 @@ if (method == "kmeans"){
 
 if (method == "mbkmeans"){
   mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", nC, "_", index, ".rds"))
-  mbkmeans::mini_batch(mydata, clusters = 3, 
+  invisible( mbkmeans::mini_batch(mydata, clusters = 3, 
                        batch_size = nC*batch, num_init = 10, 
                        max_iters = 100, init_fraction = min(batch, 0.1),
-                       initializer = initializer, calc_wcss = FALSE)
+                       initializer = initializer, calc_wcss = FALSE))
 }
 
 if (method == "hdf5"){
   sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", nC, "_", index, ".h5"), name = "obs")
-  mbkmeans::mini_batch(sim_data_hdf5, clusters = 3, 
+  invisible(mbkmeans::mini_batch(sim_data_hdf5, clusters = 3, 
                        batch_size = nC*batch, num_init = 10, 
                        max_iters = 100, init_fraction = min(batch, 0.1),
-                       initializer = initializer, calc_wcss = FALSE)
+                       initializer = initializer, calc_wcss = FALSE))
 }
 
