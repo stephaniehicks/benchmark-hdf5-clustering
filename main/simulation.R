@@ -1,6 +1,6 @@
 library(HDF5Array)
 library(rhdf5)
-source(here("scripts","simulate_gauss_mix.R"))
+source(here::here("scripts","simulate_gauss_mix.R"))
 
 nC <- as.numeric(commandArgs(trailingOnly=T)[2])
 nG <- as.numeric(commandArgs(trailingOnly=T)[3])
