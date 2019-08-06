@@ -32,67 +32,6 @@ initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
 sim_center <- commandArgs(trailingOnly=T)[16]
 
-if (size == "large"){
-  rhdf5::h5disableFileLocking()
-}
-    
-if (init){
-  if (mode == "mem"){
-    if(!file.exists(here("output_files"))){
-      dir.create(here("output_files"))
-    }
-    
-    dir.create(here("output_files", dir_name))
-    
-    profile_table <- data.frame(matrix(vector(), 0, 8, 
-                                dimnames=list(c(), c("B", "observations", "genes",
-                                                     "batch_size","k",
-                                                     "initializer", "method","memory"))),
-                                stringsAsFactors=F)
-    write.table(profile_table, file = here("output_tables", mode, file_name), 
-                sep = ",", col.names = TRUE)
-    
-    sink(file = here("output_files", dir_name, "info.txt"))
-    cat("RAM Info:\n")
-    print(get_ram())
-    cat("CPU Info: \n")
-    print(get_cpu())
-    cat("Session Info:\n")
-    print(sessionInfo())
-    sink()
-  }
-  
-  if (mode == "acc"){
-   profile_table <- data.frame(matrix(vector(), 0, 9, 
-                                       dimnames=list(c(), c("B", "observations", "genes",
-                                                            "batch_size","k",
-                                                            "initializer", "method","ARI","WCSS"))),
-                                stringsAsFactors=F)
-    write.table(profile_table, file = here("output_tables", mode, file_name), 
-                sep = ",", col.names = TRUE)
-  }
-  
-  if (mode == "time"){
-
-    profile_table <- data.frame(matrix(vector(), 0, 10, 
-                                       dimnames=list(c(), c("B", "observations", "genes",
-                                                            "batch_size","k",
-                                                            "initializer", "method","user_time", "system_time", "elapsed_time"))),
-                                stringsAsFactors=F)
-    write.table(profile_table, file = here("output_tables", mode, file_name), 
-                sep = ",", col.names = TRUE)
-    
-    sink(file = here("output_tables", mode, paste0(dir_name, "_info.txt"))) #dir_name is same as file_name, except dir_name doesn't have ".csv"
-    cat("RAM Info:\n")
-    print(get_ram())
-    cat("CPU Info: \n")
-    print(get_cpu())
-    cat("Session Info:\n")
-    print(sessionInfo())
-    sink()
-  }
-}
-  
 if (!init){
   if (mode == "mem"){
     #simulate data and store the data, so that it could be read back in later (only necessary for small data)
