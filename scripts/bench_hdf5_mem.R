@@ -49,7 +49,7 @@ bench_hdf5_mem <- function(i, n_cells,
   
     if (method == "hdf5"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
-      sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", nC, "_", index, ".h5"), name = "obs")
+      sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", n_cells, "_", index, ".h5"), name = "obs")
       mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                          batch_size = batch_size, num_init = num_init, 
                          max_iters = max_iters, init_fraction = init_fraction,
