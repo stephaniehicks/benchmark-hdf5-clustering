@@ -27,3 +27,4 @@ main/Time/*
 main/Memory/*
 main/Accuracy/*
 ongoing_analysis/Mem&Time/data/
+main/summary_files/*
