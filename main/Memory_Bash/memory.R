@@ -15,7 +15,7 @@ nG <- as.numeric(commandArgs(trailingOnly=T)[4])
 batch <- as.numeric(commandArgs(trailingOnly=T)[5])
 initializer <- commandArgs(trailingOnly=T)[6]
 data_path <- commandArgs(trailingOnly=T)[7]
-index <- 14
+index <- 8
 
 if (method == "kmeans"){
   mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", nC, "_", index, ".rds"))
