@@ -1,0 +1,168 @@
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.005 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.89
+	System time (seconds): 0.99
+	Percent of CPU this job got: 82%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:15.71
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 45
+	Minor (reclaiming a frame) page faults: 263566
+	Voluntary context switches: 4222
+	Involuntary context switches: 2091
+	Swaps: 0
+	File system inputs: 349432
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.01 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.76
+	System time (seconds): 0.90
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:13.19
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 264122
+	Voluntary context switches: 2490
+	Involuntary context switches: 1321
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.05 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.74
+	System time (seconds): 0.88
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.95
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 263611
+	Voluntary context switches: 2503
+	Involuntary context switches: 1319
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.1 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.47
+	System time (seconds): 0.93
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.96
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 263611
+	Voluntary context switches: 2228
+	Involuntary context switches: 1301
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.2 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.31
+	System time (seconds): 0.85
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 264122
+	Voluntary context switches: 1982
+	Involuntary context switches: 1259
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+Error in file_path_as_absolute(path) : 
+  file '/fastscratch/myscratch/rliu/Aug_data/obs_data_350000_14.h5' does not exist
+Calls: HDF5Array ... HDF5ArraySeed -> normarg_path -> file_path_as_absolute
+Execution halted
+Command exited with non-zero status 1
+	Command being timed: "Rscript --slave memory.R --args hdf5 350000 1000 0.5 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 11.89
+	System time (seconds): 0.90
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:13.39
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 449568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 264122
+	Voluntary context switches: 1622
+	Involuntary context switches: 1354
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
