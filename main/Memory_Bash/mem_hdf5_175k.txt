@@ -182,3 +182,95 @@
 	Signals delivered: 0
 	Page size (bytes): 4096
 	Exit status: 0
+	Command being timed: "Rscript --slave memory.R --args hdf5 250000 1000 0.005 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 143.89
+	System time (seconds): 9.14
+	Percent of CPU this job got: 92%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:45.98
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1064200
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 45
+	Minor (reclaiming a frame) page faults: 626359
+	Voluntary context switches: 33594
+	Involuntary context switches: 56003
+	Swaps: 0
+	File system inputs: 4277176
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "Rscript --slave memory.R --args hdf5 250000 1000 0.01 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 215.23
+	System time (seconds): 10.89
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:46.91
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1064028
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 711259
+	Voluntary context switches: 3174
+	Involuntary context switches: 1773
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "Rscript --slave memory.R --args hdf5 250000 1000 0.05 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 804.05
+	System time (seconds): 32.89
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 13:58.30
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1064144
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 825757
+	Voluntary context switches: 3221
+	Involuntary context switches: 2662
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "Rscript --slave memory.R --args hdf5 250000 1000 0.1 random /fastscratch/myscratch/rliu/Aug_data"
+	User time (seconds): 1030.74
+	System time (seconds): 61.32
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 18:40.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1458560
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 850669
+	Voluntary context switches: 3282
+	Involuntary context switches: 12481
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
