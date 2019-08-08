@@ -1,3 +1,4 @@
+#$ -q shared.q@compute-06[0-9],shared.q@compute-07[2-6]
 #$ -l mem_free=10G,h_vmem=10G
 #$ -cwd
 #$ -m e
