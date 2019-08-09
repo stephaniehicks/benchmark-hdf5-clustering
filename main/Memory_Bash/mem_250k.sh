@@ -16,7 +16,7 @@ for c in "${nC[@]}"; do
 		for ba in "${batch[@]}"; do 
 			/usr/bin/time --verbose Rscript --slave memory.R \
 			--args $method $c $g $ba $initializer $data_path \
-			&>>mem_hdf5_175k.txt
+			&>>mem_hdf5_250k.txt
 		done
 	done
 done
