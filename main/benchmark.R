@@ -61,10 +61,10 @@ if (init){
   }
   
   if (mode == "acc"){
-    profile_table <- data.frame(matrix(vector(), 0, 9, 
+    profile_table <- data.frame(matrix(vector(), 0, 11, 
                                        dimnames=list(c(), c("B", "observations", "genes",
                                                             "batch_size","k",
-                                                            "initializer", "method","ARI","WCSS"))),
+                                                            "initializer", "method","ARI","WCSS", "iterations", "fault"))),
                                 stringsAsFactors=F)
     write.table(profile_table, file = here("output_tables", mode, file_name), 
                 sep = ",", col.names = TRUE)
@@ -122,11 +122,11 @@ if (!init){
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
   
-    cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, mc.cores=cores)
+    cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method, mc.cores=cores)
   
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
-                              method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss)
+                              method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
       write.table(temp_table, file = here("output_tables", mode, file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }

@@ -69,7 +69,6 @@ I. Fix batch size and k (study observation vs. memory)
 I-1. New results (seperating simulation and test)
 ```{r}
 p_mem_obs_all <- mem_table %>%
-  #dplyr::filter(!(method %in% c("kmeans-new")))%>%
   dplyr::filter(!(observations %in% c(1000000)))%>%
   dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
@@ -117,7 +116,7 @@ I-2. Compare new results with before-patch results
 p_mem_patch_hdf5 <- mem_table_total %>%
   dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmeans-old","mbkmeans-new" )))%>%
  # dplyr::filter(!(observations %in% c(1000000)))%>%
-  dplyr::filter((observations %in% c(1000, 5000, 25000, 75000)))%>%
+  dplyr::filter((observations %in% c(1000, 5000, 25000, 75000, 350000, 500000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 

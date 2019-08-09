@@ -31,7 +31,7 @@ bench_hdf5_acc <- function(i, n_cells,
     cluster_output <- stats::kmeans(sim_data$obs_data, centers=k_centers, iter.max = max_iters, nstart = num_init)
     
     output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$cluster, 
-                   cluster_wcss = cluster_output$withinss)
+                   cluster_wcss = cluster_output$withinss, ifault = cluster_output$ifault, iteration = cluster_output$iter)
   }
   
   if(method == "mbkmeans"){
@@ -42,7 +42,8 @@ bench_hdf5_acc <- function(i, n_cells,
       initializer = initializer, calc_wcss = TRUE)
     
     output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$Clusters, 
-                   cluster_wcss = cluster_output$WCSS_per_cluster)
+                   cluster_wcss = cluster_output$WCSS_per_cluster, best_init = cluster_output$best_initialization, 
+                   iters = cluster_output$iters_per_initialization)
   }
   
   if(method == "hdf5"){
@@ -53,7 +54,8 @@ bench_hdf5_acc <- function(i, n_cells,
       initializer = initializer, calc_wcss = TRUE)
     
     output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$Clusters, 
-                   cluster_wcss = cluster_output$WCSS_per_cluster)
+                   cluster_wcss = cluster_output$WCSS_per_cluster, best_init = cluster_output$best_initialization, 
+                   iters = cluster_output$iters_per_initialization)
   }
   return(output)
 }
