@@ -1,0 +1,4 @@
+"B","observations","genes","batch_size","k","initializer","method","ARI","WCSS","iterations","fault"
+1,5e+05,1000,0.005,3,random,kmeans,0.989274311356564,995090678.001525,3,0
+2,5e+05,1000,0.005,3,random,kmeans,0.989589078001141,992422145.703858,3,0
+3,5e+05,1000,0.005,3,random,kmeans,0.989601816500148,1037540617.93589,3,0
