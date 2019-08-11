@@ -47,7 +47,7 @@ simulate_gauss_mix_k <- function(n_cells, n_genes,
   # Sampling locations for cells in each component
   samples1 <- cbind(rnorm(n=n_cells, mean=x_mus[comp1],sd=x_sds[comp1]),
                     rnorm(n=n_cells, mean=y_mus[comp1],sd=y_sds[comp1]))
-  plot(samples1[,1], samples1[,2], col=c(1:15)[comp1])
+  #plot(samples1[,1], samples1[,2], col=c(1:15)[comp1])
   
   # Random projection to D dimensional space, to mimic high-dimensional expression data.
   proj <- matrix(rnorm(n_genes*n_cells), nrow=n_genes, ncol=2)
