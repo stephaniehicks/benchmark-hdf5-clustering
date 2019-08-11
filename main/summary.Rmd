@@ -115,8 +115,7 @@ I-2. Compare new results with before-patch results
 ```{r, warning=FALSE}
 p_mem_patch_hdf5 <- mem_table_total %>%
   dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmeans-old","mbkmeans-new" )))%>%
- # dplyr::filter(!(observations %in% c(1000000)))%>%
-  dplyr::filter((observations %in% c(1000, 5000, 25000, 75000, 350000, 500000)))%>%
+  dplyr::filter(!(observations %in% c(1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -137,8 +136,7 @@ p_mem_patch_hdf5
 ```{r, warning=FALSE}
 p_mem_patch_mbkm <- mem_table_total %>%
   dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmean_hdf5-old","mbkmean_hdf5-new" )))%>%
- # dplyr::filter(!(observations %in% c(1000000)))%>%
-  dplyr::filter((observations %in% c(1000, 5000, 25000, 75000)))%>%
+  dplyr::filter(!(observations %in% c(1000000)))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -237,7 +235,7 @@ time_table_total <- rbind(time_table, time_table_old)
 Fix batch size and k (study observation vs. time)
 ```{r, warning=FALSE}
 p_elp_time_obs <- time_table %>%
-  #dplyr::filter(!(method == "kmeans-new"))%>%
+  dplyr::filter(!(method == "kmeans-new"))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(elapsed_time), 
                    sd = sd(elapsed_time)) %>% 

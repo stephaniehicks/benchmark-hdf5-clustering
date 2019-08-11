@@ -7,7 +7,7 @@ calculate_acc <- function(i, sim_object, method){
 
   if (!(method == "kmeans")){
     best_iter <- sim_object[[i]]$best_init
-    iters <- sim_object[[i]]$iters[best]
+    iters <- sim_object[[i]]$iters[best_iter]
     ifault <- "NA"
   }else{
     iters <- sim_object[[i]]$iteration
