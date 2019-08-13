@@ -3,7 +3,7 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
-module load conda_R/devel
+data_path="/fastscratch/myscratch/rliu/Aug_data_15"
 
 mode="acc"
 method="hdf5"

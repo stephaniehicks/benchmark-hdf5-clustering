@@ -18,14 +18,14 @@ bench_hdf5_acc <- function(i, n_cells,
     }
   }
   
-  if (size == "large"){
-    sim_data <- readRDS(file = paste0("/fastscratch/myscratch/rliu/","sim_data_",as.character(n_cells),"_", i, ".rds"))
-    
-    if (method == "hdf5"){
-      sim_data_hdf5 <- HDF5Array(file = paste0("/fastscratch/myscratch/rliu/","obs_data_",as.character(n_cells),"_", i, ".h5"),
-                               name = "obs")
-    }
-  }  
+  #if (size == "large"){
+  #  sim_data <- readRDS(file = paste0("/fastscratch/myscratch/rliu/","sim_data_",as.character(n_cells),"_", i, ".rds"))
+  #  
+  #  if (method == "hdf5"){
+  #    sim_data_hdf5 <- HDF5Array(file = paste0("/fastscratch/myscratch/rliu/","obs_data_",as.character(n_cells),"_", i, ".h5"),
+  #                            name = "obs")
+  #  }
+  #}  
   
   if(method == "kmeans"){
     cluster_output <- stats::kmeans(sim_data$obs_data, centers=k_centers, iter.max = max_iters, nstart = num_init)

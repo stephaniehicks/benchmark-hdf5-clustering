@@ -6,13 +6,17 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(benchmarkme))
 suppressPackageStartupMessages(library(here))
+rhdf5::h5disableFileLocking()
 
+#Bash script will be submited in main/ and use the current working directory (main/ will be cwd)
+#here() will return the top directory, which is benchmark_hdf5_clustering
 source(here("scripts","simulate_gauss_mix_k.R"))
 source(here("scripts","calculate_acc.R"))
 source(here("scripts","bench_hdf5_acc_k.R"))
 source(here("scripts","bench_hdf5_mem.R"))
 source(here("scripts","bench_hdf5_time.R"))
 
+#loading in parameters
 init <- as.logical(commandArgs(trailingOnly=T)[2])
 mode <- commandArgs(trailingOnly=T)[3]
 dir_name <- commandArgs(trailingOnly=T)[4]
@@ -28,26 +32,21 @@ k <- as.numeric(commandArgs(trailingOnly=T)[13])
 initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
 sim_center <- commandArgs(trailingOnly=T)[16]
-
-if (mode == "mem"){
-  if (size == "large"){
-    rhdf5::h5disableFileLocking()
-  }
-}
+data_path <- commandArgs(trailingOnly=T)[17]
 
 if (init){
+  if(!file.exists(here("output_files"))){
+    dir.create(here("output_files"))
+  }
+  
+  if(!file.exists(here("output_tables","Varying_k"))){
+    dir.create(here("output_tables","Varying_k"))
+    dir.create(here("output_tables","Varying_k","mem"))
+    dir.create(here("output_tables","Varying_k","time"))
+    dir.create(here("output_tables","Varying_k", "acc"))
+  }
+  
   if (mode == "mem"){
-    if(!file.exists(here("output_files"))){
-      dir.create(here("output_files"))
-    }
-    
-    if(!file.exists(here("output_tables","Varying_k"))){
-      dir.create(here("output_tables","Varying_k"))
-      dir.create(here("output_tables","Varying_k","mem"))
-      dir.create(here("output_tables","Varying_k","time"))
-      dir.create(here("output_tables","Varying_k", "acc"))
-    }
-    
     dir.create(here("output_files", dir_name))
     
     profile_table <- data.frame(matrix(vector(), 0, 8, 
@@ -69,17 +68,16 @@ if (init){
   }
   
   if (mode == "acc"){
-    profile_table <- data.frame(matrix(vector(), 0, 9, 
+    profile_table <- data.frame(matrix(vector(), 0, 11, 
                                        dimnames=list(c(), c("B", "observations", "genes",
                                                             "batch_size","k",
-                                                            "initializer", "method","ARI","WCSS"))),
+                                                            "initializer", "method","ARI","WCSS", "iterations", "fault"))),
                                 stringsAsFactors=F)
     write.table(profile_table, file = here("output_tables","Varying_k", mode, file_name), 
                 sep = ",", col.names = TRUE)
   }
   
   if (mode == "time"){
-    
     profile_table <- data.frame(matrix(vector(), 0, 10, 
                                        dimnames=list(c(), c("B", "observations", "genes",
                                                             "batch_size","k",
@@ -100,59 +98,27 @@ if (init){
 }
 
 if (!init){
-  set.seed(1234)
-  x_mus <- runif(sim_center, min = -10, max = 10)
-  set.seed(1234)
-  x_sds <- sample(1:10, sim_center, replace = TRUE)/10
-  set.seed(12)
-  y_mus <- runif(sim_center, min = -10, max = 10)
-  set.seed(123)
-  y_sds <- sample(1:10, sim_center, replace = TRUE)/10
-  prop1 <- rep(1/sim_center, sim_center)
-
+  if (size == "small"){
+    index <- sample(c(1:50), 1)
+  }
+  if(size == "large"){
+    index <- sample(c(1:10), 1)
+  }
+  
   if (mode == "mem"){
-    if (size == "small"){
-      sim_data <- simulate_gauss_mix_k(n_cells = nC, n_genes = nG, k = sim_center, 
-                                       x_mus = x_mus, x_sds = x_sds, y_mus = y_mus, y_sds = y_sds, prop1=prop1)
-      
-      if (method == "hdf5"){
-        h5File <- here("output_files", dir_name,"sim_data.h5")
-        h5createFile(h5File)
-        h5createDataset(file = h5File, dataset = "obs", 
-                        dims = dim(as.matrix(sim_data$obs_data)), chunk = c(1,nG),
-                        level = 0)
-        h5write(as.matrix(sim_data$obs_data), file = h5File, name = "obs" )
-      }else{
-        saveRDS(sim_data$obs_data, file = here("output_files", dir_name,"sim_data.rds"))
-      }
-      rm(sim_data)
-      invisible(gc())
-    }
     cluster_mem <- mclapply(1, bench_hdf5_mem, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
                             batch_size = nC*batch, num_init = 10, max_iters = 100,
                             init_fraction = min(0.1, batch), initializer = initializer, 
                             method = method, size = size, dir_name = dir_name, 
-                            B_name = B_name, mc.cores=cores)
+                            index = index, mc.cores=cores)
     
     max_mem <- cluster_mem[[1]]
     
     temp_table <- data.frame(B_name, nC, nG, batch, k, initializer, method, max_mem)
     write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
-    
-    rm(max_mem)
-    rm(cluster_mem)
-    rm(temp_table)
-    if (size == "small"){
-      if (method == "hdf5"){
-        file.remove(here("output_files", dir_name,"sim_data.h5"))
-      }else{
-        file.remove(here("output_files", dir_name,"sim_data.rds"))
-      }
-    }
-    invisible(gc())
   }
   
   if (mode == "acc"){
@@ -163,43 +129,24 @@ if (!init){
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
-    cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, mc.cores=cores)
+    cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method, mc.cores=cores)
     
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
-                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss)
-      write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
+                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
+      write.table(temp_table, file = here("output_tables", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
   }
   
   if (mode == "time"){
-    if (size == "small"){
-      now <- format(Sys.time(), "%b%d%H%M%OS3")
-      sim_data <- simulate_gauss_mix_k(n_cells = nC, n_genes = nG, k = sim_center, 
-                                       x_mus = x_mus, x_sds = x_sds, y_mus = y_mus, y_sds = y_sds, prop1=prop1)
-      
-      if (method == "hdf5"){
-        h5File <- here("output_files", paste0(now, "_sim_data.h5"))
-        h5createFile(h5File)
-        h5createDataset(file = h5File, dataset = "obs", 
-                        dims = dim(as.matrix(sim_data$obs_data)), chunk = c(1,nG),
-                        level = 0)
-        h5write(as.matrix(sim_data$obs_data), file = h5File, name = "obs" )
-      }else{
-        saveRDS(sim_data$obs_data, file = here("output_files", paste0(now,"_sim_data.rds")))
-      }
-      rm(sim_data)
-      invisible(gc())
-    }
-    
     cluster_time <- mclapply(seq_len(B), bench_hdf5_time, 
                              n_cells = nC, n_genes = nG, 
                              k_centers = k,
                              batch_size = nC*batch, num_init = 10, max_iters = 100,
                              init_fraction = 0.1, initializer = initializer, 
                              method = method, size = size,  
-                             B_name = B_name, now = now, mc.cores=cores)
+                             index = index, now = now, mc.cores=cores)
     
     for (i in seq_len(B)){ 
       time <- cluster_time[[i]]
@@ -207,18 +154,5 @@ if (!init){
       write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
-    
-    rm(cluster_time)
-    rm(time)
-    rm(temp_table)
-    if (size == "small"){
-      if (method == "hdf5"){
-        file.remove(here("output_files", paste0(now, "_sim_data.h5")))
-      }else{
-        file.remove(here("output_files", paste0(now,"_sim_data.rds")))
-      }
-    }
-    rm(now)
-    invisible(gc())
   }
 } 
