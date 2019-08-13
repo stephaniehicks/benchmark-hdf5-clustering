@@ -13,8 +13,8 @@ rhdf5::h5disableFileLocking()
 source(here("scripts","simulate_gauss_mix_k.R"))
 source(here("scripts","calculate_acc.R"))
 source(here("scripts","bench_hdf5_acc_k.R"))
-source(here("scripts","bench_hdf5_mem.R"))
-source(here("scripts","bench_hdf5_time.R"))
+source(here("scripts","bench_hdf5_mem_k.R"))
+source(here("scripts","bench_hdf5_time_k.R"))
 
 #loading in parameters
 init <- as.logical(commandArgs(trailingOnly=T)[2])
@@ -106,7 +106,7 @@ if (!init){
   }
   
   if (mode == "mem"){
-    cluster_mem <- mclapply(1, bench_hdf5_mem, 
+    cluster_mem <- mclapply(1, bench_hdf5_mem_k, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
                             batch_size = nC*batch, num_init = 10, max_iters = 100,
@@ -140,7 +140,7 @@ if (!init){
   }
   
   if (mode == "time"){
-    cluster_time <- mclapply(seq_len(B), bench_hdf5_time, 
+    cluster_time <- mclapply(seq_len(B), bench_hdf5_time_k, 
                              n_cells = nC, n_genes = nG, 
                              k_centers = k,
                              batch_size = nC*batch, num_init = 10, max_iters = 100,
