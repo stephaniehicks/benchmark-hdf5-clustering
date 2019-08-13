@@ -2,7 +2,7 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
-module load conda_R/devel
+data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
 
 mode="mem"
 method="mbkmeans"
@@ -24,7 +24,7 @@ dir_name="${CURRDATE}_${method}_${nC}_${batch}_${B_name}"
 
 init=TRUE
 Rscript --slave ../benchmark_varying_k.R \
---args $init $mode $dir_name $file_name $method $size $B_name $cores $c $g $ba $k $initializer $B $sim_center
+--args $init $mode $dir_name $file_name $method $size $B_name $cores $c $g $ba $k $initializer $B $sim_center $data_path
 
 init=false
 
@@ -33,7 +33,7 @@ for c in "${nC[@]}"; do
 		for ba in "${batch[@]}"; do 
 			for k in "${center[@]}";do
 				Rscript --slave ../benchmark_varying_k.R \
-				--args $init $mode $dir_name $file_name $method $size $B_name $cores $c $g $ba $k $initializer $B $sim_center
+				--args $init $mode $dir_name $file_name $method $size $B_name $cores $c $g $ba $k $initializer $B $sim_center $data_path
 			done
 		done
 	done
