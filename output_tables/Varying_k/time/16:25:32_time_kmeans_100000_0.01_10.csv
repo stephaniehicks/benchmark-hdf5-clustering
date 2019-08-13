@@ -1,0 +1,21 @@
+"B","observations","genes","batch_size","k","initializer","method","user_time","system_time","elapsed_time"
+1,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+2,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+3,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+4,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+5,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+6,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+7,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+8,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+9,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA
+10,1e+05,1000,0.01,2,random,kmeans,Error in FUN(X[[i]], ...) : unused argument (now = now)
+,NA,NA

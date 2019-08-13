@@ -1,0 +1,10 @@
+"B","observations","genes","batch_size","k","initializer","method","memory"
+1,1e+05,1000,0.01,2,random,kmeans,7246.05868972002
+1,1e+05,1000,0.01,3,random,kmeans,7246.14320052356
+1,1e+05,1000,0.01,4,random,kmeans,7240.40405713035
+1,1e+05,1000,0.01,5,random,kmeans,7246.31257308279
+1,1e+05,1000,0.01,6,random,kmeans,7246.3964353878
+1,1e+05,1000,0.01,7,random,kmeans,7246.48035872796
+1,1e+05,1000,0.01,8,random,kmeans,7246.56467879663
+1,1e+05,1000,0.01,9,random,kmeans,7240.67337475832
+1,1e+05,1000,0.01,10,random,kmeans,7246.7351194711
