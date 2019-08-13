@@ -1,4 +1,5 @@
 #$-pe local 10
+#$ -q shared.q@compute-10[1-9] #need to submit to nodes with same CPU type
 #$ -l mem_free=6G,h_vmem=6G
 #$ -cwd
 #$ -m e
