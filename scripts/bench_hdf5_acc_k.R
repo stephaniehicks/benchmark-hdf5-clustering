@@ -20,6 +20,7 @@ bench_hdf5_acc_k <- function(i, n_cells,
     set.seed(123)
     y_sds <- sample(1:10, sim_center, replace = TRUE)/10
     prop1 <- rep(1/sim_center, sim_center)
+    
     sim_data <- simulate_gauss_mix_k(n_cells = n_cells, n_genes = n_genes, k = sim_center, 
                                      x_mus = x_mus, x_sds = x_sds, y_mus = y_mus, y_sds = y_sds, prop1=prop1)
     
