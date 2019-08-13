@@ -146,7 +146,7 @@ if (!init){
                              batch_size = nC*batch, num_init = 10, max_iters = 100,
                              init_fraction = 0.1, initializer = initializer, 
                              method = method, size = size,  
-                             index = index, now = now, mc.cores=cores)
+                             index = index, mc.cores=cores)
     
     for (i in seq_len(B)){ 
       time <- cluster_time[[i]]
