@@ -1,4 +1,4 @@
-#$-pe local 10
+#$-pe local 2
 #$ -l mem_free=8G,h_vmem=8G
 #$ -cwd
 #$ -m e
@@ -8,9 +8,9 @@ data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
 mode="acc"
 method="hdf5"
 size="small"
-B=10
-B_name="10"
-cores=10
+B=2
+B_name="2"
+cores=2
 nC=(100000)
 nG=(1000)
 batch=(0.01 0.1)
