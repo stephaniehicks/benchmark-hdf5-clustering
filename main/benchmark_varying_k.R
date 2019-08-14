@@ -130,8 +130,7 @@ if (!init){
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
     cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method, mc.cores=cores)
-    print(cluster_acc)
-    
+  
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
                                method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
