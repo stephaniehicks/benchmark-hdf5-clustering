@@ -31,7 +31,7 @@ batch <- as.numeric(commandArgs(trailingOnly=T)[12])
 k <- as.numeric(commandArgs(trailingOnly=T)[13])
 initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
-sim_center <- commandArgs(trailingOnly=T)[16]
+sim_center <- as.numeric(commandArgs(trailingOnly=T)[16])
 data_path <- commandArgs(trailingOnly=T)[17]
 
 if (init){
@@ -130,11 +130,12 @@ if (!init){
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
     cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method, mc.cores=cores)
+    print(cluster_acc)
     
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
                                method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
-      write.table(temp_table, file = here("output_tables", mode, file_name), sep = ",", 
+      write.table(temp_table, file = here("output_tables", "Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
   }
