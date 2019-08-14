@@ -11,13 +11,13 @@ bench_hdf5_acc_k <- function(i, n_cells,
                            initializer = initializer, 
                            method, size, sim_center) {
   if (size == "small"){
-    set.seed(1234)
+    #set.seed(1234)
     x_mus <- runif(sim_center, min = -10, max = 10)
-    set.seed(1234)
+    #set.seed(1234)
     x_sds <- sample(1:10, sim_center, replace = TRUE)/10
-    set.seed(12)
+    #set.seed(12)
     y_mus <- runif(sim_center, min = -10, max = 10)
-    set.seed(123)
+    #set.seed(123)
     y_sds <- sample(1:10, sim_center, replace = TRUE)/10
     prop1 <- rep(1/sim_center, sim_center)
     
