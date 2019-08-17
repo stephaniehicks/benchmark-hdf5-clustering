@@ -124,7 +124,7 @@ p_mem_patch_hdf5 <- mem_table_total %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size) [B=6 for small, B=3 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
@@ -146,7 +146,7 @@ p_mem_patch_mbkm <- mem_table_total %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size) [B=6 for small, B=3 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
@@ -171,7 +171,7 @@ p_mem_obs_total2 <- mem_table_total2 %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing Memory Usage for Increasing No. Obs\n(fixed batch size) [B=6 for small, B=3 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
@@ -192,7 +192,7 @@ p_mem_batch <- mem_table %>%
           geom_line() +
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Assessing Memory Usage for Increasing Batch Size\n(fixed number of observations)") + 
+        labs(title = "Assessing Memory Usage for Increasing Batch Size\n(fixed number of observations) [B=6 for small, B=3 for large]") + 
         xlab("Batch size") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~observations, scales = "free") + 
@@ -234,170 +234,60 @@ time_table_total <- rbind(time_table, time_table_old)
 ```
 
 ## I-1 Fix batch size and k (study observation vs. time)
-### I-1-1 New results: Elapsed Time
-```{r, warning=FALSE}
-p_elp_time_obs <- time_table %>%
-  #dplyr::filter(!(method == "kmeans-new"))%>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
-  dplyr::summarize(mean = mean(elapsed_time), 
-                   sd = sd(elapsed_time)) %>% 
+```{r, warning=FALSE, fig.height=20}
+p_time_obs <- time_table %>% gather(key = "time_type", value = "time", -c(B:method), -batch_size_perc)  %>%
+  dplyr::group_by(method, observations, batch_size_perc, time_type) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
   ggplot(aes(x = observations/1e3, y = mean, color = method)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Time (Seconds)") + 
-  facet_wrap(~batch_size_perc, scale = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_elp_time_obs
-```
-### I-1-2 Compare new results with before patch results: Elapsed Time
-```{r, warning=FALSE}
-p_elp_time_obs_total <- time_table_total %>%
-  dplyr::filter(!(method %in% c("kmeans-new", "kmeans-old")))%>%
-  #dplyr::filter(!(observations %in% c(500000,1000000, 100000, 175000, 250000)))%>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
-  dplyr::summarize(mean = mean(elapsed_time), 
-                   sd = sd(elapsed_time)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Time (Seconds)") + 
-  facet_wrap(~batch_size_perc, scale = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_elp_time_obs_total
-```
-### I-1-3 Compare new results with system results: Elapsed time
-```{r}
-time_table_bash <- read.csv(file = here("main/Memory_Bash/time_output.csv"), header=TRUE, sep=",")
-time_table_bash <- time_table_bash %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size_perc = factor(scales::percent(time_table_bash$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
-```
-
-```{r}
-time_table_total2 <- rbind(time_table%>%select(c("B", "observations", "genes", "batch_size", "initializer", "method", "elapsed_time", "batch_size_perc")), time_table_bash%>%select(-k))
-
-p_elp_time_obs_total_2 <- time_table_total2 %>%
-  dplyr::filter(!(method %in% c("kmeans-new", "kmeans-old", "mbkmeans-new")))%>%
-  #dplyr::filter(!(observations %in% c(500000,1000000, 100000, 175000, 250000)))%>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
-  dplyr::summarize(mean = mean(elapsed_time), 
-                   sd = sd(elapsed_time)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Time (Seconds)") + 
-  facet_wrap(~batch_size_perc, scale = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_elp_time_obs_total_2
-```
-### I-1-4 New results: User Time
-```{r, warning=FALSE}
-p_user_time_obs <- time_table %>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
-  dplyr::summarize(mean = mean(user_time), 
-                   sd = sd(user_time)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Time (Seconds)") + 
-  facet_wrap(~batch_size_perc, scale = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_user_time_obs
-```
-### I-1-5 New results: System Time
-```{r, warning=FALSE}
-p_sys_time_obs <- time_table %>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
-  dplyr::summarize(mean = mean(system_time), 
-                   sd = sd(system_time)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size) [B=10 for small, B=3 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Time (Seconds)") + 
   facet_grid(batch_size_perc~time_type, scale = "free") + 
   scale_color_discrete(name = "Method")
 
+p_time_obs
+```
+```{r, warning=FALSE}
+p_sys_time_obs <- time_table %>% gather(key = "time_type", value = "time", -c(B:method), -batch_size_perc)  %>%
+  dplyr::group_by(method, observations, batch_size_perc, time_type) %>% 
+  filter(time_type == "system_time") %>%
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size) [B=10 for small, B=3 for large]") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(batch_size_perc~time_type, scale = "free") + 
+  scale_color_discrete(name = "Method")
+
 p_sys_time_obs
 ```
 ## I-2 Fix observation and k (study effects of batch size)
-### I-2-1 New results: Elapsed time
-```{r, warning=FALSE}
-p_elp_time_batch <- time_table %>%
-  dplyr::group_by(method, observations, batch_size) %>% 
-  dplyr::summarize(mean = mean(elapsed_time), 
-                   sd = sd(elapsed_time)) %>% 
+```{r, warning=FALSE, fig.height=20}
+p_time_batch <- time_table %>% gather(key = "time_type", value = "time", -c(B:method), -batch_size_perc)  %>%
+  dplyr::group_by(method, observations, batch_size, time_type) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
   ggplot(aes(x = batch_size, y = mean, color = method)) +
           geom_line() +
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
+        labs(title = "") + 
         xlab("Batch size") + 
-        ylab("ime (Seconds)") + 
-  facet_wrap(~observations, scales = "free") + 
+        ylab("time (Seconds)") + 
+  facet_grid(observations~time_type, scales = "free") + 
   scale_color_discrete(name = "Method")
 
-p_elp_time_batch
-```
-### I-2-2 New results: User time
-```{r, warning=FALSE}
-p_user_time_batch <- time_table %>%
-  dplyr::group_by(method, observations, batch_size) %>% 
-  dplyr::summarize(mean = mean(user_time), 
-                   sd = sd(user_time)) %>% 
-  ggplot(aes(x = batch_size, y = mean, color = method)) +
-          geom_line() +
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
-        xlab("Batch size") + 
-        ylab("ime (Seconds)") + 
-  facet_wrap(~observations, scales = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_user_time_batch
-```
-### I-2-3 New results: System time
-```{r, warning=FALSE}
-p_sys_time_batch <- time_table %>%
-  dplyr::group_by(method, observations, batch_size) %>% 
-  dplyr::summarize(mean = mean(system_time), 
-                   sd = sd(system_time)) %>% 
-  ggplot(aes(x = batch_size, y = mean, color = method)) +
-          geom_line() +
-          geom_point()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd))+
-        labs(title = "Assessing Time for Increasing Batch Size\n(fixed number of observations)") + 
-        xlab("Batch size") + 
-        ylab("ime (Seconds)") + 
-  facet_wrap(~observations, scales = "free") + 
-  scale_color_discrete(name = "Method")
-
-p_sys_time_batch
+p_time_batch
 ```
 # Accuracy Summary
 ```{r}
@@ -431,7 +321,7 @@ p_ari_obs_line <- acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing ARI for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing ARI for Increasing No. Obs\n(fixed batch size) [B=50 for small (up to 25k), B=10 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("ARI") + 
   facet_wrap(~batch_size_perc, scale = "free") + 
@@ -452,7 +342,7 @@ p_wcss_obs_line <- acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing WCSS for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Assessing WCSS for Increasing No. Obs\n(fixed batch size) [B=50 for small (up to 25k), B=10 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Normalized WCSS") + 
   facet_wrap(~batch_size_perc, scale = "free") + 
@@ -474,7 +364,7 @@ p_ari_batch_line <- acc_table %>%
           geom_point()+
           #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
           #      position=position_dodge(0.05))+
-        labs(title = "Assessing ARI for Increasing Batch Size\n(fixed number of observations)") + 
+        labs(title = "Assessing ARI for Increasing Batch Size\n(fixed number of observations) [B=50 for small (up to 25k), B=10 for large]") + 
         xlab("Batch Size") + 
         ylab("ARI")+ 
   facet_wrap(~factor(observations), scale = "free") + 
@@ -494,7 +384,7 @@ p_wcss_batch_line <- acc_table %>%
           geom_point()+
           #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
           #      position=position_dodge(0.05))+
-        labs(title = "Assessing WCSS for Increasing Batch Size\n(fixed number of observations)") + 
+        labs(title = "Assessing WCSS for Increasing Batch Size\n(fixed number of observations) [B=50 for small (up to 25k), B=10 for large]") + 
         xlab("Batch Size") + 
         ylab("Normalized WCSS")+ 
   facet_wrap(~factor(observations), scale = "free") + 
@@ -518,7 +408,7 @@ p_iter_obs <- acc_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
           scale_x_log10()+
-        labs(title = "Number of Iterations for Increasing No. Obs\n(fixed batch size)") + 
+        labs(title = "Number of Iterations for Increasing No. Obs\n(fixed batch size) [B=50 for small (up to 25k), B=10 for large]") + 
         xlab("Number of cells (thousands)") + 
         ylab("Iterations") + 
   facet_wrap(~batch_size_perc, scale = "free") + 
@@ -538,7 +428,7 @@ p_iter_batch <- acc_table %>%
           geom_point()+
           #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
           #      position=position_dodge(0.05))+
-        labs(title = "Iterations for Increasing Batch Size\n(fixed number of observations)") +
+        labs(title = "Iterations for Increasing Batch Size\n(fixed number of observations) [B=50 for small (up to 25k), B=10 for large]") +
         xlab("Batch Size") + 
         ylab("Number of Iterations")+ 
   facet_wrap(~factor(observations), scale = "free") + 
