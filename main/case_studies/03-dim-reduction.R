@@ -1,7 +1,6 @@
 # Dimensionality reduction
 data_name <- commandArgs(trailingOnly=T)[2]
-mode <- commandArgs(trailingOnly=T)[3]
-B_name <- commandArgs(trailingOnly=T)[4]
+B_name <- commandArgs(trailingOnly=T)[3]
 
 
 library(BiocSingular)
@@ -49,7 +48,6 @@ rm(time)
 
 reducedDim(sce, "PCA") <- pca$x
 
-# **Ruxoi**: save the PCs somewhere e.g. 
 saveRDS(pca, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")), 

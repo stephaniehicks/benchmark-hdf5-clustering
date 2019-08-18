@@ -1,6 +1,5 @@
 data_name <- commandArgs(trailingOnly=T)[2]
-mode <- commandArgs(trailingOnly=T)[3]
-B_name <- commandArgs(trailingOnly=T)[4]
+B_name <- commandArgs(trailingOnly=T)[3]
 batch <- 0.01
 
 library(HDF5Array)
@@ -30,6 +29,3 @@ pdf(paste0(data_name, "_", "plots.pdf"))
 plot(seq_along(k_list), wcss_list, xlab="Number of centers", ylab="WCSS")
 dev.off()
 
-#temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], min_k)
-#write.table(temp_table, file = here("main/case_studies/output/Optimal_k.csv"), sep = ",", 
-#            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
