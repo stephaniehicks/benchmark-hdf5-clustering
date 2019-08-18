@@ -3,6 +3,5 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
-module load conda_R/devel
 
 R -e "rmarkdown::render('TENxBrainData.Rmd')"
