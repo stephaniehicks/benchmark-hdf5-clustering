@@ -19,7 +19,7 @@ bench_hdf5_acc_k <- function(i, n_cells,
     y_mus <- runif(sim_center, min = -10, max = 10)
     set.seed(123)
     y_sds <- sample(1:10, sim_center, replace = TRUE)/10
-    set.seed(Sys.time())
+    rm(.Random.seed, envir=.GlobalEnv)
     prop1 <- rep(1/sim_center, sim_center)
     
     sim_data <- simulate_gauss_mix_k(n_cells = n_cells, n_genes = n_genes, k = sim_center, 
