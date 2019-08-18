@@ -13,6 +13,7 @@ data_name <- commandArgs(trailingOnly=T)[2]
 time.start <- proc.time()
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(here))
 clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
 

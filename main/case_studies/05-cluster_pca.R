@@ -14,6 +14,7 @@ batch <- as.numeric(commandArgs(trailingOnly=T)[5])
 k <- as.numeric(commandArgs(trailingOnly=T)[6])
 
 suppressPackageStartupMessages(library(mbkmeans))
+suppressPackageStartupMessages(library(here))
 
 if (mode == "time"){
   invisible(gc())
