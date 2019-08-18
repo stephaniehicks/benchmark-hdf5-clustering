@@ -1,4 +1,4 @@
-#$-pe local 5
+#$-pe local 10
 #$ -l mem_free=10G,h_vmem=10G
 #$ -cwd
 #$ -m e
@@ -8,13 +8,13 @@ data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
 mode="acc"
 method="kmeans"
 size="small"
-B=5
-B_name="5"
-cores=5
+B=10
+B_name="10"
+cores=10
 nC=(100000)
 nG=(1000)
 batch=(0.01 0.1)
-center=(2 3 4 5 6)
+center=(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
 sim_center=15
 initializer="random"
 
