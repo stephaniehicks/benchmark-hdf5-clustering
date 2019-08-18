@@ -21,9 +21,9 @@ if (data_name == "TENxBrainData"){
   k <- 15
 }
 
-library(HDF5Array)
-library(here)
-library(mbkmeans)
+suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages(library(mbkmeans))
 
 if (mode == "time"){
   if (method == "mbkmeans"){

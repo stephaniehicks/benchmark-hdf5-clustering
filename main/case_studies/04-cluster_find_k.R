@@ -2,9 +2,9 @@ data_name <- commandArgs(trailingOnly=T)[2]
 B_name <- commandArgs(trailingOnly=T)[3]
 batch <- 0.01
 
-library(HDF5Array)
-library(here)
-library(mbkmeans)
+suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages(library(mbkmeans))
 
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")), prefix="")
 k_list <- c(5:20)

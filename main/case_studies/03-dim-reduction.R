@@ -3,12 +3,12 @@ data_name <- commandArgs(trailingOnly=T)[2]
 B_name <- commandArgs(trailingOnly=T)[3]
 
 
-library(BiocSingular)
-library(BiocParallel)
-library(DelayedMatrixStats)
+suppressPackageStartupMessages(library(BiocSingular))
+suppressPackageStartupMessages(library(BiocParallel))
+suppressPackageStartupMessages(library(DelayedMatrixStats))
 
-library(HDF5Array)
-library(here)
+suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(here))
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")),  prefix="")
 ## need to do this otherwise it takes forever -- ask Herve about this
 
