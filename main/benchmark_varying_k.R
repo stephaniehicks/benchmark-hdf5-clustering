@@ -33,6 +33,8 @@ initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
 sim_center <- as.numeric(commandArgs(trailingOnly=T)[16])
 data_path <- commandArgs(trailingOnly=T)[17]
+max_iters <- as.numeric(commandArgs(trailingOnly=T)[18])
+num_init <- as.numeric(commandArgs(trailingOnly=T)[19])
 
 if (init){
   if(!file.exists(here("output_files"))){
@@ -109,7 +111,7 @@ if (!init){
     cluster_mem <- mclapply(1, bench_hdf5_mem_k, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
-                            batch_size = nC*batch, num_init = 10, max_iters = 100,
+                            batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
                             init_fraction = min(0.1, batch), initializer = initializer, 
                             method = method, size = size, dir_name = dir_name, 
                             index = index, mc.cores=cores)
@@ -125,7 +127,7 @@ if (!init){
     cluster_output <- mclapply(seq_len(B), bench_hdf5_acc_k, 
                                n_cells = nC, n_genes = nG, 
                                k_centers = k,
-                               batch_size = nC*batch, num_init = 10, max_iters = 100,
+                               batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
@@ -143,7 +145,7 @@ if (!init){
     cluster_time <- mclapply(seq_len(B), bench_hdf5_time_k, 
                              n_cells = nC, n_genes = nG, 
                              k_centers = k,
-                             batch_size = nC*batch, num_init = 10, max_iters = 100,
+                             batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
                              init_fraction = 0.1, initializer = initializer, 
                              method = method, size = size,  
                              index = index, mc.cores=cores)
