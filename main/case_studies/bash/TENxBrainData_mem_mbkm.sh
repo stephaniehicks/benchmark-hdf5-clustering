@@ -1,9 +1,9 @@
-#$ -l mem_free=4G,h_vmem=4G
+#$ -l mem_free=15G,h_vmem=15G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
 
-data_name="tenx_pbmc68k"
+data_name="TENxBrainData"
 mode="mem"
 B_name="1"
 method="mbkmeans"
