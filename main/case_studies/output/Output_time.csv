@@ -8,4 +8,16 @@ tenx_pbmc68k,67991,6505,02_normalization,,1,264.653,12.37,602.797
 tenx_pbmc68k,67991,6505,03_realize logcounts,,1,185.941,5.955,192.411
 tenx_pbmc68k,67991,6505,03_find var,,1,103.142,5.14,108.449
 tenx_pbmc68k,67991,6505,03_pca,,1,2736.946,143.378,2995.219
-tenx_pbmc68k,67991,6505,04_find optimal k,,1,64.58,0.164,64.849
+tenx_pbmc68k,67991,6505,04_find optimal k,,1,64.58,0.164,64.849hca_cordblood,329153,5861,01_full cluster,mbkmeans,1,869.431,26.183,1253.966
+hca_bonemarrow,333253,7160,01_full cluster,mbkmeans,1,937.147,35.052,1315.174
+hca_cordblood,329153,5861,02_normalization,,1,1886.601,71.952,6299.871
+hca_bonemarrow,333253,7160,02_normalization,,1,2350.843,69.372,7593.57
+hca_cordblood,329153,5861,03_realize logcounts,,1,1545.038,31.431,1581.076
+hca_cordblood,329153,5861,03_find var,,1,926.674,13.784,941.22
+hca_bonemarrow,333253,7160,03_realize logcounts,,1,2001.341,27.792,2036.548
+hca_bonemarrow,333253,7160,03_find var,,1,1363.478,21.111,1394.802
+TENxBrainData,1232055,11720,01_full cluster,mbkmeans,1,11318.073,195.526,15936.414
+hca_cordblood,329153,5861,03_pca,,1,5599.426,161.488,7026.331
+hca_cordblood,329153,5861,04_find optimal k,,1,615.694,3.484,691.332
+hca_bonemarrow,333253,7160,03_pca,,1,6414.025,174.934,8330.917
+hca_bonemarrow,333253,7160,04_find optimal k,,1,626.992,2.69,632.7
