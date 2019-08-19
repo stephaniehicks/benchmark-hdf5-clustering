@@ -118,7 +118,7 @@ if (!init){
     
     max_mem <- cluster_mem[[1]]
     
-    temp_table <- data.frame(B_name, nC, nG, batch, k, initializer, method, max_mem)
+    temp_table <- data.frame(B_name, nC, nG, batch, k, initializer, method, max_mem, num_init, max_iters)
     write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
   }
@@ -135,7 +135,7 @@ if (!init){
   
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
-                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
+                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault, num_init, max_iters)
       write.table(temp_table, file = here("output_tables", "Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }

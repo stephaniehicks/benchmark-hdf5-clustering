@@ -530,6 +530,7 @@ p_time_k
 ```{r}
 p_acc_k_rnd <- k_acc_table %>%
   dplyr::filter((initializer == "random"))%>%
+  dplyr::filter((k >= 10))%>%
   dplyr::group_by(method, observations, batch_size_perc, k) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -551,6 +552,7 @@ p_acc_k_rnd
 ```{r}
 p_acc_k_kplus <- k_acc_table %>%
   dplyr::filter((initializer == "kmeans++"))%>%
+  dplyr::filter((k >= 10))%>%
   dplyr::group_by(method, observations, batch_size_perc, k) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -572,6 +574,7 @@ p_acc_k_kplus
 ```{r}
 p_wcss_k_rnd <- k_acc_table %>%
   dplyr::filter((initializer == "random"))%>%
+  dplyr::filter((k >= 10))%>%
   dplyr::group_by(method, observations, batch_size_perc, k) %>% 
   dplyr::summarize(mean = mean(WCSS), 
                    sd = sd(WCSS)) %>% 
