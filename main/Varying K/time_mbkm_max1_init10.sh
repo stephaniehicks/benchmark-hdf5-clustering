@@ -1,13 +1,13 @@
 #$-pe local 10
 #$ -q shared.q@compute-06[0-9],shared.q@compute-07[2-6]
-#$ -l mem_free=10G,h_vmem=10G
+#$ -l mem_free=3G,h_vmem=3G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
 data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
 
 mode="time"
-method="kmeans"
+method="mbkmeans"
 size="small"
 B=10
 B_name="10"
@@ -18,7 +18,7 @@ batch=(0.01 0.1)
 center=(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
 sim_center=15
 initializer="random"
-max_iters=100
+max_iters=1
 num_init=10
 
 CURRDATE="$(date +'%T')"

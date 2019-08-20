@@ -18,8 +18,8 @@ batch=(0.01 0.1)
 center=(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
 sim_center=15
 initializer="random"
-max_iters=100
-num_init=10
+max_iters=1
+num_init=1
 
 CURRDATE="$(date +'%T')"
 FILE="csv"

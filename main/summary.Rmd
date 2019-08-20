@@ -551,9 +551,9 @@ p_acc_k_rnd
 
 ```{r}
 p_acc_k_kplus <- k_acc_table %>%
-  dplyr::filter((initializer == "kmeans++"))%>%
+  dplyr::filter(!(method == "kmeans-new"))%>%
   dplyr::filter((k >= 10))%>%
-  dplyr::group_by(method, observations, batch_size_perc, k) %>% 
+  dplyr::group_by(method, observations, batch_size_perc, k, initializer) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
@@ -561,10 +561,10 @@ p_acc_k_kplus <- k_acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "ARI for Increasing Number of Clusters [B=10] ") + 
+        labs(title = "ARI for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
         xlab("Number of cells (thousands)") + 
         ylab("ARI") + 
-  facet_wrap(~batch_size_perc, scales = "free") + 
+  facet_wrap(batch_size_perc~initializer, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -583,7 +583,7 @@ p_wcss_k_rnd <- k_acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "ARI for Increasing Number of Clusters [B=10] ") + 
+        labs(title = "WCSS for Increasing Number of Clusters [B=10] ") + 
         xlab("Number of cells (thousands)") + 
         ylab("WCSS") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
@@ -594,8 +594,9 @@ p_wcss_k_rnd
 ```
 ```{r}
 p_wcss_k_kplus <- k_acc_table %>%
-  dplyr::filter((initializer == "kmeans++"))%>%
-  dplyr::group_by(method, observations, batch_size_perc, k) %>% 
+  dplyr::filter(!(method == "kmeans-new"))%>%
+  dplyr::filter((k >= 10))%>%
+  dplyr::group_by(method, observations, batch_size_perc, k, initializer) %>% 
   dplyr::summarize(mean = mean(WCSS), 
                    sd = sd(WCSS)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
@@ -603,10 +604,10 @@ p_wcss_k_kplus <- k_acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "ARI for Increasing Number of Clusters [B=10] ") + 
+        labs(title = "WCSS for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
         xlab("Number of cells (thousands)") + 
         ylab("WCSS") + 
-  facet_wrap(~batch_size_perc, scales = "free") + 
+  facet_grid(batch_size_perc~initializer, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -635,8 +636,9 @@ p_iter_k_rnd
 
 ```{r}
 p_iter_k_kplus <- k_acc_table %>%
-  dplyr::filter((initializer == "kmeans++"))%>%
-  dplyr::group_by(method, observations, batch_size_perc, k) %>% 
+  dplyr::filter(!(method == "kmeans-new"))%>%
+  dplyr::filter((k >= 10))%>%
+  dplyr::group_by(method, observations, batch_size_perc, k, initializer) %>% 
   dplyr::summarize(mean = mean(iterations), 
                    sd = sd(iterations)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
@@ -644,13 +646,49 @@ p_iter_k_kplus <- k_acc_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Number of Iterations for Increasing Number of Clusters [B=10] ") + 
+        labs(title = "Number of Iterations for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
         xlab("Number of cells (thousands)") + 
         ylab("Number of Iterations") + 
-  facet_wrap(~batch_size_perc, scales = "free") + 
+  facet_grid(batch_size_perc~initializer, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
 p_iter_k_kplus
+```
+```{r}
+files_max_iters <- list.files(path= here("output_tables", "Varying_k", "mem", "max_iters1"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+max_iters_mem_table <- NULL
+
+for (i in (1:length(files_max_iters))){
+  temp_table <- read.csv(file = files_max_iters[i], header=TRUE, sep=",")
+  max_iters_mem_table <- rbind(max_iters_mem_table, temp_table)
+}
+max_iters_mem_table <- max_iters_mem_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(max_iters_mem_table$batch_size), 
+                             levels = c("1.00%", "10.00%")), 
+         max_iteration = factor(max_iters_mem_table$max_iters, levels = c("10", "1")))  
+levels(max_iters_mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+```
+
+```{r}
+p_max_iters_mem <- max_iters_mem_table %>%
+  #dplyr::filter((observations <= 200000))%>%
+  dplyr::group_by(method, observations, batch_size_perc, k, max_iteration) %>% 
+  dplyr::summarize(mean = mean(memory), 
+                   sd = sd(memory)) %>% 
+  ggplot(aes(x = k, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+          #      position=position_dodge(0.05))+
+        labs(title = "Assessing One-Iteration Memory Usage for Increasing No. K\n(fixed batch size) [B=1] ") + 
+        xlab("Number of Centers") + 
+        ylab("Memory (Mb)") + 
+  facet_grid(batch_size_perc~max_iteration, scales = "free") + 
+  scale_color_discrete(name = "Method")
+
+p_max_iters_mem
 ```
 
