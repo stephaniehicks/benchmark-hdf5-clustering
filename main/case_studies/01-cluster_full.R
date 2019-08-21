@@ -60,7 +60,7 @@ if (mode == "mem"){
   if (method == "mbkmeans"){
     invisible(gc())
     now <- format(Sys.time(), "%b%d%H%M%OS3")
-    out_name <- paste0(data_name, "_", now)
+    out_name <- paste0(data_name, "_", now, ".out")
   
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
