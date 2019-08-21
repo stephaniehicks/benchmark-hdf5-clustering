@@ -152,7 +152,7 @@ if (!init){
     
     for (i in seq_len(B)){ 
       time <- cluster_time[[i]]
-      temp_table <- data.frame(i, nC, nG, batch, k, initializer, method, time[1], time[2], time[3])
+      temp_table <- data.frame(i, nC, nG, batch, k, initializer, method, time[1], time[2], time[3], num_init, max_iters)
       write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
