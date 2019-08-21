@@ -27,3 +27,5 @@ TENxBrainData,1232055,11720,03_find var,,1,13058.285,177.081,13259.14
 tenx_pbmc68k,67991,6505,04_find optimal k,,1,121.427,0.232,121.846
 hca_bonemarrow,333253,7160,04_find optimal k,,1,707.07,4.747,712.867
 hca_cordblood,329153,5861,04_find optimal k,,1,924.549,3.862,928.578
+TENxBrainData,1232055,11720,03_realize logcounts,,1,17160.104,313.853,17515.155
+TENxBrainData,1232055,11720,03_find var,,1,13107.836,236.96,13350.441
