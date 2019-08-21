@@ -681,8 +681,8 @@ p_max_iters_mem <- max_iters_mem_table %>%
   ggplot(aes(x = k, y = mean, color = method)) +
           geom_line()+
           geom_point()+
-          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-          #      position=position_dodge(0.05))+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
         labs(title = "Assessing One-Iteration Memory Usage for Increasing No. K\n(fixed batch size) [B=1] ") + 
         xlab("Number of Centers") + 
         ylab("Memory (Mb)") + 
@@ -690,5 +690,41 @@ p_max_iters_mem <- max_iters_mem_table %>%
   scale_color_discrete(name = "Method")
 
 p_max_iters_mem
+```
+```{r}
+files_max_iters_time <- list.files(path= here("output_tables", "Varying_k", "time", "max_iters1"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+max_iters_time_table <- NULL
+
+for (i in (1:length(files_max_iters_time))){
+  temp_table <- read.csv(file = files_max_iters_time[i], header=TRUE, sep=",")
+  max_iters_time_table <- rbind(max_iters_time_table, temp_table)
+}
+max_iters_time_table <- max_iters_time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(max_iters_time_table$batch_size), 
+                             levels = c("1.00%", "10.00%")), 
+         max_iteration = factor(max_iters_time_table$max_iters, levels = c("10", "1")))  
+levels(max_iters_time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+```
+
+```{r}
+p_max_iters_time <- max_iters_time_table %>%
+  #dplyr::filter((observations <= 200000))%>%
+  dplyr::group_by(method, observations, batch_size_perc, k, max_iteration) %>% 
+  dplyr::summarize(mean = mean(elapsed_time), 
+                   sd = sd(elapsed_time)) %>% 
+  ggplot(aes(x = k, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing One-Iteration Time for Increasing No. K\n(fixed batch size) [B=1] ") + 
+        xlab("Number of Centers") + 
+        ylab("Time (Seconds)") + 
+  facet_grid(batch_size_perc~max_iteration, scales = "free") + 
+  scale_color_discrete(name = "Method")
+
+p_max_iters_time
 ```
 
