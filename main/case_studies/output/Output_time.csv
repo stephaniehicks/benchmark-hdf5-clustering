@@ -1,8 +1,4 @@
 Data,Cells,Genes,Step,Method,B,User_time,System_time,Elapsed_time
-hca_bonemarrow,333253,4475,01_full cluster,mbkmeans-hdf5,1,311.963,10.044,325.379
-hca_bonemarrow,333253,4475,03_realize logcounts,,1,1341.674,21.451,1375.884
-hca_bonemarrow,333253,4475,03_find var,,1,795.329,12.127,808.536
-hca_bonemarrow,333253,4475,03_pca,,1,6285.026,169.119,7469.656
 tenx_pbmc68k,67991,6505,01_full cluster,mbkmeans,1,113.62,4.132,121.292
 tenx_pbmc68k,67991,6505,02_normalization,,1,264.653,12.37,602.797
 tenx_pbmc68k,67991,6505,03_realize logcounts,,1,185.941,5.955,192.411
@@ -21,7 +17,8 @@ TENxBrainData,1232055,11720,01_full cluster,mbkmeans,1,11318.073,195.526,15936.4
 hca_cordblood,329153,5861,03_pca,,1,5599.426,161.488,7026.331
 hca_cordblood,329153,5861,04_find optimal k,,1,615.694,3.484,691.332
 hca_bonemarrow,333253,7160,03_pca,,1,6414.025,174.934,8330.917
-hca_bonemarrow,333253,7160,04_find optimal k,,1,626.992,2.69,632.7TENxBrainData,1232055,11720,02_normalization,,1,14805.528,469.723,89720.494
+hca_bonemarrow,333253,7160,04_find optimal k,,1,626.992,2.69,632.7
+TENxBrainData,1232055,11720,02_normalization,,1,14805.528,469.723,89720.494
 TENxBrainData,1232055,11720,03_realize logcounts,,1,18577.554,274.664,19666.951
 TENxBrainData,1232055,11720,03_find var,,1,13058.285,177.081,13259.14
 tenx_pbmc68k,67991,6505,04_find optimal k,,1,121.427,0.232,121.846

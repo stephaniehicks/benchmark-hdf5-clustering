@@ -1,28 +1,30 @@
-#$ -l mem_free=8G,h_vmem=8G
+#$-pe local 10
+#$ -q shared.q@compute-06[0-9],shared.q@compute-07[2-6]
+#$ -l mem_free=3G,h_vmem=3G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
 data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
 
-mode="mem"
-method="hdf5"
+mode="time"
+method="mbkmeans"
 size="small"
-B_name="1" #if needs to paralle across B, will set to 1, 2 or 3
-cores=1
+B=10
+B_name="10"
+cores=10
 nC=(100000)
 nG=(1000)
-batch=(0.001 0.2)
+batch=(0.001 0.01 0.1 0.2)
 center=(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
-initializer="random"
-B=1
 sim_center=15
-max_iters=100
-num_init=10
+initializer="kmeans++"
+max_iters=1
+num_init=1
 
 CURRDATE="$(date +'%T')"
 FILE="csv"
-file_name="${CURRDATE}_${method}_${nC}_${batch}_${B_name}.${FILE}"
-dir_name="${CURRDATE}_${method}_${nC}_${batch}_${B_name}"
+file_name="${CURRDATE}_${mode}_${method}_${nC}_${batch}_${B_name}.${FILE}"
+dir_name="${CURRDATE}_${mode}_${method}_${nC}_${batch}_${B_name}"
 
 init=TRUE
 Rscript --slave ../benchmark_varying_k.R \

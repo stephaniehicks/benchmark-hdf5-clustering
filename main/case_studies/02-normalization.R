@@ -43,16 +43,20 @@ sce <- scater::normalize(sce)
 
 #library(pryr)
 #object_size(sce)
+time.end <- proc.time()
+time <- time.end - time.start
 
 
 #Save the new sce object? 
+time.start2 <- proc.time()
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")), 
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)
-time.end <- proc.time()
-time <- time.end - time.start
+time.end2 <- proc.time()
+time2 <- time.end2 - time.start2
+
 temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "", 1, time[1], time[2],time[3])
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")

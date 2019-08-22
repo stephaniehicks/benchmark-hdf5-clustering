@@ -557,14 +557,14 @@ p_acc_k_kplus <- k_acc_table %>%
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
-          geom_line()+
+          geom_line(aes(linetype=initializer))+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "ARI for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of Clusters") + 
         ylab("ARI") + 
-  facet_wrap(batch_size_perc~initializer, scales = "free") + 
+  facet_wrap(method~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -584,7 +584,7 @@ p_wcss_k_rnd <- k_acc_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "WCSS for Increasing Number of Clusters [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of Clusters") + 
         ylab("WCSS") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -600,14 +600,14 @@ p_wcss_k_kplus <- k_acc_table %>%
   dplyr::summarize(mean = mean(WCSS), 
                    sd = sd(WCSS)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
-          geom_line()+
+          geom_line(aes(linetype=initializer))+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "WCSS for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of Clusters") + 
         ylab("WCSS") + 
-  facet_grid(batch_size_perc~initializer, scales = "free") + 
+  facet_grid(method~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -642,14 +642,14 @@ p_iter_k_kplus <- k_acc_table %>%
   dplyr::summarize(mean = mean(iterations), 
                    sd = sd(iterations)) %>% 
   ggplot(aes(x = k, y = mean, color = method)) +
-          geom_line()+
+          geom_line(aes(linetype=initializer))+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "Number of Iterations for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of Clusters") + 
         ylab("Number of Iterations") + 
-  facet_grid(batch_size_perc~initializer, scales = "free") + 
+  facet_grid(method~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -726,5 +726,20 @@ p_max_iters_time <- max_iters_time_table %>%
   scale_color_discrete(name = "Method")
 
 p_max_iters_time
+```
+
+```{r, eval=FALSE}
+library(knitr)
+real_time <- read.csv(file = here("/main/case_studies/output/Output_time.csv"), header=TRUE, sep=",")
+real_time %>%
+  dplyr::group_by(factor(Data)) %>%
+  kable()
+
+real_time %>% 
+    tab_cells(Elapsed_time) %>%
+    tab_cols(Data) %>% 
+    tab_stat_mean_sd_n() %>%
+    #tab_last_sig_means(subtable_marks = "both") %>% 
+    tab_pivot()
 ```
 
