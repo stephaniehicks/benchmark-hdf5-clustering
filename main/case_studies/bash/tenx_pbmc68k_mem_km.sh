@@ -1,4 +1,4 @@
-#$ -l mem_free=10G,h_vmem=10G
+#$ -l mem_free=60G,h_vmem=60G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
