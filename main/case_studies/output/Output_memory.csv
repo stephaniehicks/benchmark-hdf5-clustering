@@ -2,4 +2,4 @@ Data,Cells,Genes,Step,Method,B,Memory,Cores
 tenx_pbmc68k,67991,6505,01_full cluster,mbkmeans,1,2890.898799,
 hca_bonemarrow,333253,7160,04_find optimal k,,1,1236.562917,
 hca_cordblood,329153,5861,04_find optimal k,,1,1278.859967,
-tenx_pbmc68k,67991,6505,04_find optimal k,,1,601.5394386,
+tenx_pbmc68k,67991,6505,04_find optimal k,,1,601.5394386,tenx_pbmc68k,67991,6505,01_full cluster,kmeans,1,15580.3294501912
