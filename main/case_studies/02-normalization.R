@@ -10,14 +10,20 @@
 # Note taat this is not the final clustering to identify cell sub-populations.
 data_name <- commandArgs(trailingOnly=T)[2]
 
-time.start <- proc.time()
+
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
+
+now <- format(Sys.time(), "%b%d%H%M%S")
+out_name <- paste0(data_name,"_02","_", now, ".out")
+
 clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
 
 # next comes calculating size factors
+Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
+time.start <- proc.time()
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters,
                                      BPPARAM=MulticoreParam(10))
 
@@ -44,10 +50,23 @@ sce <- scater::normalize(sce)
 #library(pryr)
 #object_size(sce)
 time.end <- proc.time()
+Rprof(NULL)
+
 time <- time.end - time.start
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", 1, time[1], time[2],time[3], "10")
+write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+rm(temp_table)
 
+profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", out_name), chunksize = -1L, 
+                        memory = "tseries", diff = FALSE)
+max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", B_name, max_mem, "10")
+write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+rm(temp_table)
 
-#Save the new sce object? 
+#Save the new sce object
 time.start2 <- proc.time()
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")), 
@@ -56,7 +75,6 @@ saveHDF5SummarizedExperiment(sce,
                              level=NULL, verbose=FALSE)
 time.end2 <- proc.time()
 time2 <- time.end2 - time.start2
-
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "", 1, time[1], time[2],time[3])
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_saving the normalized sce", "other", 1, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")

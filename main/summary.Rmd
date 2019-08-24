@@ -730,11 +730,32 @@ p_max_iters_time
 
 ```{r, eval=FALSE}
 library(knitr)
+library(rowr)
+library(tableone)
 real_time <- read.csv(file = here("/main/case_studies/output/Output_time.csv"), header=TRUE, sep=",")
-real_time %>%
-  dplyr::group_by(factor(Data)) %>%
-  kable()
+real_mem <- read.csv(file = here("/main/case_studies/output/Output_memory.csv"), header=TRUE, sep=",")
+real_total <- merge(real_time, real_mem, by=c("Data","Cells","Genes","Step","Method","B"))
+#cbind.fill(real_time, real_mem)
 
+#select variables to be put into the summary table
+df <- real_total %>%
+  select(Data = Data,
+         Step = Step,
+         Method = Method,
+         B = B,
+         Elapsed_time = Elapsed_time,
+         Memory = Memory)
+
+df %>%
+  group_by(Data, Step, Method, B) %>% 
+  summarize(mean = mean(Elapsed_time),
+            sd = sd(Elapsed_time))
+
+
+df_sum <- CreateTableOne(data = df, strata = c("Data","Step","Method","B"))
+```
+
+```{r}
 real_time %>% 
     tab_cells(Elapsed_time) %>%
     tab_cols(Data) %>% 
