@@ -10,19 +10,18 @@
 # Note taat this is not the final clustering to identify cell sub-populations.
 data_name <- commandArgs(trailingOnly=T)[2]
 
-
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_02","_", now, ".out")
+out_name <- paste0(data_name,"_02_", now, ".out")
 
+Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
 clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
 sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
 
 # next comes calculating size factors
-Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
 time.start <- proc.time()
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters,
                                      BPPARAM=MulticoreParam(10))

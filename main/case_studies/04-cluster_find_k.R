@@ -7,7 +7,7 @@ suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(mbkmeans))
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_",batch,"_", now, ".out")
+out_name <- paste0(data_name,"_04_", now, ".out")
 
 invisible(gc())
 Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
@@ -21,7 +21,7 @@ time <- system.time(wcss <- lapply(k_list, function(k) {
 }))
 Rprof(NULL)
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "", B_name, time[1], time[2],time[3])
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "", B_name, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -29,7 +29,7 @@ rm(temp_table)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", out_name), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "", B_name, max_mem)
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "", B_name, max_mem, "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
@@ -40,6 +40,6 @@ for (i in seq_along(k_list)){
 print(wcss_list)
 
 pdf(paste0(data_name, "_", "plots.pdf"))
-plot(seq_along(k_list), wcss_list, xlab="Number of centers", ylab="WCSS", xim = c(5,30))
+plot(seq_along(k_list), wcss_list, xlab="Number of centers", ylab="WCSS", xlim = c(5,30))
 dev.off()
 

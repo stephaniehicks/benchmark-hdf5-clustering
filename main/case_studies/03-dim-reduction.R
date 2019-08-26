@@ -10,7 +10,7 @@ suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_03","_", now, ".out")
+out_name <- paste0(data_name,"_03_", now, ".out")
 
 invisible(gc())
 
@@ -90,7 +90,7 @@ write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"),
 
 reducedDim(sce, "PCA") <- pca$x
 
-saveRDS(pca, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
+saveRDS(pca$x, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")), 
                              prefix="", replace=FALSE, 

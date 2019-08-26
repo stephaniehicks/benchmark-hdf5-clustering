@@ -69,7 +69,7 @@ mem_table_bash <- mem_table_bash %>%
 ### I-1-1. New results (seperating simulation and test)
 ```{r}
 p_mem_obs_all <- mem_table %>%
-  dplyr::filter(!(observations %in% c(1000000)))%>%
+  #dplyr::filter(!(observations %in% c(1000000)))%>%
   #dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
@@ -92,7 +92,7 @@ p_mem_obs_all
 ```{r, warning=FALSE}
 p_mem_obs <- mem_table %>%
   dplyr::filter(!(method %in% c("kmeans-new")))%>%
-  dplyr::filter(!(observations %in% c(1000000)))%>%
+  #dplyr::filter(!(observations %in% c(1000000)))%>%
   #dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
@@ -116,6 +116,7 @@ p_mem_obs
 p_mem_patch_hdf5 <- mem_table_total %>%
   dplyr::filter(!(method %in% c("kmeans-old", "kmeans-new","mbkmeans-old","mbkmeans-new" )))%>%
   dplyr::filter(!(observations %in% c(1000000)))%>%
+  dplyr::filter(!(batch_size_perc %in% c("100.0%")))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -185,6 +186,7 @@ p_mem_obs_total2
 ```{r, warning=FALSE}
 p_mem_batch <- mem_table %>%
   #dplyr::filter(!(method %in% c("kmeans-new")))%>%
+  dplyr::filter(!(observations %in% c(400000,450000)))%>%
   dplyr::group_by(method, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(memory), 
                    sd = sd(memory)) %>% 
@@ -460,7 +462,7 @@ for (i in (1:length(files_k_acc))){
 k_acc_table <- k_acc_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(k_acc_table$batch_size), 
-                             levels = c( "1.00%", "10.00%")))
+                             levels = c( "0.1%","1.0%", "10.0%", "20.0%")))
 levels(k_acc_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 
 for (i in (1:length(files_k_mem))){
@@ -470,7 +472,7 @@ for (i in (1:length(files_k_mem))){
 k_mem_table <- k_mem_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(k_mem_table$batch_size), 
-                             levels = c( "1.00%", "10.00%")))
+                             levels = c( "0.1%","1.0%", "10.0%", "20.0%")))
 levels(k_mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 
 for (i in (1:length(files_k_time))){
@@ -480,7 +482,7 @@ for (i in (1:length(files_k_time))){
 k_time_table <- k_time_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(k_time_table$batch_size), 
-                             levels = c( "1.00%", "10.00%")))
+                             levels = c( "0.1%","1.0%", "10.0%", "20.0%")))
 levels(k_time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
@@ -497,7 +499,7 @@ p_mem_k <- k_mem_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "Memory Usage for Increasing Number of Clusters [B=5] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of clusters") + 
         ylab("Memory (Mb)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -518,7 +520,7 @@ p_time_k <- k_time_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "Time for Increasing Number of Clusters [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of clusters") + 
         ylab("Time (Seconds)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -540,7 +542,7 @@ p_acc_k_rnd <- k_acc_table %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
         labs(title = "ARI for Increasing Number of Clusters [B=10] ") + 
-        xlab("Number of cells (thousands)") + 
+        xlab("Number of clusters") + 
         ylab("ARI") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -564,7 +566,7 @@ p_acc_k_kplus <- k_acc_table %>%
         labs(title = "ARI for Increasing Number of Clusters: Compare Random vs. Kmeans++ [B=10] ") + 
         xlab("Number of Clusters") + 
         ylab("ARI") + 
-  facet_wrap(method~batch_size_perc, scales = "free") + 
+  facet_grid(method~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
 
@@ -667,7 +669,7 @@ for (i in (1:length(files_max_iters))){
 max_iters_mem_table <- max_iters_mem_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(max_iters_mem_table$batch_size), 
-                             levels = c("1.00%", "10.00%")), 
+                             levels = c("0.1%","1.0%", "10.0%", "20.0%")), 
          max_iteration = factor(max_iters_mem_table$max_iters, levels = c("10", "1")))  
 levels(max_iters_mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
@@ -683,8 +685,8 @@ p_max_iters_mem <- max_iters_mem_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing One-Iteration Memory Usage for Increasing No. K\n(fixed batch size) [B=1] ") + 
-        xlab("Number of Centers") + 
+        labs(title = "Assessing One-Iteration Memory Usage for Increasing No. K\n(fixed batch size) [B=2] ") + 
+        xlab("Number of Clusters") + 
         ylab("Memory (Mb)") + 
   facet_grid(batch_size_perc~max_iteration, scales = "free") + 
   scale_color_discrete(name = "Method")
@@ -703,13 +705,14 @@ for (i in (1:length(files_max_iters_time))){
 max_iters_time_table <- max_iters_time_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(max_iters_time_table$batch_size), 
-                             levels = c("1.00%", "10.00%")), 
+                             levels = c("0.1%","1.0%", "10.0%", "20.0%")), 
          max_iteration = factor(max_iters_time_table$max_iters, levels = c("10", "1")))  
 levels(max_iters_time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
 ```{r}
 p_max_iters_time <- max_iters_time_table %>%
+  dplyr::filter((initializer == "random"))%>%
   #dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc, k, max_iteration) %>% 
   dplyr::summarize(mean = mean(elapsed_time), 
@@ -719,13 +722,34 @@ p_max_iters_time <- max_iters_time_table %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Assessing One-Iteration Time for Increasing No. K\n(fixed batch size) [B=1] ") + 
-        xlab("Number of Centers") + 
+        labs(title = "Assessing One-Iteration Time for Increasing No. K\n(fixed batch size) [B=10] ") + 
+        xlab("Number of Clusters") + 
         ylab("Time (Seconds)") + 
   facet_grid(batch_size_perc~max_iteration, scales = "free") + 
   scale_color_discrete(name = "Method")
 
 p_max_iters_time
+```
+```{r}
+p_max_iters_time_init <- max_iters_time_table %>%
+  dplyr::filter(!(method == "kmeans-new"))%>%
+  dplyr::filter((max_iters == 10))%>%
+  dplyr::group_by(method, observations, batch_size_perc, k, initializer) %>% 
+  dplyr::summarize(mean = mean(elapsed_time), 
+                   sd = sd(elapsed_time)) %>% 
+  ggplot(aes(x = k, y = mean, color = method)) +
+          geom_line(aes(linetype=initializer))+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Compare one-iteration time between different initializer [B=10]") + 
+        xlab("Number of Clusters") + 
+        ylab("Time (Seconds)") + 
+  facet_grid(method~batch_size_perc, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_max_iters_time_init
 ```
 
 ```{r, eval=FALSE}

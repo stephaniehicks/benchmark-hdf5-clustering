@@ -24,7 +24,7 @@ bench_hdf5_mem <- function(i, n_cells,
   if (method == "kmeans"){
     Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
     mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", n_cells, "_", index, ".rds"))
-    stats::kmeans(mydata, centers=k_centers, iter.max = max_iters, nstart = num_init)
+    invisible(stats::kmeans(mydata, centers=k_centers, iter.max = max_iters, nstart = num_init))
     Rprof(NULL)
     
     profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
@@ -35,10 +35,10 @@ bench_hdf5_mem <- function(i, n_cells,
     if (method == "mbkmeans"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
       mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", n_cells, "_", index, ".rds"))
-      mbkmeans::mini_batch(mydata, clusters = k_centers, 
+      invisible(mbkmeans::mini_batch(mydata, clusters = k_centers, 
                          batch_size = batch_size, num_init = num_init, 
                          max_iters = max_iters, init_fraction = init_fraction,
-                         initializer = initializer, calc_wcss = FALSE)
+                         initializer = initializer, calc_wcss = FALSE))
     
       Rprof(NULL)
     
@@ -50,10 +50,10 @@ bench_hdf5_mem <- function(i, n_cells,
     if (method == "hdf5"){
       Rprof(filename = here("output_files",dir_name,out_name), append = FALSE, memory.profiling = TRUE)
       sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", n_cells, "_", index, ".h5"), name = "obs")
-      mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
+      invisible(mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                          batch_size = batch_size, num_init = num_init, 
                          max_iters = max_iters, init_fraction = init_fraction,
-                         initializer = initializer, calc_wcss = FALSE)
+                         initializer = initializer, calc_wcss = FALSE))
       Rprof(NULL)
     
       profile <- summaryRprof(filename = here("output_files",dir_name,out_name), chunksize = -1L, 
