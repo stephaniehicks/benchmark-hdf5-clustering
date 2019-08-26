@@ -712,6 +712,7 @@ levels(max_iters_time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_
 
 ```{r}
 p_max_iters_time <- max_iters_time_table %>%
+  #dplyr::filter(!(method == "kmeans-new"))%>%
   dplyr::filter((initializer == "random"))%>%
   #dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc, k, max_iteration) %>% 
