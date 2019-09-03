@@ -7,5 +7,5 @@
 #need to keep the values same in line #1 and line #8 
 cores=20
 
-B=200
-B_name="200"
+B=50 #Ruoxi uses B = 50
+B_name="50"

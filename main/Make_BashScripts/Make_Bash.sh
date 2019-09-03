@@ -33,6 +33,8 @@ for dirname in */ ; do
 done
 
 for B in {4..6}; do
+	rm ${benchmark_path}/benchmark-hdf5-clustering/main/Memory_Local/*_300k_${B}.sh
+	rm ${benchmark_path}/benchmark-hdf5-clustering/main/Memory_Local/*_350k_${B}.sh
 	rm ${benchmark_path}/benchmark-hdf5-clustering/main/Memory_Local/*_500k_${B}.sh
 	rm ${benchmark_path}/benchmark-hdf5-clustering/main/Memory_Local/*_1m_${B}.sh
 done
