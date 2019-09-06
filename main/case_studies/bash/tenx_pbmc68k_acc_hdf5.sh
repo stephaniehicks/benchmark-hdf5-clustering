@@ -2,7 +2,7 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
-#$ module load R/3.6.1
+module load R/3.6.1
 
 data_name="tenx_pbmc68k"
 mode="acc"
