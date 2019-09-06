@@ -1,13 +1,13 @@
-#$ -l mem_free=4G,h_vmem=4G
+#$ -l mem_free=30G,h_vmem=30G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
 module load R/3.6.1
 
 data_name="tenx_pbmc68k"
-mode="mem"
+mode="acc"
 B_name="1"
-method="hdf5"
+method="kmeans"
 batch=(0.001 0.01)
 
 for ba in "${batch[@]}"; do
