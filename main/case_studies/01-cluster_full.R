@@ -44,7 +44,7 @@ if (mode == "time"){
     time <- time.end - time.start
   }
   
-  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, B_name, time[1], time[2],time[3], "1")
+  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, time[1], time[2],time[3], "1")
   write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
               append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
   
@@ -83,7 +83,7 @@ if (mode == "mem"){
                           memory = "tseries", diff = FALSE)
   max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
   
-  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, B_name, max_mem, "1")
+  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, max_mem, "1")
   write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
               append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 }
@@ -94,7 +94,7 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100, calc_wcss = TRUE)
     
-    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, B_name, clusters$WCSS_per_cluster)
+    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster))
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
     
@@ -109,7 +109,7 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
     
-    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, B_name, clusters$withinss)
+    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$withinss))
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
   }

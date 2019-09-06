@@ -5,7 +5,7 @@ library(dplyr)
 library(parallel)
 library(HDF5Array)
 library(benchmarkme)
-library(here, lib.loc = "/users/rliu/packages/R/3.6/lib64/R/library")
+library(here)
 
 if(!(R.Version()$version.string == "R version 3.6.1 (2019-07-05)")){
   print("Please update R to 3.6.1")
@@ -75,5 +75,3 @@ if(!(packageVersion("mbkmeans") == "1.1.1")){
 if(!(packageVersion("dplyr") == "0.8.3")){
   install.packages("dplyr")
 }
-
-sessionInfo()
