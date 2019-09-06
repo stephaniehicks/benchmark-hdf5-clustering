@@ -12,7 +12,7 @@ data_name <- commandArgs(trailingOnly=T)[2]
 mode <- commandArgs(trailingOnly=T)[3]
 B_name <- commandArgs(trailingOnly=T)[4]
 method <- commandArgs(trailingOnly=T)[5] #Here method mbkmeans means mbkmeans with hdf5
-batch <- 0.01
+batch <- as.numeric(commandArgs(trailingOnly=T)[6])
 
 if (data_name == "TENxBrainData"){
   k <- 30
@@ -29,8 +29,7 @@ if (mode == "time"){
     invisible(gc())
     time.start <- proc.time()
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
-    set.seed(1234)
-    clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100)
+    invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     time.end <- proc.time()
     time <- time.end - time.start
   }
@@ -40,8 +39,7 @@ if (mode == "time"){
     time.start <- proc.time()
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     sce_km <- realize(DelayedArray::t(counts(sce)))
-    set.seed(1234)
-    clusters <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
+    invisible(stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1)) #iter.max and nstart set to the default values of mbkmeans()
     time.end <- proc.time()
     time <- time.end - time.start
   }
@@ -61,6 +59,16 @@ if (mode == "mem"){
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch)), num_init=1, max_iters=100)
     Rprof(NULL)
+    
+    # debug purpose
+    sink(file = here("main/case_studies/output/Memory_output","info.txt"))
+    cat("RAM Info:\n")
+    print(get_ram())
+    cat("CPU Info: \n")
+    print(get_cpu())
+    cat("Session Info:\n")
+    print(sessionInfo())
+    sink()
   }
   
   if (method == "kmeans"){
@@ -90,7 +98,7 @@ if (mode == "acc"){
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
     
-    if (B_name == "1"){
+    if (B_name == "1" & batch == 0.01){
       saveRDS(clusters, file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
     }
   }

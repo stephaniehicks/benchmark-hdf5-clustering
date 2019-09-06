@@ -5,7 +5,7 @@ library(dplyr)
 library(parallel)
 library(HDF5Array)
 library(benchmarkme)
-library(here)
+library(here, lib.loc = "/users/rliu/packages/R/3.6/lib64/R/library")
 
 if(!(R.Version()$version.string == "R version 3.6.1 (2019-07-05)")){
   print("Please update R to 3.6.1")
@@ -43,11 +43,12 @@ if(!(packageVersion("ClusterR") == "1.2.0")){
   devtools::install_github("mlampros/ClusterR", ref = "63538bd880120f06c6f41e7fecd9b2398251e1c5")
 }
 
-if(!(packageVersion("benchmarkme") == "1.0.0")){
+if(!(packageVersion("benchmarkme") == "1.0.2")){
   install.packages("benchmarkme")
 }
 
 if(!(packageVersion("GenomicRanges") == "1.37.14")){
+  #withr::with_libpaths(new = "/users/rliu/packages/R/3.6/lib64/R/library", install_github("Bioconductor/GenomicRanges", ref = "a0657e29ba80c9fadfa8a7c5b6606697dfac8073"))
   devtools::install_github("Bioconductor/GenomicRanges", ref = "a0657e29ba80c9fadfa8a7c5b6606697dfac8073")
 }
 

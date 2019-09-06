@@ -60,8 +60,8 @@ rm(max_mem)
 invisible(gc())
 
 #save out var temporarily for debugging purpose
-var_name <- paste0(data_name,"_03_var","_", now, ".rds")
-saveRDS(vars, file = here("main/case_studies/output", var_name))
+#var_name <- paste0(data_name,"_03_var","_", now, ".rds")
+#saveRDS(vars, file = here("main/case_studies/output", var_name))
 
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
@@ -69,7 +69,7 @@ vars <- sort(vars, decreasing = TRUE)
 for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.5)],])
 #perform pca
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
-time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 2,
+time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                         scale = TRUE,
                                         BSPARAM = RandomParam(deferred = FALSE),
                                         BPPARAM = MulticoreParam(10)))
@@ -88,11 +88,11 @@ temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "0
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
-reducedDim(sce, "PCA") <- pca$x
-
-saveRDS(pca$x, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
-saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")), 
+# save the pca data to a seperate h5 file
+saveHDF5SummarizedExperiment(pca$x, 
+                             dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")),
                              prefix="", replace=FALSE, 
-                             chunkdim=c(dim(counts(sce))[1],1), 
+                             chunkdim=c(30,1), 
                              level=NULL, verbose=FALSE)
+#reducedDim(sce, "PCA") <- 
+saveRDS(pca$x, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))

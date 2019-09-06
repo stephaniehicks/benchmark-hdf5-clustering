@@ -15,7 +15,7 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/pca", dat
 k_list <- c(5:30)
 set.seed(1234)
 time <- system.time(wcss <- lapply(k_list, function(k) {
-                 mbkmeans(sce, reduceMethod = "PCA", clusters = k,
+                 mbkmeans(counts(sce), clusters = k,
                  batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=10, max_iters=100,
                  calc_wcss = TRUE)$WCSS_per_cluster
 }))
