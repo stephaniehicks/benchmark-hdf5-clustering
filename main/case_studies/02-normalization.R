@@ -9,6 +9,7 @@
 # size factors. This ensures that we do not pool cells that are very different. 
 # Note taat this is not the final clustering to identify cell sub-populations.
 data_name <- commandArgs(trailingOnly=T)[2]
+B_name <- commandArgs(trailingOnly=T)[3]
 
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
