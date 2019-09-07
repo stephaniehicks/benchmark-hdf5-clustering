@@ -1,3 +1,5 @@
 Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,196.105,10.601,244.067,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,79.953,4.545,95.456,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,79.953,4.545,95.456,1tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,72.759,7.72,81.351,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,102.163,8.867,116.2,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,4167.547,130.181,4298.23,1
