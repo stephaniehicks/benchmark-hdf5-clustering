@@ -62,10 +62,10 @@ if (mode == "mem"){
     
     # debug purpose
     sink(file = here("main/case_studies/output/Memory_output","info.txt"))
-    cat("RAM Info:\n")
-    print(get_ram())
-    cat("CPU Info: \n")
-    print(get_cpu())
+    #cat("RAM Info:\n")
+    #print(get_ram())
+    #cat("CPU Info: \n")
+    #print(get_cpu())
     cat("Session Info:\n")
     print(sessionInfo())
     sink()
