@@ -15,10 +15,10 @@ for ba in "${batch[@]}"; do
 	Rscript --slave ../01-cluster_full.R --args $data_name $mode $B_name $method $ba
 done
 
-if [ $B_name = "1" ]; then
-	Rscript --slave ../02-normalization.R --args $data_name 
-	Rscript --slave ../03-dim-reduction.R --args $data_name $B_name
-	#Rscript --slave ../04-cluster_find_k.R --args $data_name $B_name
-fi
+#if [ $B_name = "1" ]; then
+#	Rscript --slave ../02-normalization.R --args $data_name 
+#	Rscript --slave ../03-dim-reduction.R --args $data_name $B_name
+#	Rscript --slave ../04-cluster_find_k.R --args $data_name $B_name
+#fi
 
 

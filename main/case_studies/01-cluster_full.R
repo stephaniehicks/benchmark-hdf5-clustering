@@ -57,7 +57,7 @@ if (mode == "mem"){
   if (method == "hdf5"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
-    invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch)), num_init=1, max_iters=100)
+    invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     Rprof(NULL)
     
     # debug purpose

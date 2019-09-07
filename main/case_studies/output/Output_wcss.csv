@@ -1,4 +1,5 @@
-Data,Cells,Genes,Step,Method,Batch,B,WCSStenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,170097214.734867
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,139915933.560546
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,132008673.427491
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,132008673.427491
+Data,Cells,Genes,Step,Method,Batch,B,WCSS
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,170097214.7
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,139915933.6
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,132008673.4
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,132008673.4
