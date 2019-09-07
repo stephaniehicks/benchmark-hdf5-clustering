@@ -1,1 +1,2 @@
-Data,Cells,Genes,Step,Method,Batch,B,Memory,Corestenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,15580.2411780961,1
+Data,Cells,Genes,Step,Method,Batch,B,Memory,Cores
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,15580.24118,1
