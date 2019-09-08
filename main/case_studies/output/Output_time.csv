@@ -1,4 +1,17 @@
 Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,72.759,7.72,81.351,1
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,102.163,8.867,116.2,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,4167.547,130.181,4298.23,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,4167.547,130.181,4298.23,1tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,98.394,2.857,101.726,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,107.096,5.299,115.129,1
+tenx_pbmc68k,67991,6505,02_normalization,other,1,0.831,0.565,283.286,10
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1478.802,10.522,1489.369,1
+tenx_pbmc68k,67991,6505,02_normalization,other,1,1.012,0.976,294.691,10
+tenx_pbmc68k,67991,6505,02_normalization,other,1,479.682069678689,10
+tenx_pbmc68k,67991,6505,02_saving the normalized sce,other,1,1.012,0.976,294.691,1
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,1,114.512,7.415,122.14,1
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,1,835.364756871066,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1331.41,11.869,1343.319,1
+tenx_pbmc68k,67991,6505,03_find var,other,1,79.299,3.849,83.149,1
+tenx_pbmc68k,67991,6505,03_find var,other,1,781.998766984908,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,5257.991,157.02,5414.971,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,6372.586,200.618,6573.058,1
