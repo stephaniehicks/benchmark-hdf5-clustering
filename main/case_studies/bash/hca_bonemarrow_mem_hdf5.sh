@@ -2,6 +2,7 @@
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
+module load R/3.6.1
 
 data_name="hca_bonemarrow"
 mode="mem"

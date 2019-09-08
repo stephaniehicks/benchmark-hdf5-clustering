@@ -53,7 +53,7 @@ time.end <- proc.time()
 Rprof(NULL)
 
 time <- time.end - time.start
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", 1, time[1], time[2],time[3], "10")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", "NA", 1, time[1], time[2],time[3], "10")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -61,8 +61,8 @@ rm(temp_table)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", out_name), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", B_name, max_mem, "10")
-write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_normalization", "other", "NA", B_name, max_mem, "10")
+write.table(temp_table, file = here("main/case_studies/output/Output_Memory.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
 
@@ -75,6 +75,6 @@ saveHDF5SummarizedExperiment(sce,
                              level=NULL, verbose=FALSE)
 time.end2 <- proc.time()
 time2 <- time.end2 - time.start2
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_saving the normalized sce", "other", 1, time[1], time[2],time[3], "1")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "02_saving the normalized sce", "other", "NA", 1, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")

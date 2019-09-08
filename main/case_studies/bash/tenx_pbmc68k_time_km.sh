@@ -1,4 +1,5 @@
 #$ -l mem_free=30G,h_vmem=30G
+#$ -q shared.q@compute-06[0-9],shared.q@compute-07[2-6]
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu

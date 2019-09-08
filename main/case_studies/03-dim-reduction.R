@@ -21,7 +21,7 @@ setRealizationBackend("HDF5Array")
 time <- system.time(logcounts(sce) <- realize(logcounts(sce)))
 Rprof(NULL)
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "other", B_name, time[1], time[2],time[3], "1")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "other", "NA", B_name, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -30,7 +30,7 @@ rm(time)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", out_name), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "other", B_name, max_mem, "1")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_realize logcounts", "other", "NA", B_name, max_mem, "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(profile)
@@ -43,7 +43,7 @@ Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name,
 time <- system.time(vars <- DelayedMatrixStats::rowVars(logcounts(sce)))
 Rprof(NULL)
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "other", B_name, time[1], time[2],time[3], "1")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "other","NA", B_name, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -52,7 +52,7 @@ rm(time)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_2")), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "other", B_name, max_mem, "1")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_find var", "other","NA", B_name, max_mem, "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(profile)
@@ -75,7 +75,7 @@ time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                         BPPARAM = MulticoreParam(10)))
 Rprof(NULL)
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "other", B_name, time[1], time[2],time[3], "10")
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "other", "NA", B_name, time[1], time[2],time[3], "10")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -84,8 +84,8 @@ rm(time)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "other", B_name, max_mem, "10")
-write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
+temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "other","NA", B_name, max_mem, "10")
+write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
 # save the pca data to a seperate h5 file
