@@ -15,4 +15,19 @@ tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1331.41,11.869,1343.319,1
 tenx_pbmc68k,67991,6505,03_find var,other,1,79.299,3.849,83.149,1,
 tenx_pbmc68k,67991,6505,03_find var,other,1,781.998767,1,,,
 tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,5257.991,157.02,5414.971,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,6372.586,200.618,6573.058,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,6372.586,200.618,6573.058,1tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,74.975,7.755,83.379,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,83.271,13.308,97.734,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,111.391,8.607,124.555,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,132.509,8.883,148.35,1
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,433.535,42.2,479.003,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1321.084,9.006,1330.086,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1314.314,16.243,1330.606,1
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,676.68,66.998,771.937,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1213.57,7.391,1221.086,1
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1477.2,25.422,1502.658,1
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,299.977,28.752,331.035,1
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,474.285,46.31,543.665,1
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,105.329,4.706,110.386,1
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,835.364756871066,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,74.083,2.496,76.582,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,781.998766984908,1

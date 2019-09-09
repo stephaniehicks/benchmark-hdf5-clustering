@@ -1,4 +1,7 @@
 Data,Cells,Genes,Step,Method,Batch,B,Memory,Cores
 tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,15580.24118,1
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,2908.592578,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,2890.810222,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,2890.810222,1hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,13817.1406465498,1
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,11298.1892363008,1
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,11247.0658840573,1
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,13793.8546433493,1
