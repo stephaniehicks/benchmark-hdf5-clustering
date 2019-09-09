@@ -754,38 +754,84 @@ p_max_iters_time_init
 ```
 
 ```{r, eval=FALSE}
-library(knitr)
-library(rowr)
-library(tableone)
 real_time <- read.csv(file = here("/main/case_studies/output/Output_time.csv"), header=TRUE, sep=",")
+real_time <- real_time %>% 
+  mutate(method = factor(Method, levels = c("kmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(real_time$Batch), 
+                             levels = c("0.100%", "1.000%")))
+
 real_mem <- read.csv(file = here("/main/case_studies/output/Output_memory.csv"), header=TRUE, sep=",")
-real_total <- merge(real_time, real_mem, by=c("Data","Cells","Genes","Step","Method","B"))
-#cbind.fill(real_time, real_mem)
-
-#select variables to be put into the summary table
-df <- real_total %>%
-  select(Data = Data,
-         Step = Step,
-         Method = Method,
-         B = B,
-         Elapsed_time = Elapsed_time,
-         Memory = Memory)
-
-df %>%
-  group_by(Data, Step, Method, B) %>% 
-  summarize(mean = mean(Elapsed_time),
-            sd = sd(Elapsed_time))
-
-
-df_sum <- CreateTableOne(data = df, strata = c("Data","Step","Method","B"))
 ```
 
 ```{r}
-real_time %>% 
-    tab_cells(Elapsed_time) %>%
-    tab_cols(Data) %>% 
-    tab_stat_mean_sd_n() %>%
-    #tab_last_sig_means(subtable_marks = "both") %>% 
-    tab_pivot()
+p_case_time <- real_time %>%
+  gather(key = "time_type", value = "time", -c(Data:B), -batch_size_perc)%>%
+  dplyr::filter(Step %in% c("01_full cluster"))%>%
+  dplyr::filter(Data %in% c("tenx_pbmc68k"))%>%
+  dplyr::group_by(Data, Step, Method, batch_size_perc, time_type) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = Celss/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time in Seconds") + 
+  facet_grid(batch_size_perc~time_type, scale = "free") +
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_case_time
 ```
 
+```{r}
+files_time <- list.files(path= here("output_tables", "time"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+files_time_old <- list.files(path= here("output_tables", "time", "Before_Patch_0707"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+time_table <- NULL
+time_table_old <- NULL
+
+for (i in (1:length(files_time))){
+  temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
+  time_table <- rbind(time_table, temp_table)
+}
+time_table <- time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(time_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+
+for (i in (1:length(files_time_old))){
+  temp_table <- read.csv(file = files_time_old[i], header=TRUE, sep=",")
+  time_table_old <- rbind(time_table_old, temp_table)
+}
+time_table_old <- time_table_old %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(time_table_old$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(time_table_old$method) <- c("kmeans-old", "mbkmeans-old", "mbkmean_hdf5-old")
+
+time_table_total <- rbind(time_table, time_table_old)
+```
+
+## I-1 Fix batch size and k (study observation vs. time)
+```{r, warning=FALSE, fig.height=20}
+p_time_obs <- time_table %>% gather(key = "time_type", value = "time", -c(Data:B), -batch_size_perc)  %>%
+  dplyr::group_by(method, observations, batch_size_perc, time_type) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Assessing Time for Increasing No. Obs\n(fixed batch size) [B=10 for small, B=3 for large]") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (Seconds)") + 
+  facet_grid(batch_size_perc~time_type, scale = "free") + 
+  scale_color_discrete(name = "Method")
+
+p_time_obs
+```
