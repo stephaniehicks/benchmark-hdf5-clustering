@@ -2,7 +2,8 @@ Data,Cells,Genes,Step,Method,Batch,B,WCSS
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,170097214.7
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,139915933.6
 tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,132008673.4
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,132008673.4hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,24091415049.6069
-hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,66537663520.9516
-hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,54187136853.33
-hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,15415563157.5175
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,132008673.4
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,66537663521
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,54187136853
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,15415563158
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,24091415050
