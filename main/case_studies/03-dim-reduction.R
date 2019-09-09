@@ -66,7 +66,8 @@ invisible(gc())
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
 #keep top 50% most variable genes
-for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
+#for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
+for_pca <- t(logcounts(sce)[names(vars)[1:1000],])
 #perform pca
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
 time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
