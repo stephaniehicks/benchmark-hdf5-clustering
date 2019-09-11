@@ -39,13 +39,53 @@ levels(mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 mem_table <- na.omit(mem_table)
 ```
 
+## Time 
+
+```{r}
+files_time <- list.files(path= here("output_tables", "time"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+time_table <- NULL
+
+for (i in (1:length(files_time))){
+  temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
+  time_table <- rbind(time_table, temp_table)
+}
+time_table <- time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(time_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+```
+
+## Accuracy 
+
+```{r}
+files_acc <- list.files(path= here("output_tables", "acc"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+acc_table <- NULL
+
+for (i in (1:length(files_acc))){
+  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
+  acc_table <- rbind(acc_table, temp_table)
+}
+acc_table <- acc_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(acc_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", 
+                                        "10.0%", "20.0%","35.0%", "50.0%"))) %>%
+  transform(normal_WCSS = WCSS/observations)
+levels(acc_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+```
+
 
 # Figure 1
 
+Performance of memory usage as a function of increasing number of 
+cells and batch sizes. 
+
 ```{r}
 p_mem_obs_all <- mem_table %>%
-  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20, 0.50)))%>%
-  #dplyr::filter(!(observations %in% c(1000000)))%>%
+  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
   dplyr::filter((observations <= 200000)) %>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory/1000), 
@@ -55,25 +95,110 @@ p_mem_obs_all <- mem_table %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-        labs(title = "Memory Usage (RAM) for increasing number of\ncells and batch size") + 
+        labs(title = "Memory Usage (RAM) for increasing number of cells and batch size") + 
         xlab("Number of cells (thousands)") + 
         ylab("Memory Usage (Gb)") + 
   facet_wrap(~batch_size_perc, scales = "free") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method",
                        breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) + 
-  scale_fill_discrete(name="Experimental\nCondition",
-                         breaks=c("ctrl", "trt1", "trt2"),
-                         labels=c("Control", "Treatment 1", "Treatment 2"))
+                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
 p_mem_obs_all
+```
 
-pdf(here::here("main", "figs", "fig-sims-memory-obs.pdf"), width = 8, height = 8)
-print(p_mem_obs_all)
+```{r, warning=FALSE}
+p_time_obs <- time_table %>% 
+  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  dplyr::filter((observations <= 200000)) %>%
+  gather(key = "time_type", value = "time", -c(B:method), -batch_size_perc)  %>%
+  dplyr::filter(time_type == "elapsed_time") %>%
+  dplyr::group_by(method, observations, batch_size_perc, time_type) %>% 
+  dplyr::summarize(mean = mean(time), 
+                   sd = sd(time)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+       labs(title = "Elapsed Time for increasing number of cells and batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Time (seconds)") + 
+  facet_wrap(~batch_size_perc, scales = "free") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  scale_color_discrete(name = "Method",
+                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_time_obs
+```
+
+
+
+```{r, warning=FALSE}
+p_ari_obs_line <- acc_table %>% 
+  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  dplyr::filter((observations <= 10e3)) %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+      labs(title = "Accuracy (ARI) for increasing number of cells and batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Adjusted Rand Index") + 
+  facet_wrap(~batch_size_perc, scales = "free") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  scale_color_discrete(name = "Method",
+                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_ari_obs_line
+```
+
+
+
+```{r, warning=FALSE}
+p_wcss_obs_line <- acc_table %>% 
+  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  dplyr::filter((observations <= 10e3)) %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (WCSS) for increasing number of cells and batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Normalized WCSS") + 
+  facet_wrap(~batch_size_perc, scales = "free") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  scale_color_discrete(name = "Method",
+                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_wcss_obs_line
+```
+
+```{r}
+p2 <- ggdraw() + 
+    draw_plot(p_mem_obs_all, x = 0, y = .70, width = 1, height = .30) +
+    draw_plot(p_time_obs, x = 0, y = .46, width = 1, height = .24) +
+    draw_plot(p_ari_obs_line, x = 0, y = 0.23, width = 1, height = .23) +
+    draw_plot(p_wcss_obs_line, x = 0, y = 0, width = 1, height = .23) +
+    draw_plot_label(label = LETTERS[1:4], size = 25,
+                    x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
+
+
+pdf(here::here("main", "figs", "fig-sims-memory-obs.pdf"), width = 10, height =12)
+print(p2)
 dev.off()
 
 
 ```
+
+
 # Figure 2
 
 # Figure 3
