@@ -1,0 +1,80 @@
+---
+title: "mbkmeans manuscript figures"
+author: "Stephanie Hicks"
+date: "9/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 14, fig.height = 10)
+```
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(gridExtra)
+library(dplyr)
+library(grid)
+library(here)
+```
+
+# Load data
+
+## Memory
+```{r}
+files_mem <- list.files(path= here("output_tables", "mem"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+mem_table <- NULL
+
+for (i in (1:length(files_mem))){
+  temp_table <- read.csv(file = files_mem[i], header=TRUE, sep=",")
+  mem_table <- rbind(mem_table, temp_table)
+}
+
+mem_table <- mem_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         batch_size_perc = factor(scales::percent(mem_table$batch_size), 
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+levels(mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+mem_table <- na.omit(mem_table)
+```
+
+
+# Figure 1
+
+```{r}
+p_mem_obs_all <- mem_table %>%
+  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20, 0.50)))%>%
+  #dplyr::filter(!(observations %in% c(1000000)))%>%
+  dplyr::filter((observations <= 200000)) %>%
+  dplyr::group_by(method, observations, batch_size_perc) %>% 
+  dplyr::summarize(mean = mean(memory/1000), 
+                   sd = sd(memory/1000)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+        labs(title = "Memory Usage (RAM) for increasing number of\ncells and batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Memory Usage (Gb)") + 
+  facet_wrap(~batch_size_perc, scales = "free") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method",
+                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) + 
+  scale_fill_discrete(name="Experimental\nCondition",
+                         breaks=c("ctrl", "trt1", "trt2"),
+                         labels=c("Control", "Treatment 1", "Treatment 2"))
+p_mem_obs_all
+
+pdf(here::here("main", "figs", "fig-sims-memory-obs.pdf"), width = 8, height = 8)
+print(p_mem_obs_all)
+dev.off()
+
+
+```
+# Figure 2
+
+# Figure 3
+

@@ -753,7 +753,7 @@ p_max_iters_time_init <- max_iters_time_table %>%
 p_max_iters_time_init
 ```
 
-```{r, eval=FALSE}
+```{r}
 real_time <- read.csv(file = here("/main/case_studies/output/Output_time.csv"), header=TRUE, sep=",")
 real_time <- real_time %>% 
   mutate(method = factor(Method, levels = c("kmeans", "hdf5")), 
@@ -763,7 +763,7 @@ real_time <- real_time %>%
 real_mem <- read.csv(file = here("/main/case_studies/output/Output_memory.csv"), header=TRUE, sep=",")
 ```
 
-```{r}
+```{r, eval = FALSE}
 p_case_time <- real_time %>%
   gather(key = "time_type", value = "time", -c(Data:B), -batch_size_perc)%>%
   dplyr::filter(Step %in% c("01_full cluster"))%>%
@@ -771,7 +771,7 @@ p_case_time <- real_time %>%
   dplyr::group_by(Data, Step, Method, batch_size_perc, time_type) %>% 
   dplyr::summarize(mean = mean(time), 
                    sd = sd(time)) %>% 
-  ggplot(aes(x = Celss/1e3, y = mean, color = method)) +
+  ggplot(aes(x = Cells/1e3, y = mean, color = method)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
@@ -818,7 +818,7 @@ time_table_total <- rbind(time_table, time_table_old)
 
 ## I-1 Fix batch size and k (study observation vs. time)
 ```{r, warning=FALSE, fig.height=20}
-p_time_obs <- time_table %>% gather(key = "time_type", value = "time", -c(Data:B), -batch_size_perc)  %>%
+p_time_obs <- time_table %>% gather(key = "time_type", value = "time", -c(method:B), -batch_size_perc)  %>%
   dplyr::group_by(method, observations, batch_size_perc, time_type) %>% 
   dplyr::summarize(mean = mean(time), 
                    sd = sd(time)) %>% 
