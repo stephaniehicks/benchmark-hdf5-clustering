@@ -1,4 +1,0 @@
-"B","observations","genes","batch_size","k","initializer","method","user_time","system_time","elapsed_time"
-1,5e+05,1000,0.8,3,random,hdf5,8262.597,869.069,9149.223
-2,5e+05,1000,0.8,3,random,hdf5,7549.822,747.232,8314.303
-3,5e+05,1000,0.8,3,random,hdf5,8155.814,863.625,9037.331
