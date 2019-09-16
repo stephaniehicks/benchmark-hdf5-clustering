@@ -10,8 +10,8 @@ data_name <- commandArgs(trailingOnly=T)[2]
 mode <- commandArgs(trailingOnly=T)[3]
 B_name <- commandArgs(trailingOnly=T)[4]
 method <- commandArgs(trailingOnly=T)[5]
-batch <- as.numeric(commandArgs(trailingOnly=T)[5])
-k <- as.numeric(commandArgs(trailingOnly=T)[6])
+batch <- as.numeric(commandArgs(trailingOnly=T)[6])
+k <- as.numeric(commandArgs(trailingOnly=T)[7])
 
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(mbkmeans))
