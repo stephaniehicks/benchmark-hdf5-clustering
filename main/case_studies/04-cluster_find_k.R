@@ -21,8 +21,10 @@ time <- system.time(wcss <- lapply(k_list, function(k) {
                        max_iters = 100, calc_wcss = TRUE)$WCSS_per_cluster
 }))
 Rprof(NULL)
+print(out_name)
+saveRDS(wcss, here("main/case_studies/data/pca", data_name, paste0(data_name, "_wcss.rds")))
 
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "other", "NA", B_name, time[1], time[2],time[3], "1")
+temp_table <- data.frame(data_name, dim(real_data_hdf5)[1], dim(real_data_hdf5)[2], "04_find optimal k", "other", "NA", B_name, time[1], time[2],time[3], "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 rm(temp_table)
@@ -30,7 +32,7 @@ rm(temp_table)
 profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output", out_name), chunksize = -1L, 
                         memory = "tseries", diff = FALSE)
 max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
-temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "04_find optimal k", "other", "NA", B_name, max_mem, "1")
+temp_table <- data.frame(data_name, dim(real_data_hdf5)[1], dim(real_data_hdf5)[2], "04_find optimal k", "other", "NA", B_name, max_mem, "1")
 write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
