@@ -80,7 +80,7 @@ print("begin pca")
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
 time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                         scale = TRUE,
-                                        BSPARAM = RandomParam(deferred = FALSE), #try deferred = TRUE
+                                        BSPARAM = RandomParam(deferred = TRUE), #try deferred = TRUE
                                         BPPARAM = MulticoreParam(10)))
 Rprof(NULL)
 
@@ -98,10 +98,17 @@ write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 
 # save the pca data to a seperate h5 file
-saveHDF5SummarizedExperiment(pca$x, 
-                             dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca")),
-                             prefix="", replace=FALSE, 
-                             chunkdim=c(30,1), 
-                             level=NULL, verbose=FALSE)
+h5File <- here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5"))
+h5createFile(h5File)
+h5createDataset(file = h5File, dataset = "obs", 
+                dims = dim(pca$x), chunk = c(1,30),
+                level = 0)
+h5write(pca$x, file = h5File, name = "obs" )
+
+#saveHDF5SummarizedExperiment(pca$x, 
+#                             dir = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2")),
+#                             prefix="", replace=FALSE, 
+#                             chunkdim=c(30,1), 
+#                             level=NULL, verbose=FALSE)
 #reducedDim(sce, "PCA") <- 
-saveRDS(pca$x, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
+saveRDS(pca$x, file=here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
