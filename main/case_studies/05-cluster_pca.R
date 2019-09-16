@@ -13,6 +13,7 @@ method <- commandArgs(trailingOnly=T)[5]
 batch <- as.numeric(commandArgs(trailingOnly=T)[5])
 k <- as.numeric(commandArgs(trailingOnly=T)[6])
 
+suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(mbkmeans))
 suppressPackageStartupMessages(library(here))
 
