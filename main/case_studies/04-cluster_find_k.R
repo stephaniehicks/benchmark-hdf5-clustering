@@ -22,6 +22,7 @@ time <- system.time(wcss <- lapply(k_list, function(k) {
 }))
 Rprof(NULL)
 print(out_name)
+print(time)
 saveRDS(wcss, here("main/case_studies/data/pca", data_name, paste0(data_name, "_wcss.rds")))
 
 temp_table <- data.frame(data_name, dim(real_data_hdf5)[1], dim(real_data_hdf5)[2], "04_find optimal k", "other", "NA", B_name, time[1], time[2],time[3], "1")
