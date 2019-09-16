@@ -11,6 +11,7 @@ out_name <- paste0(data_name,"_04_", now, ".out")
 
 invisible(gc())
 Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
+
 real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5")), name = "obs")
 k_list <- c(5:30)
 set.seed(1234)
