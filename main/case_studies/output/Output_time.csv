@@ -25,3 +25,4 @@ tenx_pbmc68k,67991,6505,03_find var,other,NA,1,74.083,2.496,76.582,1tenx_pbmc68k
 tenx_pbmc68k,67991,6505,03_find var,other,NA,1,422.492,4.423,426.933,1
 tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,457.852,17.771,480.945,1
 tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.453,7.028,603.964,1
+tenx_pbmc68k,67991,30,04_find optimal k,other,NA,1,664.398,140.547,1103.452,1

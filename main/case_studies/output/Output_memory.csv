@@ -17,3 +17,4 @@ TENxBrainData,1232055,11720,01_full cluster,hdf5,0.001,1,80494.7095242161,1
 TENxBrainData,1232055,11720,01_full cluster,hdf5,0.001,1,80494.7095242161,1
 tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,572.770235312678,1
 tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.556925160615,1
+tenx_pbmc68k,67991,30,04_find optimal k,other,NA,1,704.174685270743,1
