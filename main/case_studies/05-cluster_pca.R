@@ -126,7 +126,7 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- mbkmeans:: mini_batch(data_pca, cluster = k, batch_size = as.integer(dim(data_pca)[1]*batch),
                                       num_init=1, max_iters=100, calc_wcss = TRUE)
-    temp_table2 <- data.frame(data_name, dim(data_pca)[1], dim(data_pca)[2], "05_pca cluster", method, batch, B_name, clusters$WCSS_per_cluster, "1",k)
+    temp_table2 <- data.frame(data_name, dim(data_pca)[1], dim(data_pca)[2], "05_pca cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster), k)
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
   }
@@ -137,7 +137,7 @@ if (mode == "acc"){
     clusters <- mbkmeans::mini_batch(real_data_hdf5, clusters = k, 
                                      batch_size = as.integer(dim(real_data_hdf5)[1]*batch), num_init = 10, 
                                      max_iters = 100, calc_wcss = TRUE)
-    temp_table2 <- data.frame(data_name, dim(real_data_hdf5)[1], dim(real_data_hdf5)[2], "05_pca cluster", method, batch, B_name, clusters$WCSS_per_cluster, "1",k)
+    temp_table2 <- data.frame(data_name, dim(real_data_hdf5)[1], dim(real_data_hdf5)[2], "05_pca cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster),k)
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
   }
@@ -147,7 +147,7 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- stats::kmeans(data_pca, centers=k, iter.max = 100, nstart = 1)
     
-    temp_table2 <- data.frame(data_name, dim(data_pca)[1], dim(data_pca)[2], "05_pca cluster", method, batch, B_name, clusters$withinss, "1",k)
+    temp_table2 <- data.frame(data_name, dim(data_pca)[1], dim(data_pca)[2], "05_pca cluster", method, batch, B_name, sum(clusters$withinss), k)
     write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
   }
