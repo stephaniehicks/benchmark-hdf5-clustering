@@ -1,30 +1,28 @@
-Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,72.759,7.72,81.351,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,102.163,8.867,116.2,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,98.394,2.857,101.726,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,107.096,5.299,115.129,1
-tenx_pbmc68k,67991,6505,02_normalization,other,NA,1,0.831,0.565,283.286,10
-tenx_pbmc68k,67991,6505,02_normalization,other,NA,1,1.012,0.976,294.691,10
-tenx_pbmc68k,67991,6505,02_saving the normalized sce,other,NA,1,1.012,0.976,294.691,1
-tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,114.512,7.415,122.14,1
-tenx_pbmc68k,67991,6505,03_find var,other,NA,1,79.299,3.849,83.149,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,74.975,7.755,83.379,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,83.271,13.308,97.734,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,111.391,8.607,124.555,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,132.509,8.883,148.35,1
-hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,433.535,42.2,479.003,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1321.084,9.006,1330.086,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1314.314,16.243,1330.606,1
-hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,676.68,66.998,771.937,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1213.57,7.391,1221.086,1
-tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1477.2,25.422,1502.658,1
-hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,299.977,28.752,331.035,1
-hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,474.285,46.31,543.665,1
-tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,105.329,4.706,110.386,1
+Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,72.759,7.72,81.351,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,102.163,8.867,116.2,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,98.394,2.857,101.726,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,107.096,5.299,115.129,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,02_normalization,other,NA,1,0.831,0.565,283.286,10,,,,,,,,,,
+tenx_pbmc68k,67991,6505,02_normalization,other,NA,1,1.012,0.976,294.691,10,,,,,,,,,,
+tenx_pbmc68k,67991,6505,02_saving the normalized sce,other,NA,1,1.012,0.976,294.691,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,114.512,7.415,122.14,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,79.299,3.849,83.149,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,74.975,7.755,83.379,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,83.271,13.308,97.734,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,111.391,8.607,124.555,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,132.509,8.883,148.35,1,,,,,,,,,,
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.001,1,433.535,42.2,479.003,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1321.084,9.006,1330.086,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.001,1,1314.314,16.243,1330.606,1,,,,,,,,,,
+hca_bonemarrow,333253,7160,01_full cluster,hdf5,0.01,1,676.68,66.998,771.937,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1213.57,7.391,1221.086,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1477.2,25.422,1502.658,1,,,,,,,,,,
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,299.977,28.752,331.035,1,,,,,,,,,,
+hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,474.285,46.31,543.665,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,105.329,4.706,110.386,1,,,,,,,,,,
 tenx_pbmc68k,67991,6505,03_find var,other,NA,1,74.083,2.496,76.582,1tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,299.586,9.708,312.617,1
-tenx_pbmc68k,67991,6505,03_find var,other,NA,1,422.492,4.423,426.933,1
-tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,457.852,17.771,480.945,1
-tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.453,7.028,603.964,1
-tenx_pbmc68k,67991,30,04_find optimal k,other,NA,1,664.398,140.547,1103.452,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,70.515,5.043,76.159,1
-tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,73.041,8.681,82.238,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,422.492,4.423,426.933,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,457.852,17.771,480.945,1,,,,,,,,,,
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.453,7.028,603.964,1,,,,,,,,,,
+tenx_pbmc68k,67991,30,04_find optimal k,other,NA,1,664.398,140.547,1103.452,1,,,,,,,,,,

@@ -13,6 +13,6 @@ cluster=(10 23)
 
 for ba in "${batch[@]}"; do
 	for k in "${cluster[@]}"; do
-		Rscript --slave ../../01-cluster_full.R --args $data_name $mode $B_name $method $ba $k
+		Rscript --slave ../../05-cluster_pca.R --args $data_name $mode $B_name $method $ba $k
 	done
 done
