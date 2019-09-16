@@ -26,3 +26,5 @@ tenx_pbmc68k,67991,6505,03_find var,other,NA,1,422.492,4.423,426.933,1
 tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,457.852,17.771,480.945,1
 tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.453,7.028,603.964,1
 tenx_pbmc68k,67991,30,04_find optimal k,other,NA,1,664.398,140.547,1103.452,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,70.515,5.043,76.159,1
+tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,73.041,8.681,82.238,1
