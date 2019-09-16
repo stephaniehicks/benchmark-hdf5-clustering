@@ -21,4 +21,7 @@ tenx_pbmc68k,67991,6505,01_full cluster,kmeans,0.01,1,1477.2,25.422,1502.658,1
 hca_cordblood,329153,5861,01_full cluster,hdf5,0.001,1,299.977,28.752,331.035,1
 hca_cordblood,329153,5861,01_full cluster,hdf5,0.01,1,474.285,46.31,543.665,1
 tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,105.329,4.706,110.386,1
-tenx_pbmc68k,67991,6505,03_find var,other,NA,1,74.083,2.496,76.582,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,74.083,2.496,76.582,1tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,299.586,9.708,312.617,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,422.492,4.423,426.933,1
+tenx_pbmc68k,67991,6505,03_realize logcounts,other,NA,1,457.852,17.771,480.945,1
+tenx_pbmc68k,67991,6505,03_find var,other,NA,1,596.453,7.028,603.964,1
