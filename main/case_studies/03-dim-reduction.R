@@ -80,7 +80,7 @@ print("begin pca")
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
 time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                         scale = TRUE,
-                                        BSPARAM = RandomParam(deferred = FALSE), #try deferred = TRUE
+                                        BSPARAM = RandomParam(deferred = TRUE), #try deferred = TRUE
                                         BPPARAM = MulticoreParam(10)))
 Rprof(NULL)
 
