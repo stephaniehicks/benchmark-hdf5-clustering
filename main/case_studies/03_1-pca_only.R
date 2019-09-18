@@ -20,6 +20,9 @@ now <- format(Sys.time(), "%b%d%H%M%S")
 out_name <- paste0(data_name,"_03_", now, ".out")
 
 invisible(gc())
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")),  prefix="")
+setRealizationBackend("HDF5Array")
+logcounts(sce) <- realize(logcounts(sce))
 vars <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "var.rds")))
 #keep top 50% most variable genes
 for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
