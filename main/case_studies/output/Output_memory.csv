@@ -54,3 +54,4 @@ tenx_pbmc68k,67991,30,05_pca cluster,mbkmeans,0.25,1,420.441476498909,1,10
 tenx_pbmc68k,67991,30,05_pca cluster,kmeans,0.25,1,432.544297894614,1,10
 tenx_pbmc68k,67991,30,05_pca cluster,kmeans,0.25,1,432.556665143196,1,23
 tenx_pbmc68k,67991,30,05_pca cluster,mbkmeans,0.25,1,420.442285214732,1,23
+tenx_pbmc68k,67991,6505,03_pca,other,NA,1,798.975222737357,10
