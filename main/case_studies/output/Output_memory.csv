@@ -55,3 +55,7 @@ tenx_pbmc68k,67991,30,05_pca cluster,kmeans,0.25,1,432.544297894614,1,10
 tenx_pbmc68k,67991,30,05_pca cluster,kmeans,0.25,1,432.556665143196,1,23
 tenx_pbmc68k,67991,30,05_pca cluster,mbkmeans,0.25,1,420.442285214732,1,23
 tenx_pbmc68k,67991,6505,03_pca,other,NA,1,798.975222737357,10
+hca_cordblood,329153,5861,03_realize logcounts,other,NA,1,882.81250332672,1
+hca_bonemarrow,333253,7160,03_realize logcounts,other,NA,1,914.829761137801,1
+hca_cordblood,329153,5861,03_find var,other,NA,1,918.941386824682,1
+hca_bonemarrow,333253,7160,03_find var,other,NA,1,927.996608416422,1
