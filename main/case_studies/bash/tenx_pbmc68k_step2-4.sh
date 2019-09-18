@@ -1,4 +1,4 @@
-##$ -pe local 10
+#$ -pe local 10
 #$ -l mem_free=4G,h_vmem=4G
 #$ -cwd
 #$ -m e
