@@ -14,12 +14,14 @@ B_name <- commandArgs(trailingOnly=T)[3]
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
+library(doParallel)
+library(BiocParallel)
 
 DelayedArray:::set_verbose_block_processing(TRUE)
 DelayedArray:::set_verbose_block_processing(TRUE)
 
 getAutoBlockSize()
-block_size <- 50000
+block_size <- 10000
 setAutoBlockSize(block_size)
 
 now <- format(Sys.time(), "%b%d%H%M%S")
@@ -31,8 +33,9 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", da
 
 # next comes calculating size factors
 time.start <- proc.time()
-sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters,
-                                     BPPARAM=MulticoreParam(10))
+sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters, BPPARAM=MulticoreParam(10))
+#sce <- computeSumFactors(sce[,1:1000], min.mean=0.1, cluster=clusters$Clusters[1:1000],
+#                                   BPPARAM=MulticoreParam(10))
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.

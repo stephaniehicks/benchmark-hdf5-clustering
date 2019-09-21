@@ -1,0 +1,97 @@
+---
+title: "Real Data Analysis Summary"
+author: "Ruoxi Liu"
+date: "9/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 14, fig.height = 10)
+```
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(gridExtra)
+library(dplyr)
+library(grid)
+library(here)
+```
+
+```{r}
+mem_table_real <- read.csv(file = here("main/case_studies/output/Output_memory.csv"),header=TRUE, sep=",")
+
+time_table_real <- read.csv(file = here("main/case_studies/output/Output_time.csv"),header=TRUE, sep=",")
+
+wcss_table_real <- read.csv(file = here("main/case_studies/output/Output_wcss.csv"),header=TRUE, sep=",")
+```
+
+```{r}
+mem_table_real <- mem_table_real %>% 
+          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
+time_table_real <- time_table_real %>% 
+          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
+wcss_table_real <- wcss_table_real %>% 
+          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
+```
+
+```{r}
+p_mem_real <- mem_table_real %>%
+  dplyr::group_by(Method, X, Batch) %>% 
+  dplyr::summarize(mean = mean(Memory), 
+                   sd = sd(Memory)) %>% 
+  ggplot(aes(x = Batch, y = mean, color = Method)) +
+          geom_line()+
+          geom_point()+
+         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+        #        position=position_dodge(0.05))+
+        labs(title = "PBMC68K Memory Usage for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
+        xlab("Batch Size") + 
+        ylab("Memory (Mb)") + 
+  facet_wrap(~X ) + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_mem_real
+```
+
+```{r}
+p_time_real <- time_table_real %>%
+  dplyr::group_by(Method, X, Batch) %>% 
+  dplyr::summarize(mean = mean(Elapsed_time), 
+                   sd = sd(Elapsed_time)) %>% 
+  ggplot(aes(x = Batch, y = mean, color = Method)) +
+          geom_line()+
+          geom_point()+
+         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+        #        position=position_dodge(0.05))+
+        labs(title = "PBMC68K Time for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
+        xlab("Batch Size") + 
+        ylab("Time (Seconds)") + 
+  facet_wrap(~X ) + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_time_real
+```
+```{r}
+p_wcss_real <- wcss_table_real %>%
+  dplyr::group_by(Method, K, Batch) %>% 
+  dplyr::summarize(mean = mean(WCSS), 
+                   sd = sd(WCSS)) %>% 
+  ggplot(aes(x = Batch, y = mean, color = Method)) +
+          geom_line()+
+          geom_point()+
+         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+        #        position=position_dodge(0.05))+
+        labs(title = "PBMC68K WCSS for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
+        xlab("Batch Size") + 
+        ylab("WCSS") + 
+  facet_wrap(~K) + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
+
+p_wcss_real
+```
+

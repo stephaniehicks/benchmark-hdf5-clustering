@@ -93,7 +93,7 @@ Save sce object to /data/full
 library(HDF5Array)
 library(here)
 saveHDF5SummarizedExperiment(sce, 
-                             dir = here("main/case_studies/data/full/hca_bonemarrow","hca_bonemarrow_preprocessed"),
+                             dir = here("main/case_studies/data/full/hca_bonemarrow","hca_bonemarrow_preprocessed2"),
                              prefix="", replace=FALSE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)

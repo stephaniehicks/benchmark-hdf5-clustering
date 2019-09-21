@@ -72,4 +72,4 @@ invisible(gc())
 
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
-saveRDS(vars, here("main/case_studies/data/pca", data_name, paste0(data_name, "var.rds")))
+saveRDS(vars, here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
