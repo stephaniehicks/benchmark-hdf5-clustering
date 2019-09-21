@@ -72,4 +72,6 @@ invisible(gc())
 
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
+print("variance found")
+print(here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
 saveRDS(vars, here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
