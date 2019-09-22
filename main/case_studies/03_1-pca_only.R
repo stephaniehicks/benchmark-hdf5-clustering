@@ -9,12 +9,12 @@ suppressPackageStartupMessages(library(DelayedMatrixStats))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
 
-DelayedArray:::set_verbose_block_processing(TRUE)
-DelayedArray:::set_verbose_block_processing(TRUE)
+#DelayedArray:::set_verbose_block_processing(TRUE)
+#DelayedArray:::set_verbose_block_processing(TRUE)
 
-getAutoBlockSize()
-block_size <- 50000
-setAutoBlockSize(block_size)
+#getAutoBlockSize()
+#block_size <- 50000
+#setAutoBlockSize(block_size)
 
 now <- format(Sys.time(), "%b%d%H%M%S")
 out_name <- paste0(data_name,"_03_", now, ".out")
@@ -26,11 +26,11 @@ logcounts(sce) <- realize(logcounts(sce))
 vars <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
 #keep top 50% most variable genes
 #for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
-for_pca <- t(logcounts(sce)[names(vars)[1:1000],])
+for_pca <- t(logcounts(sce)[names(vars)[1:500],])
 #perform pca
 print("begin pca")
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
-time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
+time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 2,
                                                 scale = TRUE,
                                                 BSPARAM = FastAutoParam(),
                                                 BPPARAM = MulticoreParam(10)))
