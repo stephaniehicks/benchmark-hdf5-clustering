@@ -34,8 +34,7 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", da
 # next comes calculating size factors
 time.start <- proc.time()
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters, BPPARAM=MulticoreParam(10))
-#sce <- computeSumFactors(sce[,1:1000], min.mean=0.1, cluster=clusters$Clusters[1:1000],
-#                                   BPPARAM=MulticoreParam(10))
+#sce <- computeSumFactors(sce[,1:1000], min.mean=0.1, cluster=clusters$Clusters[1:1000],BPPARAM=MulticoreParam(10))
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.

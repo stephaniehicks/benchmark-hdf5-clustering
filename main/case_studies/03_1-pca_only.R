@@ -35,6 +35,7 @@ time <- system.time(pca <- BiocSingular::runPCA(for_pca, rank = 30,
                                                 BSPARAM = FastAutoParam(),
                                                 BPPARAM = MulticoreParam(10)))
 Rprof(NULL)
+print("finish pca")
 
 temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "03_pca", "other", "NA", B_name, time[1], time[2],time[3], "10")
 write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
