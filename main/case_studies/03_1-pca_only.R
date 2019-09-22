@@ -25,8 +25,8 @@ setRealizationBackend("HDF5Array")
 logcounts(sce) <- realize(logcounts(sce))
 vars <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
 #keep top 50% most variable genes
-for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
-#for_pca <- t(logcounts(sce)[names(vars)[1:500],])
+#for_pca <- t(logcounts(sce)[names(vars)[1:as.integer(length(names(vars))*0.3)],])
+for_pca <- t(logcounts(sce)[names(vars)[1:1000],])
 #perform pca
 print("begin pca")
 Rprof(filename = here("main/case_studies/output/Memory_output", paste0(out_name, "_3")), append = FALSE, memory.profiling = TRUE)
