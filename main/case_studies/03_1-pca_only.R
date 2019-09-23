@@ -9,12 +9,12 @@ suppressPackageStartupMessages(library(DelayedMatrixStats))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
 
-#DelayedArray:::set_verbose_block_processing(TRUE)
-#DelayedArray:::set_verbose_block_processing(TRUE)
+DelayedArray:::set_verbose_block_processing(TRUE)
+DelayedArray:::set_verbose_block_processing(TRUE)
 
-#getAutoBlockSize()
-#block_size <- 50000
-#setAutoBlockSize(block_size)
+getAutoBlockSize()
+block_size <- 50000
+setAutoBlockSize(block_size)
 
 now <- format(Sys.time(), "%b%d%H%M%S")
 out_name <- paste0(data_name,"_03_", now, ".out")
