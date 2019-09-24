@@ -21,12 +21,12 @@ print("start finding vars")
 vars <- DelayedMatrixStats::rowVars(logcounts(sce))
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
-for_pca <- t(logcounts(sce)[names(vars)[1:1000],])
+for_pca <- t(logcounts(sce)[names(vars)[1:500],])
 dim(for_pca)
 print("start pca")
 pca <- BiocSingular::runPCA(for_pca, rank = 2,
                             scale = TRUE,
-                            BSPARAM = RandomParam(deferred = TRUE),
-                            #BSPARAM = FastAutoParam(),
+                            #BSPARAM = RandomParam(deferred = TRUE),
+                            BSPARAM = FastAutoParam(),
                             BPPARAM = MulticoreParam(10))
 print("end pca")

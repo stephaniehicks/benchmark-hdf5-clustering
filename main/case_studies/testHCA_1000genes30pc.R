@@ -24,9 +24,9 @@ vars <- sort(vars, decreasing = TRUE)
 for_pca <- t(logcounts(sce)[names(vars)[1:1000],])
 dim(for_pca)
 print("start pca")
-pca <- BiocSingular::runPCA(for_pca, rank = 2,
+pca <- BiocSingular::runPCA(for_pca, rank = 30,
                             scale = TRUE,
-                            BSPARAM = RandomParam(deferred = TRUE),
-                            #BSPARAM = FastAutoParam(),
+                            #BSPARAM = RandomParam(deferred = TRUE),
+                            BSPARAM = FastAutoParam(),
                             BPPARAM = MulticoreParam(10))
 print("end pca")
