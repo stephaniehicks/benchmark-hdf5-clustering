@@ -53,22 +53,12 @@ if (mode == "time"){
 if (mode == "mem"){
   invisible(gc())
   now <- format(Sys.time(), "%b%d%H%M%OS3")
-  out_name <- paste0(data_name, "_01_", now, ".out")
+  out_name <- paste0(data_name, "_step1_", now, "_", batch,".out")
   if (method == "hdf5"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     Rprof(NULL)
-    
-    # debug purpose
-    sink(file = here("main/case_studies/output/Memory_output","info.txt"))
-    #cat("RAM Info:\n")
-    #print(get_ram())
-    #cat("CPU Info: \n")
-    #print(get_cpu())
-    cat("Session Info:\n")
-    print(sessionInfo())
-    sink()
   }
   
   if (method == "kmeans"){
