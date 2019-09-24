@@ -57,7 +57,7 @@ mem_table_total <- na.omit(mem_table_total)
 ```
 
 ```{r}
-mem_table_bash <- read.csv(file = here("main/Memory_Bash/mem_output.csv"), header=TRUE, sep=",")
+mem_table_bash <- read.csv(file = here("ongoing_analysis/Memory_Bash/mem_output.csv"), header=TRUE, sep=",")
 mem_table_bash <- mem_table_bash %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(mem_table_bash$batch_size), 

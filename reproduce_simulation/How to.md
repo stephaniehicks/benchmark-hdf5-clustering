@@ -8,7 +8,7 @@
 3. Need to mannually change the parameter `data_path` (in line #9) in each of the six bash scripts. The path should be a directory where you want to save the simulated data. Please note that the simulated data are large: need around 650G storage space.
 
 ## Step3: Generate your own bash scripts for simulation benchmark
-In the directory `/benchmark-hdf5-clustering/main/Make_BashScripts`, there are three sub-directories `Accuracy`, `Memory` and `Time`, which contain text files that will be used to compose bash scripts. There is also a main bash script called `Make_Bash.sh`. You only need to run `Make_Bash.sh` to generate bash scripts. But before running `Make_Bash.sh`, some changes need to be done to customize the scripts and make it work for your computing platform.
+In the directory `/benchmark-hdf5-clustering/reproduce_simulation/Make_BashScripts`, there are three sub-directories `Accuracy`, `Memory` and `Time`, which contain text files that will be used to compose bash scripts. There is also a main bash script called `Make_Bash.sh`. You only need to run `Make_Bash.sh` to generate bash scripts. But before running `Make_Bash.sh`, some changes need to be done to customize the scripts and make it work for your computing platform.
 
 1. Open `Make_Bash.sh`. Change the path in line #2 to where `/benchmark-hdf5-clustering` locates.
 2. Change the `head_xxx.txt` files. There are 9 `head_xxx.txt` files in total that need to be taken care of. 
