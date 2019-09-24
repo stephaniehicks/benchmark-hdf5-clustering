@@ -1,4 +1,4 @@
-Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores,
+Data,Cells,Genes,Step,Method,Batch,B,User_time,System_time,Elapsed_time,No. of Cores,No. of Clusters
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,72.759,7.72,81.351,1,
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.01,1,102.163,8.867,116.2,1,
 tenx_pbmc68k,67991,6505,01_full cluster,hdf5,0.001,1,98.394,2.857,101.726,1,

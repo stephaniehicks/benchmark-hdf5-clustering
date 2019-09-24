@@ -10,6 +10,16 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE,
                       cache = FALSE)
 ```
 
+```{r}
+#Create the necessary folder structure
+library(here)
+if(!file.exists(here("main/case_studies/data"))){
+      dir.create(here("main/case_studies/data"))
+      dir.create(here("main/case_studies/data/full"))
+      dir.create(here("main/case_studies/data/pca"))
+    }
+```
+
 
 # Data 
 
@@ -91,10 +101,9 @@ These leaves us with `length(keep)` genes.
 Save sce object to /data/full
 ```{r}
 library(HDF5Array)
-library(here)
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/full/hca_cordblood","hca_cordblood_preprocessed"),
-                             prefix="", replace=FALSE, 
+                             prefix="", replace=TRUE, 
                              chunkdim=c(dim(counts(sce))[1],1), 
                              level=NULL, verbose=FALSE)
 ```
