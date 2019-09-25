@@ -7,12 +7,12 @@ suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(mbkmeans))
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_04_", now, ".out")
+out_name <- paste0(data_name,"_step4_", now, ".out")
 
 invisible(gc())
 Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
 
-real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5")), name = "obs")
+real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.h5")), name = "obs")
 k_list <- c(5:30)
 set.seed(1234)
 time <- system.time(wcss <- lapply(k_list, function(k) {

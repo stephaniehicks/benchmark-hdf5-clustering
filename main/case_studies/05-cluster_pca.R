@@ -21,7 +21,7 @@ if (mode == "time"){
   invisible(gc())
   if (method == "mbkmeans"){
     time.start <- proc.time()
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     set.seed(1234)
     clusters <- mbkmeans:: mini_batch(data_pca, cluster = k, batch_size = as.integer(dim(data_pca)[1]*batch),
                                       num_init=1, max_iters=100, calc_wcss = FALSE)
@@ -36,7 +36,7 @@ if (mode == "time"){
   
   if (method == "hdf5"){
     time.start <- proc.time()
-    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5")), name = "obs")
+    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.h5")), name = "obs")
     set.seed(1234)
     clusters <- mbkmeans::mini_batch(real_data_hdf5, clusters = k, 
                                      batch_size = as.integer(dim(real_data_hdf5)[1]*batch), num_init = 10, 
@@ -51,7 +51,7 @@ if (mode == "time"){
   
   if (method == "kmeans"){
     time.start <- proc.time()
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     set.seed(1234)
     clusters <- stats::kmeans(data_pca, centers=k, iter.max = 100, nstart = 1)
     time.end <- proc.time()
@@ -69,11 +69,11 @@ if (mode == "time"){
 if (mode == "memory"){
   invisible(gc())
   now <- format(Sys.time(), "%b%d%H%M%OS3")
-  out_name <- paste0(data_name, "_", now, ".out")
+  out_name <- paste0(data_name, "_step5", now, "_",mode,k,"_", batch, ".out")
   
   if (method == "mbkmeans"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     clusters <- mbkmeans:: mini_batch(data_pca, cluster = k, batch_size = as.integer(dim(data_pca)[1]*batch),
                                       num_init=1, max_iters=100, calc_wcss = FALSE)
     Rprof(NULL)
@@ -89,7 +89,7 @@ if (mode == "memory"){
   
   if (method == "hdf5"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
-    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5")), name = "obs")
+    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.h5")), name = "obs")
     clusters <- mbkmeans::mini_batch(real_data_hdf5, clusters = k, 
                                      batch_size = as.integer(dim(real_data_hdf5)[1]*batch), num_init = 10, 
                                      max_iters = 100, calc_wcss = FALSE)
@@ -106,7 +106,7 @@ if (mode == "memory"){
   
   if (method == "kmeans"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     clusters <- stats::kmeans(data_pca, centers=k, iter.max = 100, nstart = 1)
     Rprof(NULL)
     
@@ -122,7 +122,7 @@ if (mode == "memory"){
 
 if (mode == "acc"){
   if (method == "mbkmeans"){
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     set.seed(1234)
     clusters <- mbkmeans:: mini_batch(data_pca, cluster = k, batch_size = as.integer(dim(data_pca)[1]*batch),
                                       num_init=1, max_iters=100, calc_wcss = TRUE)
@@ -132,7 +132,7 @@ if (mode == "acc"){
   }
   
   if (method == "hdf5"){
-    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.h5")), name = "obs")
+    real_data_hdf5 <- HDF5Array(file = here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.h5")), name = "obs")
     set.seed(1234)
     clusters <- mbkmeans::mini_batch(real_data_hdf5, clusters = k, 
                                      batch_size = as.integer(dim(real_data_hdf5)[1]*batch), num_init = 10, 
@@ -143,7 +143,7 @@ if (mode == "acc"){
   }
   
   if (method == "kmeans"){
-    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca2.rds")))
+    data_pca <- readRDS(here("main/case_studies/data/pca", data_name, paste0(data_name, "_pca.rds")))
     set.seed(1234)
     clusters <- stats::kmeans(data_pca, centers=k, iter.max = 100, nstart = 1)
     

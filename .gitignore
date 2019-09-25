@@ -28,4 +28,4 @@ main/Memory/*
 main/Accuracy/*
 ongoing_analysis/Mem&Time/data/
 main/summary_files/*
-main/case_studies/real_data_summary.html 
+main/case_studies/output/real_data_summary.html 

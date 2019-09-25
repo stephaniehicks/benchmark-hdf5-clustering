@@ -14,18 +14,16 @@ B_name <- commandArgs(trailingOnly=T)[3]
 suppressPackageStartupMessages(library(scran))
 suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
-library(doParallel)
-library(BiocParallel)
 
+#Ruoxi's experience: scran doesn't work very well with the block sizes
 DelayedArray:::set_verbose_block_processing(TRUE)
 DelayedArray:::set_verbose_block_processing(TRUE)
-
 getAutoBlockSize()
 block_size <- 10000
 setAutoBlockSize(block_size)
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_02_", now, ".out")
+out_name <- paste0(data_name,"_step2_", now, ".out")
 
 Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
 clusters <- readRDS(file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
@@ -34,7 +32,7 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", da
 # next comes calculating size factors
 time.start <- proc.time()
 sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters$Clusters, BPPARAM=MulticoreParam(10))
-#sce <- computeSumFactors(sce[,1:1000], min.mean=0.1, cluster=clusters$Clusters[1:1000],BPPARAM=MulticoreParam(10))
+#sce <- computeSumFactors(sce[,1:1000], min.mean=0.1, cluster=clusters$Clusters[1:1000],BPPARAM=MulticoreParam(10)) #for debug purpose
 
 # It can be useful to check whether the size factors are 
 # correlated with the total number of reads per cell.

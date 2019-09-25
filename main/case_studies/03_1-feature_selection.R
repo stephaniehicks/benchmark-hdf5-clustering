@@ -17,13 +17,13 @@ block_size <- 50000
 setAutoBlockSize(block_size)
 
 now <- format(Sys.time(), "%b%d%H%M%S")
-out_name <- paste0(data_name,"_03_", now, ".out")
+out_name <- paste0(data_name,"_step3_vars_", now, ".out")
 
 invisible(gc())
 
 ## Realize into memory
 Rprof(filename = here("main/case_studies/output/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
-sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized_0822")),  prefix="")
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_normalized")),  prefix="")
 setRealizationBackend("HDF5Array")
 time <- system.time(logcounts(sce) <- realize(logcounts(sce)))
 Rprof(NULL)
@@ -66,12 +66,6 @@ rm(profile)
 rm(max_mem)
 invisible(gc())
 
-#save out var temporarily for debugging purpose
-#var_name <- paste0(data_name,"_03_var","_", now, ".rds")
-#saveRDS(vars, file = here("main/case_studies/output", var_name))
-
 names(vars) <- rownames(sce)
 vars <- sort(vars, decreasing = TRUE)
-print("variance found")
-print(here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
 saveRDS(vars, here("main/case_studies/data/pca", data_name, paste0(data_name, "_var.rds")))
