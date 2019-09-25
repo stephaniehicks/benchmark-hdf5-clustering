@@ -95,7 +95,7 @@ if (!init){
     index <- sample(c(1:50), 1)
   }
   if(size == "large"){
-    index <- sample(c(1:3), 1)
+    index <- sample(c(1:10), 1)
   }
   
   if (mode == "mem"){
@@ -121,14 +121,14 @@ if (!init){
                                batch_size = nC*batch, num_init = 10, max_iters = 100,
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
-  
+    
     cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method, mc.cores=cores)
-  
+    
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
-                              method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
+                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
       write.table(temp_table, file = here("output_tables", mode, file_name), sep = ",", 
-                append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
+                  append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
   }
   

@@ -18,7 +18,7 @@ In the directory `/benchmark-hdf5-clustering/reproduce_simulation/Make_BashScrip
 
 	- In `/Make_BashScripts/Time`, there are four sub-folders. In each one of them, there's a `head_time.txt` file. Please click on each `head_mem.txt` and change them to the corresponding commands of your computing platform/system. Make sure line #9 has the same number as line #1. (For Stephanie: you only need to change line #6 to your own email address, and keep everything else the same)
 3. Run `Make_Bash.sh` 
-	- `cd /benchmark-hdf5-clustering/main/Make_BashScripts`
+	- `cd benchmark-hdf5-clustering/reproduce_simulation/Make_BashScripts/`
 	- Submit `Make_Bash.sh`. For Mac OS, the command is `sh Make_Bash.sh`. 
 	- Then in `/benchmark-hdf5-clustering/main`, three sub-folders will appear: `Accuracy_Local`, `Memory_Local` and `Time_Local`, which will contain all the bash scripts you need for the benchmark. 
 	- Please note that the three sub-folders are customized according to your computing platform. They have been added in `.gitignore` and you may need to mannually upload them to your computing platform. When upload, please make sure to upload them to `/benchmark-hdf5-clustering/main/`.

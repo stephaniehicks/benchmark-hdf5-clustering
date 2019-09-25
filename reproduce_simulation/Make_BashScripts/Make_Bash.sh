@@ -7,16 +7,16 @@ mkdir Accuracy_Local
 mkdir Memory_Local
 mkdir Time_Local
 
-cd Make_BashScripts/Accuracy
+cd ../reproduce_simulation/Make_BashScripts/Accuracy
 for filename in benchmark_*.txt; do
-	cat head_acc.txt $filename >> ../../Accuracy_Local/${filename%.txt}.sh
+	cat head_acc.txt $filename >> ../../../main/Accuracy_Local/${filename%.txt}.sh
 done
 
 cd ../Time
 for dirname in */ ; do
 	for filename in ${dirname}benchmark_*.txt; do
 		name=${filename##*/}
-		cat ${dirname}head_time.txt ${filename} >> ../../Time_Local/${name%.txt}.sh
+		cat ${dirname}head_time.txt ${filename} >> ../../../main/Time_Local/${name%.txt}.sh
 	done
 done
 
@@ -25,9 +25,9 @@ for dirname in */ ; do
 	for filename in ${dirname}benchmark_*.txt; do
 		for B in {1..6}; do
 			name=${filename##*/}
-			cat ${dirname}head_mem.txt >> ../../Memory_Local/${name%.txt}_${B}.sh
-			(echo ""; echo "B_name="${B}) >> ../../Memory_Local/${name%.txt}_${B}.sh
-			cat ${filename} >> ../../Memory_Local/${name%.txt}_${B}.sh
+			cat ${dirname}head_mem.txt >> ../../../main/Memory_Local/${name%.txt}_${B}.sh
+			(echo ""; echo "B_name="${B}) >> ../../../main/Memory_Local/${name%.txt}_${B}.sh
+			cat ${filename} >> ../../../main/Memory_Local/${name%.txt}_${B}.sh
 		done
 	done
 done

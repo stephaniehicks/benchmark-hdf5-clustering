@@ -18,7 +18,7 @@ bench_hdf5_mem_k <- function(i, n_cells,
                            method, size, dir_name, index) {
   
   now <- format(Sys.time(), "%b%d%H%M%S")
-  out_name <- paste0(method,"_",n_cells,"_",batch,"_", now, ".out")
+  out_name <- paste0(method,"_",n_cells,"_",batch,"_",k_centers,"k_" , now, ".out")
   invisible(gc())
   
   if (method == "kmeans"){
