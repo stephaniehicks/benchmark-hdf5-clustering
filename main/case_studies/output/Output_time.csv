@@ -67,4 +67,5 @@ tenx_pbmc68k,67991,6505,03_pca,other,NA,1,1595.706,268.919,4079.198,10,
 hca_cordblood,329153,5861,03_realize logcounts,other,NA,1,1991.887,55.518,2126.769,1,
 hca_bonemarrow,333253,7160,03_realize logcounts,other,NA,1,2609.712,69.726,2767.875,1,
 hca_cordblood,329153,5861,03_find var,other,NA,1,755.022,12.643,767.649,1,
-hca_bonemarrow,333253,7160,03_find var,other,NA,1,998.33,18.802,1017.285,1,
+hca_bonemarrow,333253,7160,03_find var,other,NA,1,998.33,18.802,1017.285,1,hca_bonemarrow,333253,7160,03_realize logcounts,other,NA,1,2990.455,91.068,3096.905,1
+hca_bonemarrow,333253,7160,03_find var,other,NA,1,1270.881,27.162,1298.052,1
