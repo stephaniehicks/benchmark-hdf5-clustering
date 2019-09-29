@@ -95,7 +95,7 @@ if (!init){
     index <- sample(c(1:50), 1)
   }
   if(size == "large"){
-    index <- sample(c(1:10), 1)
+    index <- sample(c(1:3), 1)
   }
   
   if (mode == "mem"){
