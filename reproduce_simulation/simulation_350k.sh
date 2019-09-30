@@ -4,7 +4,7 @@
 #$ -M rliu38@jhu.edu
 module load R/3.6.1
 
-nC=(375000)
+nC=(350000)
 nG=(1000)
 sim_center=3
 data_path="/fastscratch/myscratch/rliu/Aug_data"

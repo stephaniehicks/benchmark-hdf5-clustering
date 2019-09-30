@@ -69,7 +69,8 @@ mem_table_bash <- mem_table_bash %>%
 ### I-1-1. New results (seperating simulation and test)
 ```{r}
 p_mem_obs_all <- mem_table %>%
-  #dplyr::filter(!(observations %in% c(1000000)))%>%
+  #dplyr::filter(!(observations %in% c(350000,400000,450000)))%>%
+  dplyr::filter(!(observations %in% c(350000)))%>%
   #dplyr::filter((observations <= 200000))%>%
   dplyr::group_by(method, observations, batch_size_perc) %>% 
   dplyr::summarize(mean = mean(memory), 
