@@ -25,6 +25,7 @@ check-tag:
 	cat $(HEADER) $< > $@
 
 
-
+clean:
+	rm $(NEWSCRIPTS)
 
 

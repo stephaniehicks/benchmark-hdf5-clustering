@@ -1,10 +1,3 @@
-#$ -l mem_free=20G,h_vmem=20G
-#$ -q shared.q@compute-06[0-9],shared.q@compute-07[2-6]
-#$ -cwd
-#$ -m e
-#$ -M rliu38@jhu.edu
-module load R/3.6.1
-
 data_name="hca_bonemarrow"
 mode="time"
 B_name="1"
