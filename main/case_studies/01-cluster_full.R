@@ -46,7 +46,18 @@ if (mode == "time"){
     time <- time.end - time.start
   }
   
-  temp_table <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, time[1], time[2],time[3], "1")
+  temp_table <- data.frame(dataset = data_name,
+                           run = run_id, 
+                           ncells = ncol(sce),
+                           ngenes = nrow(sce),
+                           step = "01_full_cluster",
+                           method = method, 
+                           batch_prop = batch,
+                           B = B_name, 
+                           user_time = time[1],
+                           system_time = time[2],
+                           elapsed_time = time[3])
+  
   write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_time_",
                                            data_name, "_", run_id, ".csv")), 
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
@@ -74,7 +85,15 @@ if (mode == "mem"){
                           memory = "tseries", diff = FALSE)
   max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
   
-  temp_table <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, max_mem, "1")
+  temp_table <- data.frame(dataset = data_name,
+                            run = run_id, 
+                            ncells = ncol(sce),
+                            ngenes = nrow(sce),
+                            step = "01_full_cluster",
+                            method = method, 
+                            batch_prop = batch,
+                            B = B_name, 
+                            max_mem = max_mem)
   write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_memory_",
                                            data_name, "_", run_id, ".csv")), 
               append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
@@ -86,7 +105,7 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100, calc_wcss = TRUE)
     
-    temp_table2 <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster))
+    wcss <- sum(clusters$WCSS_per_cluster)
     
     if (B_name == "1" & batch == 0.01){
       saveRDS(clusters, file = here("main/case_studies/data/full", data_name, paste0(data_name, "_", run_id, "_cluster_full.rds")))
@@ -99,8 +118,18 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
     
-    temp_table2 <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$withinss))
+    wcss <- sum(clusters$withinss)
   }
+
+  temp_table2 <- data.frame(dataset = data_name,
+                            run = run_id, 
+                            ncells = ncol(sce),
+                            ngenes = nrow(sce),
+                            step = "01_full_cluster",
+                            method = method, 
+                            batch_prop = batch,
+                            B = B_name, 
+                            WCSS = wcss)
   
   write.csv(temp_table2, 
             file = here(paste0("main/case_studies/output/Output_wcss_",
