@@ -5,8 +5,7 @@
 ### Example usage: make HEADER=stephanie_cluster_header.sh
 TAG = $(strip $(patsubst %_header.sh, %, $(HEADER)))
 SHELLSCRIPT = $(wildcard */*_template.sh) 
-NEWSCRIPTS = $(SHELLSCRIPT:_template.sh=.sh)
-NEWSCRIPTS = $(TAG)/$(NEWSCRIPTS)
+NEWSCRIPTS = $(SHELLSCRIPT:_template.sh=_$(TAG).sh)
 
 all: check-header newscripts
 
