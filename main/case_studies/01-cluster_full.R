@@ -58,8 +58,8 @@ if (mode == "time"){
                            system_time = time[2],
                            elapsed_time = time[3])
   
-  write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_time_",
-                                           data_name, "_", run_id, ".csv")), 
+  write.table(temp_table, file = here(paste0("main/case_studies/output/Output_time_",
+                                           data_name, "_", run_id, ".csv")), sep=",",
             append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 }
 
@@ -94,8 +94,8 @@ if (mode == "mem"){
                             batch_prop = batch,
                             B = B_name, 
                             max_mem = max_mem)
-  write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_memory_",
-                                           data_name, "_", run_id, ".csv")), 
+  write.table(temp_table, file = here(paste0("main/case_studies/output/Output_memory_",
+                                           data_name, "_", run_id, ".csv")), sep=",",
               append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 }
 
@@ -131,9 +131,9 @@ if (mode == "acc"){
                             B = B_name, 
                             WCSS = wcss)
   
-  write.csv(temp_table2, 
+  write.table(temp_table2, 
             file = here(paste0("main/case_studies/output/Output_wcss_",
-                               data_name, "_", run_id, ".csv")),
+                               data_name, "_", run_id, ".csv")), sep=",",
             append = TRUE, quote = FALSE, col.names = FALSE, 
             row.names = FALSE, eol = "\n")
 }
