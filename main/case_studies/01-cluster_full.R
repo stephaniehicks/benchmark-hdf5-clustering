@@ -8,11 +8,13 @@
 # beneficial to run a quick clustering on the raw data to compute better
 # size factors. This ensures that we do not pool cells that are very different. 
 # Note taat this is not the final clustering to identify cell sub-populations.
-data_name <- commandArgs(trailingOnly=T)[2]
-mode <- commandArgs(trailingOnly=T)[3]
-B_name <- commandArgs(trailingOnly=T)[4]
-method <- commandArgs(trailingOnly=T)[5] #Here method mbkmeans means mbkmeans with hdf5
-batch <- as.numeric(commandArgs(trailingOnly=T)[6])
+args <- commandArgs(trailingOnly = TRUE)
+data_name <- args[2]
+mode <- args[3]
+B_name <- args[4]
+method <- args[5] #Here method mbkmeans means mbkmeans with hdf5
+batch <- as.numeric(args[6])
+run_id <- args[7]
 
 if (data_name == "TENxBrainData"){
   k <- 30
@@ -24,9 +26,10 @@ suppressPackageStartupMessages(library(HDF5Array))
 suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(mbkmeans))
 
+invisible(gc())
+
 if (mode == "time"){
   if (method == "hdf5"){
-    invisible(gc())
     time.start <- proc.time()
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     invisible(mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
@@ -35,7 +38,6 @@ if (mode == "time"){
   }
   
   if (method == "kmeans"){
-    invisible(gc())
     time.start <- proc.time()
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     sce_km <- realize(DelayedArray::t(counts(sce)))
@@ -44,16 +46,15 @@ if (mode == "time"){
     time <- time.end - time.start
   }
   
-  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, time[1], time[2],time[3], "1")
-  write.table(temp_table, file = here("main/case_studies/output/Output_time.csv"), sep = ",", 
-              append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
-  
+  temp_table <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, time[1], time[2],time[3], "1")
+  write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_time_",
+                                           data_name, "_", run_id, ".csv")), 
+            append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 }
 
 if (mode == "mem"){
-  invisible(gc())
   now <- format(Sys.time(), "%b%d%H%M%OS3")
-  out_name <- paste0(data_name, "_step1_", now, "_", batch,".out")
+  out_name <- paste0(data_name, "_", run_id, "_step1_", now, "_", batch,".out")
   if (method == "hdf5"){
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
@@ -73,8 +74,9 @@ if (mode == "mem"){
                           memory = "tseries", diff = FALSE)
   max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
   
-  temp_table <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, max_mem, "1")
-  write.table(temp_table, file = here("main/case_studies/output/Output_memory.csv"), sep = ",", 
+  temp_table <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, max_mem, "1")
+  write.csv(temp_table, file = here(paste0("main/case_studies/output/Output_memory_",
+                                           data_name, "_", run_id, ".csv")), 
               append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
 }
 
@@ -84,12 +86,10 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- mbkmeans(counts(sce), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100, calc_wcss = TRUE)
     
-    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster))
-    write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
-                append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+    temp_table2 <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$WCSS_per_cluster))
     
     if (B_name == "1" & batch == 0.01){
-      saveRDS(clusters, file = here("main/case_studies/data/full", data_name, paste0(data_name, "_cluster_full.rds")))
+      saveRDS(clusters, file = here("main/case_studies/data/full", data_name, paste0(data_name, "_", run_id, "_cluster_full.rds")))
     }
   }
   
@@ -99,10 +99,14 @@ if (mode == "acc"){
     set.seed(1234)
     clusters <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
     
-    temp_table2 <- data.frame(data_name, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$withinss))
-    write.table(temp_table2, file = here("main/case_studies/output/Output_wcss.csv"), sep = ",", 
-                append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE, eol = "\n")
+    temp_table2 <- data.frame(data_name, run_id, dim(counts(sce))[2], dim(counts(sce))[1], "01_full cluster", method, batch, B_name, sum(clusters$withinss))
   }
+  
+  write.csv(temp_table2, 
+            file = here(paste0("main/case_studies/output/Output_wcss_",
+                               data_name, "_", run_id, ".csv")),
+            append = TRUE, quote = FALSE, col.names = FALSE, 
+            row.names = FALSE, eol = "\n")
 }
 
 
