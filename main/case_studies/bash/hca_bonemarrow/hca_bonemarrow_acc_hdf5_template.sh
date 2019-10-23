@@ -1,9 +1,3 @@
-#$ -l mem_free=20G,h_vmem=20G
-#$ -cwd
-#$ -m e
-#$ -M rliu38@jhu.edu
-module load R/3.6.1
-
 data_name="hca_bonemarrow"
 mode="acc"
 B_name="1"

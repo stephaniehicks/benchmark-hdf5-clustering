@@ -1,13 +1,7 @@
-#$ -l mem_free=5G,h_vmem=5G
-#$ -cwd
-#$ -m e
-#$ -M rliu38@jhu.edu
-module load R/3.6.1
-
 data_name="tenx_pbmc68k"
-mode="time"
+mode="acc"
 B_name="1"
-method="kmeans"
+method="hdf5"
 batch=(0.001 0.01 0.05 0.1 0.2 0.25)
 cluster=(10 23)
 

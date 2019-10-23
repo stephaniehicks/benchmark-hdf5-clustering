@@ -8,16 +8,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
                       error = FALSE, message = FALSE, 
                       cache = FALSE)
+
 ```
 
 ```{r}
 #Create the necessary folder structure
 library(here)
-if(!file.exists(here("main/case_studies/data"))){
-      dir.create(here("main/case_studies/data"))
-      dir.create(here("main/case_studies/data/full"))
-      dir.create(here("main/case_studies/data/pca"))
+if(!file.exists(here("main/case_studies/data/full/pca"))){
+      dir.create(here("main/case_studies/data/full/pca"), recursive = TRUE)
     }
+
+library(doParallel)
+ncores <- 6
+doParallel::registerDoParallel(ncores)
 ```
 
 # Data 
@@ -48,9 +51,8 @@ QC measures and filter out the low-quality samples.
 ```{r}
 library(scater)
 system.time(tenx_pbmc68k <- calculateQCMetrics(tenx_pbmc68k, 
-                          feature_controls = 
-                            list(Mito = grep("^MT", rowData(tenx_pbmc68k)$Symbol)),
-                          BPPARAM = BiocParallel::MulticoreParam(10)))
+      feature_controls = list(Mito = grep("^MT", rowData(tenx_pbmc68k)$Symbol)),
+      BPPARAM = BiocParallel::DoparParam()))
 ```
 
 Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
@@ -96,8 +98,12 @@ These leaves us with `length(keep)` genes.
 Save tenx_pbmc68k object to /data/full
 ```{r}
 library(HDF5Array)
+if(!file.exists(here("main/case_studies/data/full/tenx_pbmc68k"))) {
+  dir.create(here("main/case_studies/data/full/tenx_pbmc68k"), recursive = TRUE)
+}
 saveHDF5SummarizedExperiment(tenx_pbmc68k, 
-                             dir = here("main/case_studies/data/full/tenx_pbmc68k", "tenx_pbmc68k_preprocessed"), 
+                             dir = here("main/case_studies/data/full/tenx_pbmc68k",
+                                        "tenx_pbmc68k_preprocessed"), 
                              prefix="", replace=TRUE, 
                              chunkdim=c(dim(counts(tenx_pbmc68k))[1],1), 
                              level=NULL, verbose=FALSE)

@@ -101,6 +101,9 @@ These leaves us with `length(keep)` genes.
 Save sce object to /data/full
 ```{r}
 library(HDF5Array)
+if(!file.exists(here("main/case_studies/data/full/hca_cordblood"))) {
+  dir.create(here("main/case_studies/data/full/hca_cordblood"), recursive = TRUE)
+}
 saveHDF5SummarizedExperiment(sce, 
                              dir = here("main/case_studies/data/full/hca_cordblood","hca_cordblood_preprocessed"),
                              prefix="", replace=TRUE, 
