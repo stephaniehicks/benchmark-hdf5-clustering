@@ -97,6 +97,9 @@ These leaves us with `length(keep)` genes.
 Save tenx object to /data/full
 ```{r}
 library(HDF5Array)
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData"))) {
+  dir.create(here("main/case_studies/data/full/TENxBrainData"), recursive = TRUE)
+}
 saveHDF5SummarizedExperiment(tenx, 
                              dir = here("main/case_studies/data/full/TENxBrainData", "TENxBrainData_preprocessed"), 
                              prefix="", replace=TRUE, 
