@@ -60,7 +60,7 @@ check-tag:
 # # Adds the data_name  and info in the *_data_template.sh to the existing header that's in the folder.
 %_template_$(TAG).sh: %_$(HEADER)
 	echo "data_name=$(@D)" > temp.txt
-	cat temp.txt $*_data_template.sh
+	cat temp.txt $*_data_template.sh > temp.txt
 	cat $< temp.txt > $@
 	rm temp.txt
 
