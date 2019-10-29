@@ -3,6 +3,9 @@
 ###########
 ### make HEADER=stephanie_cluster_header.sh
 ### make HEADER=davide_mac_header.sh
+###
+### To remove (most) automatically generated *.sh files, 
+### make clean
 
 ###########
 ### SETUP: 
@@ -25,7 +28,7 @@
 ###########
 ### DATASETS will be all of the data set names; should match exactly the folder names
 ### TAG will be the * part of *_header.sh given in $HEADER by user (no white spaces allowed)
-### DATAHEADERS is the list of headers inside of each data directory (in format <data>/<data>_$(HEADER)). If not already existing, will be created based on copying *_header.sh at the top level
+### DATAHEADERS is the list of headers inside of each data directory (in format <data>/<data>_$(HEADER)). If not already existing, will be created based on copying *_header.sh at the top level. These are the *.sh files that are not removed when running make clean because can't tell them apart from those that are manually made.
 ### MODES are the different things that are recorded (e.g. acc/mem/time)
 ### METHODS are the different methods (hdf, mbkmeans, kmeans)
 ### FINALSHELLSCRIPTS is list of the final shell scrips that should be created for the acc/hdf combination that will be the targets of make(other combinations are not explicitly used for the target). They are in the format of <data>/<data>_step1_acc_hdf_$(TAG).sh Only put down acc/hdf combination as target, but the rule to make this target will loop through all; (acc/hdf is the last of the combinations so will ensure all are made without errors). e.g. dataset/dataset_step1_acc_hdf_stephanie_cluster.sh
@@ -45,6 +48,9 @@ endif
 
 check-tag:
 	@echo $(FINALSHELLSCRIPTS)
+
+clean:
+	rm */*step1*.sh
 
 .SECONDARY .PRECIOUS:
 
