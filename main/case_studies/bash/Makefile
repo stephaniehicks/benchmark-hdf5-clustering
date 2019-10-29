@@ -12,24 +12,23 @@
 
 DATASETS = tenx_pbmc68k TENxBrainData hca_cordblood hca_bonemarrow
 ### The first argument, condition, first has all preceding and trailing whitespace stripped, then is expanded. If it expands to any non-empty string, then the condition is considered to be true. If it expands to an empty string, the condition is considered to be false. 
-find_files = $(if("$(wildcard $(data)/$(data)_$(HEADER))", $(dir)/$(HEADER), $(HEADER)))
-$FOUNDHEADERS=$(foreach data,$(DATASETS), find_files)
+# find_files = $(if("$(wildcard $(data)/$(data)_$(HEADER))", $(dir)/$(HEADER), $(HEADER)))
+# $FOUNDHEADERS=$(foreach data,$(DATASETS), find_files)
 TAG = $(strip $(patsubst %_header.sh, %, $(HEADER)))
-MODES = acc mem time
-METHODS = kmeans hdf5 mbkmeans
+MODES = mem time acc
+METHODS = kmeans mbkmeans hdf5
 
-SHELLSCRIPT = $(wildcard */*_template.sh) 
-NEWSCRIPTS = $(SHELLSCRIPT:_template.sh=_$(TAG).sh)
+DATAHEADERS=$(foreach data, $(DATASETS), $(data)/$(data)_$(HEADER))
+
+#only put down acc/hdf combination, but the rule will loop through all.
+FINALSHELLSCRIPTS=$(foreach data,$(DATASETS), $(data)/$(data)_step1_acc_hdf_$(TAG).sh)
 
 # data_name="tenx_pbmc68k"
 # mode="acc"
 # method="kmeans"
 # batch=(0.001 0.01)
-DATAHEADERS=$(foreach data, $(DATASETS), $(data)/$(data)_$(HEADER))
 
-all: check-header $(DATAHEADERS)
-
-newscripts: $(NEWSCRIPTS)
+all: check-header $(FINALSHELLSCRIPTS)
 
 check-header:
 ifndef HEADER
@@ -37,7 +36,7 @@ ifndef HEADER
 endif
 
 check-tag:
-	@echo $(DATAHEADERS)
+	@echo $(FINALSHELLSCRIPTS)
 
 .SECONDARY .PRECIOUS:
 
@@ -62,21 +61,42 @@ check-tag:
 %_template_$(TAG).sh: %_$(HEADER)
 	echo "data_name=$(@D)" > temp.txt
 	cat temp.txt $< > $@
-	# rm temp.text
+	rm temp.txt
+	rm $<
 
 
 # 2) make a template step1_acc_hdf_template.sh, which is the non-dataset specific template
 # mode="time"
 # method="hdf5"
-#
-# 3) make dataset/step1_acc_hdf_<header>.sh
-#
-#
-# %_$(TAG).sh: %_template.sh $(HEADER)
-# 	cat $(HEADER) $< > $@
-# 	cat $()
-#
-# clean:
-# 	rm $(NEWSCRIPTS)
+# #creates files <data>/<data>_step1_acc_hdf_template_davide_mac.sh
+# #from file <data>/<data>_template_davide_mac.sh
+# Haven't checked this yet! And need to repeat for each combination...
+
+%_step1_acc_hdf_$(TAG).sh: %_template_$(TAG).sh step1_template.sh
+	for method in $(METHODS); do \
+		for mode in $(MODES) ; do \
+			if [[ $$method != "mbkmeans" || $$mode != "acc" ]]; \
+			then \
+			echo 'mode="'$$mode'"\nmethod="'$$method'"' > temp.txt; \
+			cat temp.txt step1_template.sh > temp_template.sh; \
+			cat $< temp_template.sh > "$*_step1_$${mode}_$${method}_$(TAG).sh" ; \
+			rm temp.txt; \
+			rm temp_template.sh; \
+			fi \
+		done \
+	done
+
+method="mbkmeans"; mode= "mem", "time"
+
+# for $mode in $(MODES) ; do \
+# 	echo 'mode="$mode"\nmethod="$method"' > temp.txt; \
+# done
+
+# 
+# 
+# 	        echo $$number ; \done
+
+
+
 
 
