@@ -57,12 +57,12 @@ check-tag:
 #
 # #creates files <data>/<data>_template_davide_mac.sh
 # #from file <data>/<data>_davide_mac_header.sh
-# # Adds the data_name 
+# # Adds the data_name  and info in the *_data_template.sh to the existing header that's in the folder.
 %_template_$(TAG).sh: %_$(HEADER)
 	echo "data_name=$(@D)" > temp.txt
-	cat temp.txt $< > $@
+	cat temp.txt $*_data_template.sh
+	cat $< temp.txt > $@
 	rm temp.txt
-	rm $<
 
 
 # 2) make a template step1_acc_hdf_template.sh, which is the non-dataset specific template
