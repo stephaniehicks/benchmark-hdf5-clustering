@@ -50,6 +50,7 @@ check-tag:
 	@echo $(FINALSHELLSCRIPTS)
 
 clean:
+	rm */*_template_*.sh
 	rm */*step1*.sh
 
 .SECONDARY .PRECIOUS:
@@ -71,10 +72,11 @@ clean:
 # input is file <data>/<data>_davide_mac_header.sh
 # IMPORTANT: doesn't delete the file <data>/<data>_davide_mac_header.sh, because for the system specific (i.e. stephanie_cluster_header.sh) would delete that
 %_template_$(TAG).sh: %_$(HEADER)
-	echo "data_name=$(@D)" > temp.txt
-	cat temp.txt $*_data_template.sh > temp.txt
-	cat $< temp.txt > $@
+	echo 'data_name="$(@D)"' > temp.txt
+	cat temp.txt $*_data_template.sh > temp2.txt
+	cat $< temp2.txt > $@
 	rm temp.txt
+	rm temp2.txt
 
 
 # 2) loop over method and mode to create .sh file for each legitimate combination (i.e. not mbkmeans/acc because not needed), along with step1_template.sh and the data-specific template from step 1
