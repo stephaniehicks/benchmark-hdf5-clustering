@@ -72,7 +72,7 @@ clean:
 # input is file <data>/<data>_davide_mac_header.sh
 # IMPORTANT: doesn't delete the file <data>/<data>_davide_mac_header.sh, because for the system specific (i.e. stephanie_cluster_header.sh) would delete that
 %_template_$(TAG).sh: %_$(HEADER)
-	echo 'data_name="$(@D)"' > temp.txt
+	echo '\ndata_name="$(@D)"' > temp.txt
 	cat temp.txt $*_data_template.sh > temp2.txt
 	cat $< temp2.txt > $@
 	rm temp.txt
