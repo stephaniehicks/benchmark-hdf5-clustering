@@ -46,6 +46,15 @@ if (mode == "time"){
     time <- time.end - time.start
   }
   
+  if (method == "mbkmeans"){
+    time.start <- proc.time()
+    sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
+    sce_km <- realize(counts(sce))
+    invisible(mbkmeans(sce_km, clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
+    time.end <- proc.time()
+    time <- time.end - time.start
+  }
+  
   temp_table <- data.frame(dataset = data_name,
                            run = run_id, 
                            ncells = ncol(sce),
@@ -84,6 +93,17 @@ if (mode == "mem"){
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
     sce_km <- realize(DelayedArray::t(counts(sce)))
     invisible(stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1)) #iter.max and nstart set to the default values of mbkmeans()
+    Rprof(NULL)
+  }
+  
+  if (method == "mbkmeans"){
+    if(!file.exists(here("main/case_studies/output/Memory_output"))) {
+      dir.create(here("main/case_studies/output/Memory_output"), recursive = TRUE)
+    }
+    Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
+    sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full", data_name, paste0(data_name, "_preprocessed")), prefix="")
+    sce_km <- realize(counts(sce))
+    invisible(mbkmeans(sce_km, clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     Rprof(NULL)
   }
   

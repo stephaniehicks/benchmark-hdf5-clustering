@@ -7,6 +7,7 @@ simulation-studies/figs/*
 .Rapp.history
 data/*
 output_files/*
+*.sh
 *.sh.e*
 *.sh.o*
 main/figs/*
