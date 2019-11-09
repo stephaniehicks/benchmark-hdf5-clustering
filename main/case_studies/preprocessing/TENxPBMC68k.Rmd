@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE,
 ```
 
 ```{r}
-#Create the necessary folder structure
+# Create the necessary folder structure
 library(here)
 if(!file.exists(here("main/case_studies/data/full/pca"))){
       dir.create(here("main/case_studies/data/full/pca"), recursive = TRUE)
@@ -52,7 +52,7 @@ QC measures and filter out the low-quality samples.
 library(scater)
 system.time(tenx_pbmc68k <- calculateQCMetrics(tenx_pbmc68k, 
       feature_controls = list(Mito = grep("^MT", rowData(tenx_pbmc68k)$Symbol)),
-      BPPARAM = BiocParallel::DoparParam()))
+      BPPARAM = BiocParallel::MulticoreParam(ncores)))
 ```
 
 Plot Percentage of Mito vs. Total Number of Genes Detected, and Historgrams of UMI & Total Number of Genes Detected
@@ -93,7 +93,6 @@ tenx_pbmc68k
 ```
 
 These leaves us with `length(keep)` genes.
-
 
 Save tenx_pbmc68k object to /data/full
 ```{r}

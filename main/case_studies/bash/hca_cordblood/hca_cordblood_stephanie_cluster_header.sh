@@ -1,7 +1,6 @@
-#$ -l mem_free=120G,h_vmem=120G
+#$ -l mem_free=50G,h_vmem=55G
 #$ -cwd
 #$ -m e
-#$ -M rliu38@jhu.edu
-module load R/3.6.1
+#$ -M shicks19@jhu.edu
+module load conda_R/3.6
 run_id="stephanie_cluster"
-
