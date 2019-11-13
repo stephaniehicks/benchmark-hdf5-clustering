@@ -1,6 +1,7 @@
-#$ -l mem_free=30G,h_vmem=35G
+#$ -l mem_free=20G,h_vmem=25G
 #$ -cwd
 #$ -m e
 #$ -M shicks19@jhu.edu
-module load conda_R/3.6
+module load conda_R/3.6.x
+module load pandoc/2.7.3
 run_id="stephanie_cluster"
