@@ -1,0 +1,5 @@
+tenx_pbmc68k,stephanie_cluster,67991,6505,01_full_cluster,mbkmeans,0.001,1,4468.64476934172
+tenx_pbmc68k,stephanie_cluster,67991,6505,01_full_cluster,hdf5,0.001,1,3351.13651775511
+tenx_pbmc68k,stephanie_cluster,67991,6505,01_full_cluster,mbkmeans,0.01,1,5339.05871305141
+tenx_pbmc68k,stephanie_cluster,67991,6505,01_full_cluster,hdf5,0.01,1,3427.4603476936
+tenx_pbmc68k,stephanie_cluster,67991,6505,01_full_cluster,kmeans,0.01,1,15584.316083507

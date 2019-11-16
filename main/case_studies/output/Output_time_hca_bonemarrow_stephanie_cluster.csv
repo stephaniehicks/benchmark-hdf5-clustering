@@ -1,0 +1,4 @@
+hca_bonemarrow,stephanie_cluster,333253,7160,01_full_cluster,mbkmeans,0.001,1,362.443,48.462,411.301
+hca_bonemarrow,stephanie_cluster,333253,7160,01_full_cluster,hdf5,0.001,1,596.315,54.589,677.146
+hca_bonemarrow,stephanie_cluster,333253,7160,01_full_cluster,mbkmeans,0.01,1,407.548,67.204,474.784
+hca_bonemarrow,stephanie_cluster,333253,7160,01_full_cluster,hdf5,0.01,1,760.238,83.083,980.314

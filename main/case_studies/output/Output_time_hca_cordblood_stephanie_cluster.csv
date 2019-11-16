@@ -1,0 +1,5 @@
+hca_cordblood,stephanie_cluster,329153,5861,01_full_cluster,mbkmeans,0.001,1,214.443,46.697,262.034
+hca_cordblood,stephanie_cluster,329153,5861,01_full_cluster,hdf5,0.001,1,257.155,25.13,298.743
+hca_cordblood,stephanie_cluster,329153,5861,01_full_cluster,mbkmeans,0.01,1,264.977,59.578,325.526
+hca_cordblood,stephanie_cluster,329153,5861,01_full_cluster,hdf5,0.01,1,306.559,33.017,377.839
+hca_cordblood,stephanie_cluster,329153,5861,01_full_cluster,kmeans,0.01,1,2991.016,588.318,3587.183
