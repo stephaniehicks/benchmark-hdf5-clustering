@@ -10,88 +10,102 @@ knitr::opts_chunk$set(echo = TRUE, fig.width = 14, fig.height = 10)
 ```
 
 ```{r}
-library(tidyr)
-library(ggplot2)
-library(cowplot)
-library(gridExtra)
-library(dplyr)
-library(grid)
+library(tidyverse)
 library(here)
+library(purrr)
+library(cowplot)
 ```
 
+List files from `_stephanie_cluster.csv` and `_davide.csv`
+
 ```{r}
-mem_table_real <- read.csv(file = here("main/case_studies/output/Output_memory.csv"),header=TRUE, sep=",")
-
-time_table_real <- read.csv(file = here("main/case_studies/output/Output_time.csv"),header=TRUE, sep=",")
-
-wcss_table_real <- read.csv(file = here("main/case_studies/output/Output_wcss.csv"),header=TRUE, sep=",")
+sh_files <- list.files(here("main", "case_studies", "output"), 
+                          pattern = "_stephanie_cluster.csv")
+# dr_files <- list.files(here("main", "case_studies", "output"), 
+#                           pattern = "_davide.csv")
 ```
 
+Read in files from `_stephanie_cluster.csv`
 ```{r}
-mem_table_real <- mem_table_real %>% 
-          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
-time_table_real <- time_table_real %>% 
-          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
-wcss_table_real <- wcss_table_real %>% 
-          filter((Data == "tenx_pbmc68k") & (Step == "05_pca cluster")) 
+colnames_memory <- c("dataset", "run", "ncells", "ngenes", "step", 
+                   "method", "batch_prop", "B", "max_mem")
+colnames_time <- c("dataset", "run", "ncells", "ngenes", "step", 
+                   "method", "batch_prop", "B", "user_time", 
+                   "system_time", "elapsed_time")
+colnames_wcss <- c("dataset", "run", "ncells", "ngenes", "step", 
+                   "method", "batch_prop", "B", "WCSS")
+
+pef_results <- vector("list", length(analysis_type))
+for(ty in analysis_type){
+  tmp <- sh_files[grep(ty, sh_files)] %>% 
+            map(read_csv, col_names = FALSE) %>% 
+            bind_rows()
+  
+  if(ty == "memory"){ colnames(tmp) <- colnames_memory }
+  if(ty == "time"){ colnames(tmp) <- colnames_time }
+  if(ty == "wcss"){ colnames(tmp) <- colnames_wcss }
+  
+  pef_results[[ty]] <- tmp
+}
 ```
 
+Convert three datasets into one long dataset
+
 ```{r}
-p_mem_real <- mem_table_real %>%
-  dplyr::group_by(Method, X, Batch) %>% 
-  dplyr::summarize(mean = mean(Memory), 
-                   sd = sd(Memory)) %>% 
-  ggplot(aes(x = Batch, y = mean, color = Method)) +
-          geom_line()+
-          geom_point()+
-         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-        #        position=position_dodge(0.05))+
-        labs(title = "PBMC68K Memory Usage for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
-        xlab("Batch Size") + 
-        ylab("Memory (Mb)") + 
-  facet_wrap(~X ) + 
+pef_results$time <- 
+  pef_results$time %>% 
+  tidyr::pivot_longer(cols = -c(dataset:B), 
+                      names_to = "time_type", 
+                      values_to = "time")
+sh_results <- dplyr::left_join(pef_results$time, pef_results$memory)
+sh_results <- dplyr::left_join(sh_results, pef_results$wcss)
+
+sh_results$dataset <- 
+  forcats::fct_reorder(sh_results$dataset, sh_results$ncells, .desc = FALSE)
+sh_results$batch_prop <- factor(sh_results$batch_prop)
+sh_results 
+```
+
+From here we could combine the `_stephanie_cluster.csv` and `_davide.csv`
+datasets
+
+```{r, eval=FALSE}
+final_results <- rbind(sh_results, dr_results)
+```
+
+For now I'll just go with only using `sh_results`
+```{r}
+final_results <- sh_results
+```
+
+Ready for plots! 
+
+ok still need to add different lines for different `batch_prop`
+```{r}
+final_results %>% 
+  ggplot(aes(x = dataset, y = max_mem, color = method)) + 
+  geom_point() + 
+  ylab("Memory (Mb)") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
+```
 
-p_mem_real
+
+```{r}
+final_results %>% 
+  dplyr::filter(time_type == "elapsed_time") %>%
+  ggplot(aes(x = dataset, y = time/60, color = method)) + 
+  geom_point() + 
+  ylab("Time (minutes)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
 ```
 
 ```{r}
-p_time_real <- time_table_real %>%
-  dplyr::group_by(Method, X, Batch) %>% 
-  dplyr::summarize(mean = mean(Elapsed_time), 
-                   sd = sd(Elapsed_time)) %>% 
-  ggplot(aes(x = Batch, y = mean, color = Method)) +
-          geom_line()+
-          geom_point()+
-         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-        #        position=position_dodge(0.05))+
-        labs(title = "PBMC68K Time for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
-        xlab("Batch Size") + 
-        ylab("Time (Seconds)") + 
-  facet_wrap(~X ) + 
+final_results %>% 
+  ggplot(aes(x = dataset, y = WCSS, color = method)) + 
+  geom_point() + 
+  ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method")
-
-p_time_real
 ```
-```{r}
-p_wcss_real <- wcss_table_real %>%
-  dplyr::group_by(Method, K, Batch) %>% 
-  dplyr::summarize(mean = mean(WCSS), 
-                   sd = sd(WCSS)) %>% 
-  ggplot(aes(x = Batch, y = mean, color = Method)) +
-          geom_line()+
-          geom_point()+
-         # geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-        #        position=position_dodge(0.05))+
-        labs(title = "PBMC68K WCSS for Increasing Batch Size and Varying No. of Clusters\n[B=1]") + 
-        xlab("Batch Size") + 
-        ylab("WCSS") + 
-  facet_wrap(~K) + 
-  theme(legend.position = "top", legend.justification= "center") +
-  scale_color_discrete(name = "Method")
-
-p_wcss_real
-```
-
