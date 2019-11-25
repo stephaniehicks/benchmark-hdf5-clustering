@@ -1,0 +1,4 @@
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,hdf5,0.001,1,170097214.734867
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,hdf5,0.01,1,139915933.560546
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,kmeans,0.001,1,132008673.427491
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,kmeans,0.01,1,132008673.427491

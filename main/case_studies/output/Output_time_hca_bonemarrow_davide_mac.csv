@@ -1,0 +1,4 @@
+hca_bonemarrow,davide_mac,333253,7160,01_full_cluster,hdf5,0.001,1,650.178,10.199,676.319
+hca_bonemarrow,davide_mac,333253,7160,01_full_cluster,hdf5,0.01,1,815.42,9.514,825.692
+hca_bonemarrow,davide_mac,333253,7160,01_full_cluster,mbkmeans,0.001,1,634.104,9.165,644.689
+hca_bonemarrow,davide_mac,333253,7160,01_full_cluster,mbkmeans,0.01,1,800.064,11.942,812.516

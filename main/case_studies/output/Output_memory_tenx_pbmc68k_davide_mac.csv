@@ -1,0 +1,6 @@
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,hdf5,0.001,1,3350.17607616213
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,hdf5,0.01,1,3385.48172509889
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,kmeans,0.001,1,15583.3527045971
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,kmeans,0.01,1,15583.3516669994
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,mbkmeans,0.001,1,4500.5010316688
+tenx_pbmc68k,davide_mac,67991,6505,01_full_cluster,mbkmeans,0.01,1,4490.41195082024
