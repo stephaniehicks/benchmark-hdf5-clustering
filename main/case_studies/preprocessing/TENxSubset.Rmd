@@ -1,0 +1,90 @@
+---
+title: Preprocessing TENx Brain Data
+author: Davide Risso, Stephanie Hicks, Ruoxi Liu
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      error = FALSE, message = FALSE, 
+                      cache = FALSE)
+```
+
+```{r}
+#Create the necessary folder structure
+library(here)
+if(!file.exists(here("main/case_studies/data"))){
+      dir.create(here("main/case_studies/data"))
+      dir.create(here("main/case_studies/data/full"))
+      dir.create(here("main/case_studies/data/pca"))
+}
+
+library(doParallel)
+ncores <- 6
+doParallel::registerDoParallel(ncores)
+```
+
+## Data import 
+
+We start with the TENxBrainData preprocessed dataset.
+
+```{r}
+library(HDF5Array)
+library(SingleCellExperiment)
+library(matrixStats)
+library(scater)
+
+tenx <- loadHDF5SummarizedExperiment(here("main/case_studies/data/full/TENxBrainData", "TENxBrainData_preprocessed"))
+rownames(tenx) <- rowData(tenx)$Symbol
+
+## Check that the counts object is a HDF5Array
+seed(counts(tenx))
+assay(tenx)
+```
+
+## Define the cell subsets
+
+We will next create subsets of the data of the following sizes: 75k, 150k, 300k, 500k, 750k, 1M.
+
+```{r}
+set.seed(138)
+ncells <- c(75, 150, 300, 500, 750, 1000) 
+cellidx <- lapply(ncells, function(n) sample(colnames(tenx), n * 1000))
+sapply(cellidx, length)
+```
+
+
+## Select 5000 genes from smallest dataset
+
+We select the 5000 top variable genes from the smallest dataset (75k).
+
+```{r}
+sub <- tenx[,cellidx[[1]]]
+sub <- logNormCounts(sub)
+mat <- as.matrix(logcounts(sub))
+vars <- rowVars(mat)
+names(vars) <- rowData(sub)$Symbol
+vars <- sort(vars, decreasing = TRUE)
+geneidx <- names(vars)[1:5000]
+```
+
+## Subset and save
+
+```{r}
+if(!file.exists(here("main/case_studies/data/subset/TENxBrainData"))) {
+  dir.create(here("main/case_studies/data/subset/TENxBrainData"), recursive = TRUE)
+}
+
+for(i in seq_along(cellidx)) {
+  sub <- tenx[geneidx, cellidx[[i]]]
+  
+  saveHDF5SummarizedExperiment(sub, 
+                        dir = here("main/case_studies/data/subset/TENxBrainData",
+                                   paste0("TENxBrainData_", ncells[[i]], "k")), 
+                             prefix="", replace=TRUE, 
+                             chunkdim=c(dim(counts(sub))[1],1), 
+                             level=NULL, verbose=FALSE)
+}
+```
+
+
