@@ -1,0 +1,36 @@
+---
+title: Exploring Python via reticulate
+author: "Stephanie Hicks"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(reticulate)
+reticulate::py_discover_config()
+use_python("/jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-devel/bin/python3")
+```
+
+```{r}
+scipy <- import("scipy")
+scipy$amin(c(1,3,5,7))
+```
+
+
+
+# Calling the python repl
+
+Not executed, you can call the python repl from the R command. Use `exit` to exit the repl.
+
+```
+repl_python()
+```
+
+Objects do not have permenancy in R after exiting the python repl.
+
+
+

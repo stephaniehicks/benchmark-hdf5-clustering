@@ -1,7 +1,6 @@
 ---
-title: "Real Data Analysis Summary"
-author: "Ruoxi Liu"
-date: "9/18/2019"
+title: Real Data Analysis Summary
+author: Stephanie Hicks and Davide Risso
 output: html_document
 ---
 
@@ -21,8 +20,8 @@ List files from `_stephanie_cluster.csv` and `_davide.csv`
 ```{r}
 sh_files <- list.files(here("main", "case_studies", "output"), 
                           pattern = "_stephanie_cluster.csv")
-# dr_files <- list.files(here("main", "case_studies", "output"), 
-#                           pattern = "_davide.csv")
+dr_files <- list.files(here("main", "case_studies", "output"), 
+                          pattern = "_davide_mac.csv")
 ```
 
 Read in files from `_stephanie_cluster.csv`
@@ -35,6 +34,7 @@ colnames_time <- c("dataset", "run", "ncells", "ngenes", "step",
 colnames_wcss <- c("dataset", "run", "ncells", "ngenes", "step", 
                    "method", "batch_prop", "B", "WCSS")
 
+analysis_type <- c("memory", "time", "wcss")
 pef_results <- vector("list", length(analysis_type))
 for(ty in analysis_type){
   tmp <- sh_files[grep(ty, sh_files)] %>% 
@@ -49,7 +49,23 @@ for(ty in analysis_type){
 }
 ```
 
-Convert three datasets into one long dataset
+Read in files from `_davide_mac.csv`
+```{r}
+pef_results_dr <- vector("list", length(analysis_type))
+for(ty in analysis_type){
+  tmp <- dr_files[grep(ty, dr_files)] %>% 
+            map(read_csv, col_names = FALSE) %>% 
+            bind_rows()
+  
+  if(ty == "memory"){ colnames(tmp) <- colnames_memory }
+  if(ty == "time"){ colnames(tmp) <- colnames_time }
+  if(ty == "wcss"){ colnames(tmp) <- colnames_wcss }
+  
+  pef_results_dr[[ty]] <- tmp
+}
+```
+
+Convert three datasets from `_stephanie_cluster.csv` into one long dataset
 
 ```{r}
 pef_results$time <- 
@@ -66,16 +82,28 @@ sh_results$batch_prop <- factor(sh_results$batch_prop)
 sh_results 
 ```
 
-From here we could combine the `_stephanie_cluster.csv` and `_davide.csv`
-datasets
+Convert three datasets from `_davide_mac.csv` into one long dataset
 
-```{r, eval=FALSE}
-final_results <- rbind(sh_results, dr_results)
+```{r}
+pef_results_dr$time <- 
+  pef_results_dr$time %>% 
+  tidyr::pivot_longer(cols = -c(dataset:B), 
+                      names_to = "time_type", 
+                      values_to = "time")
+dr_results <- dplyr::left_join(pef_results_dr$time, pef_results_dr$memory)
+dr_results <- dplyr::left_join(dr_results, pef_results_dr$wcss)
+
+dr_results$dataset <- 
+  forcats::fct_reorder(dr_results$dataset, dr_results$ncells, .desc = FALSE)
+dr_results$batch_prop <- factor(dr_results$batch_prop)
+dr_results 
 ```
 
-For now I'll just go with only using `sh_results`
+From here we combine the `_stephanie_cluster.csv` and `_davide_mac.csv`
+datasets
+
 ```{r}
-final_results <- sh_results
+final_results <- rbind(sh_results, dr_results)
 ```
 
 Ready for plots! 
@@ -83,11 +111,12 @@ Ready for plots!
 ok still need to add different lines for different `batch_prop`
 ```{r}
 final_results %>% 
-  ggplot(aes(x = dataset, y = max_mem, color = method)) + 
+  ggplot(aes(x = dataset, y = max_mem*.001, color = method)) + 
   geom_point() + 
-  ylab("Memory (Mb)") + 
+  ylab("Memory (Gb)") + 
   theme(legend.position = "top", legend.justification= "center") +
-  scale_color_discrete(name = "Method")
+  scale_color_discrete(name = "Method") + 
+  facet_grid(~run)
 ```
 
 
@@ -98,14 +127,16 @@ final_results %>%
   geom_point() + 
   ylab("Time (minutes)") + 
   theme(legend.position = "top", legend.justification= "center") +
-  scale_color_discrete(name = "Method")
+  scale_color_discrete(name = "Method") + 
+  facet_grid(~run)
 ```
 
 ```{r}
 final_results %>% 
-  ggplot(aes(x = dataset, y = WCSS, color = method)) + 
+  ggplot(aes(x = dataset, y = WCSS/ncells, color = method)) + 
   geom_point() + 
   ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
-  scale_color_discrete(name = "Method")
+  scale_color_discrete(name = "Method") + 
+  facet_grid(~run)
 ```
