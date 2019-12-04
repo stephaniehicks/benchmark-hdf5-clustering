@@ -79,8 +79,9 @@ for(i in seq_along(cellidx)) {
   sub <- tenx[geneidx, cellidx[[i]]]
   
   saveHDF5SummarizedExperiment(sub, 
-                        dir = here("main/case_studies/data/subset/TENxBrainData",
-                                   paste0("TENxBrainData_", ncells[[i]], "k")), 
+                        dir = here("main/case_studies/data/full",
+                                   paste0("TENxBrainData_", ncells[[i]], "k"),
+                                   paste0("TENxBrainData_", ncells[[i]], "k_preprocessed")), 
                              prefix="", replace=TRUE, 
                              chunkdim=c(dim(counts(sub))[1],1), 
                              level=NULL, verbose=FALSE)
