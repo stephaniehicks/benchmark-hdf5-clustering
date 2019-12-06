@@ -1,2 +1,4 @@
 hca_cordblood,davide_mac,329153,5861,01_full_cluster,mbkmeans,0.001,1,18140.2182461536
 hca_cordblood,davide_mac,329153,5861,01_full_cluster,mbkmeans,0.01,1,21740.817525774
+hca_cordblood,davide_mac,329153,5861,01_full_cluster,hdf5,0.001,1,13370.3411682426
+hca_cordblood,davide_mac,329153,5861,01_full_cluster,hdf5,0.01,1,13370.3411682426
