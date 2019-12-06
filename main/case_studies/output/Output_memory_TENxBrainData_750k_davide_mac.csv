@@ -1,0 +1,4 @@
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,mbkmeans,0.001,1,34512.2607959468
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,mbkmeans,0.01,1,41971.1912134587
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.001,1,25718.9276405573
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.01,1,25718.9276405573
