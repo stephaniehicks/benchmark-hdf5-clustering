@@ -13,6 +13,8 @@ library(tidyverse)
 library(here)
 library(purrr)
 library(cowplot)
+
+ggplot2::theme_set(cowplot::theme_cowplot())
 ```
 
 List files from `_stephanie_cluster.csv` and `_davide.csv`
@@ -110,9 +112,10 @@ Ready for plots!
 
 ok still need to add different lines for different `batch_prop`
 ```{r}
-final_results %>% 
+final_results %>%
+  filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
   ggplot(aes(x = dataset, y = max_mem*.001, color = method)) + 
-  geom_point() + 
+  geom_point(size = 4) + 
   ylab("Memory (Gb)") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method") + 
@@ -123,8 +126,9 @@ final_results %>%
 ```{r}
 final_results %>% 
   dplyr::filter(time_type == "elapsed_time") %>%
+  filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
   ggplot(aes(x = dataset, y = time/60, color = method)) + 
-  geom_point() + 
+  geom_point(size = 4) + 
   ylab("Time (minutes)") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method") + 
@@ -133,10 +137,24 @@ final_results %>%
 
 ```{r}
 final_results %>% 
+  filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
   ggplot(aes(x = dataset, y = WCSS/ncells, color = method)) + 
-  geom_point() + 
+  geom_point(size = 4) + 
   ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
   scale_color_discrete(name = "Method") + 
   facet_grid(~run)
+```
+
+# Subsampling analysis
+
+```{r}
+final_results %>%
+  filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+    ggplot(aes(x = dataset, y = max_mem*.001, color = method, shape = batch_prop)) + 
+  geom_line() +
+  geom_point(size = 4) + 
+  ylab("Memory (Gb)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method")
 ```
