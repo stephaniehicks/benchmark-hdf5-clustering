@@ -195,6 +195,7 @@ final_results %>%
 ```{r}
 final_results %>%
   filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
+  dplyr::filter(time_type == "elapsed_time") %>%
   filter(run == "davide_mac") -> df2
 
 final_results %>%
