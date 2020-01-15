@@ -22,13 +22,13 @@ suppressMessages({
 if(!dir.exists(here("main/case_studies/data/h5_python"))){
       dir.create(here("main/case_studies/data/h5_python"))
 }
+
+h5_data_path <- here("main", "case_studies", "data", "h5_python", 
+                  "1M_neurons_filtered_gene_bc_matrices_h5.h5")
 ```
 
 Download 1.3 million neuron dataset in the `.h5` file format
 ```{r}
-h5_data_path <- here("main", "case_studies", "data", "h5_python", 
-                  "1M_neurons_filtered_gene_bc_matrices_h5.h5")
-
 if(!file.exists(here("main", "case_studies", "data", "h5_python", 
                      "1M_neurons_filtered_gene_bc_matrices_h5.h5"))){
   h5_file <- "http://cf.10xgenomics.com/samples/cell-exp/1.3.0/1M_neurons/1M_neurons_filtered_gene_bc_matrices_h5.h5"
@@ -72,6 +72,30 @@ h5_file <- TENxMatrix(h5_data_path)
 # ENSMUSG00000095742                    0   .                    0
 ```
 
+```{r}
+pryr::object_size(h5_file)
+# 133 MB
+```
+
+We will also write a dense HDF5 file in the most optimal way 
+(i.e. chunked by cell) that well use later on: 
+
+```{r}
+h5_file_sub <- t(h5_file[,1:500])
+h5_file_out <- writeHDF5Array(x=h5_file_sub, 
+               filepath = here("main", "case_studies", "data", 
+                               "h5_python", "1M_neurons_transposed_chunked.h5"), 
+               name = "counts", chunkdim = c(1,dim(h5_file)[1]))
+```
+
+```{r}
+tmp <- HDF5Array(here("main", "case_studies", "data", 
+                      "h5_python", "1M_neurons_transposed_chunked.h5"),
+                 name = "counts")
+```
+
+
+
 ## Python 
 
 ### Getting Stephanie set up 
@@ -100,18 +124,18 @@ Use `repl_python()` python repl from the R command. Use `exit` to exit the repl.
 ```{python}
 import numpy as np
 import pandas as pd
-
-# hdf5
-import h5py
-
-# kmeans
-from sklearn.cluster import KMeans, MiniBatchKMeans
-
 import sys
+import time
+
+# kmeans, MiniBatchKMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 ```
 
 
 So there are a couple of ways to read this data into Python.
+
+#### Following CellRanger's recommendation: loads a compressed, sparse matrix
+
 I started by looking at CellRanger's website and found these [instructions](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/h5_matrices). 
 I copied (and had to do small modifications of) the code and placed below. 
 The `sp_sparse.csc_matrix()` from the `scipy.sparse` Python module [reads in](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html) what's called a "Compressed Sparse Column matrix". 
@@ -184,4 +208,26 @@ t_mini_batch = time.time() - t0
 ```
 
 That did not work. Next I will try to use non-sparse representations. 
+
+
+#### Load in the HDF5 file using `h5py` Python module
+
+```{python}
+# hdf5
+import h5py
+
+filename = "/fastscratch/myscratch/shicks1/benchmark-hdf5-clustering/main/case_studies/data/h5_python/1M_neurons_transposed_chunked.h5"
+f = h5py.File(filename, 'r') # load hdf5 file
+dat = f.get("counts")
+
+mbkm = MiniBatchKMeans(n_clusters = 13, batch_size=100,compute_labels=True)
+mbkm.output = mbkm.fit(dat) 
+mbkm.output.cluster_centers_.shape # shape looks right
+
+# output from MiniBatchKMeans
+mbkm.output.cluster_centers_
+mbkm.output.labels_
+mbkm.output.inertia_
+```
+
 
