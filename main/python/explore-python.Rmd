@@ -52,8 +52,8 @@ rhdf5::h5ls(h5_data_path)
 # 7 /mm10      shape H5I_DATASET INTEGER          
 ```
 
-Try reading in the HDF5 file using the `HDF5Array` package as a sanity check
- # the function `HDF5Array::TENxMatrix()` is used for the HDF5 sparse representation
+Try reading in the HDF5 file using the `HDF5Array` package as a sanity check. 
+Note, the function `HDF5Array::TENxMatrix()` is used for the HDF5 sparse representation
 ```{r}
 h5_file <- TENxMatrix(h5_data_path)
 # > h5_file
@@ -81,7 +81,7 @@ We will also write a dense HDF5 file in the most optimal way
 (i.e. chunked by cell) that well use later on: 
 
 ```{r}
-h5_file_sub <- t(h5_file[,1:500])
+h5_file_sub <- t(h5_file)
 h5_file_out <- writeHDF5Array(x=h5_file_sub, 
                filepath = here("main", "case_studies", "data", 
                                "h5_python", "1M_neurons_transposed_chunked.h5"), 
@@ -219,9 +219,15 @@ import h5py
 filename = "/fastscratch/myscratch/shicks1/benchmark-hdf5-clustering/main/case_studies/data/h5_python/1M_neurons_transposed_chunked.h5"
 f = h5py.File(filename, 'r') # load hdf5 file
 dat = f.get("counts")
+dat
+# >>> dat
+# <HDF5 dataset "counts": shape (27998, 1306127), type "<i4">
 
 mbkm = MiniBatchKMeans(n_clusters = 13, batch_size=100,compute_labels=True)
 mbkm.output = mbkm.fit(dat) 
+# >>> mbkm.output = mbkm.fit(dat)
+# MemoryError: Unable to allocate array with shape (27998, 1306127) and data type float64
+
 mbkm.output.cluster_centers_.shape # shape looks right
 
 # output from MiniBatchKMeans
