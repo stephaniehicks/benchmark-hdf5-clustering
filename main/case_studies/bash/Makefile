@@ -32,7 +32,7 @@
 ### MODES are the different things that are recorded (e.g. acc/mem/time)
 ### METHODS are the different methods (hdf, mbkmeans, kmeans)
 ### FINALSHELLSCRIPTS is list of the final shell scrips that should be created for the acc/hdf combination that will be the targets of make(other combinations are not explicitly used for the target). They are in the format of <data>/<data>_step1_acc_hdf_$(TAG).sh Only put down acc/hdf combination as target, but the rule to make this target will loop through all; (acc/hdf is the last of the combinations so will ensure all are made without errors). e.g. dataset/dataset_step1_acc_hdf_stephanie_cluster.sh
-DATASETS = tenx_pbmc68k TENxBrainData hca_cordblood hca_bonemarrow
+DATASETS = tenx_pbmc68k TENxBrainData hca_cordblood hca_bonemarrow TENxBrainData_75k TENxBrainData_150k TENxBrainData_300k TENxBrainData_500k TENxBrainData_750k TENxBrainData_1000k
 TAG = $(strip $(patsubst %_header.sh, %, $(HEADER)))
 MODES = mem time acc
 METHODS = kmeans mbkmeans hdf5
