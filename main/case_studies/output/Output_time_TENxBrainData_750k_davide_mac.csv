@@ -2,3 +2,12 @@ TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.001,1,1260.04,1
 TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.01,1,1386.538,14.59,1401.364
 TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,mbkmeans,0.001,1,1285.78,14.848,1300.841
 TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,mbkmeans,0.01,1,1365.605,24.991,1390.829
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,1e-04,1,1054.264,20.352,1111.282
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,2e-04,1,1041.221,10.852,1052.297
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,4e-04,1,1201.069,10.89,1212.175
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.0006666667,1,1190.117,11.259,1202.167
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.0013333333,1,1301.175,12.035,1314.153
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.002,1,1318.731,11.872,1330.804
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.004,1,1360.066,12.529,1372.808
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.0066666667,1,1383.784,13.378,1397.37
+TENxBrainData_750k,davide_mac,750000,5000,01_full_cluster,hdf5,0.0133333333,1,1466.527,21.835,1488.588
