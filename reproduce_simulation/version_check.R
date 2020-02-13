@@ -64,7 +64,7 @@ if(!(packageVersion("mclust") == "5.4.5")){
   install.packages("mclust")
 }
 
-if(!(packageVersion("beachmat") == "2.1.2")){
+if(!(packageVersion("beachmat") == "2.3.2")){
   devtools::install_github("LTLA/beachmat")
 }
 
