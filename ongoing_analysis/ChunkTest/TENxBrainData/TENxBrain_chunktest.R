@@ -16,7 +16,7 @@ if(chunk == "default"){
   time.start <- proc.time()
   tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                             paste0("TENxBrainData_", size, "_preprocessed_default")))
-  invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(sce))[2]*batch), 
+  invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(tenx))[2]*batch), 
                      num_init=10, max_iters=100, calc_wcss = FALSE))
   time.end <- proc.time()
   time <- time.end - time.start
