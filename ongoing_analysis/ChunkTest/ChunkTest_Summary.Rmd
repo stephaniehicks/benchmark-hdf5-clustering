@@ -45,7 +45,8 @@ final_table %>%
 
 ```{r}
 final_table %>% 
-  dplyr::filter(dimension != "one") %>%
+  #dplyr::filter(dimension != "one") %>%
+  dplyr::filter(observations < 250000) %>%
   dplyr::group_by(dimension, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(time), 
                    sd = sd(time)) %>% 
