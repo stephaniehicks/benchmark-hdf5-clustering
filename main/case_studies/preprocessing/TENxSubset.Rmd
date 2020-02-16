@@ -48,7 +48,7 @@ We will next create subsets of the data of the following sizes: 75k, 150k, 300k,
 
 ```{r}
 set.seed(138)
-ncells <- c(150, 300, 500, 750) 
+ncells <- c(1000) 
 #ncells <- c(75, 150, 300, 500, 750, 1000) 
 cellidx <- lapply(ncells, function(n) sample(colnames(tenx), n * 1000))
 sapply(cellidx, length)
