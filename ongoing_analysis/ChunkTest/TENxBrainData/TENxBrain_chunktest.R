@@ -32,7 +32,7 @@ if (mode == "time"){
 
 if (mode == "mem"){
   now <- format(Sys.time(), "%b%d%H%M%OS3")
-  out_name <- paste0(data_name, "_", run_id, "_step1_", now, "_", batch,".out")
+  out_name <- paste0("TENxBrain_", size, "_", chunk, "_", now, "_", batch,".out")
   
   if(!file.exists(here("main/case_studies/output/Memory_output/chunk_test"))) {
     dir.create(here("main/case_studies/output/Memory_output/chunk_test"), recursive = TRUE)}
