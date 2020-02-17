@@ -37,14 +37,14 @@ if (mode == "mem"){
   if(!file.exists(here("main/case_studies/output/Memory_output/chunk_test"))) {
     dir.create(here("main/case_studies/output/Memory_output/chunk_test"), recursive = TRUE)}
   
-  Rprof(filename = here("main/case_studies/output/Memory_output/chunk_test",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
+  Rprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), append = FALSE, memory.profiling = TRUE)
   tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                             paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
   invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(tenx))[2]*batch), 
                      num_init=10, max_iters=100, calc_wcss = FALSE))
   Rprof(NULL)
   
-  profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output/chunk_test",paste0(method, out_name)), chunksize = -1L, 
+  profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), chunksize = -1L, 
                           memory = "tseries", diff = FALSE)
   max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
   
