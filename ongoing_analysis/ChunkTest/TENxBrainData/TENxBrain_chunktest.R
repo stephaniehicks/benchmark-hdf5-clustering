@@ -20,9 +20,10 @@ if(chunk == "default"){
                      num_init=10, max_iters=100, calc_wcss = FALSE))
   time.end <- proc.time()
   time <- time.end - time.start
-
+  
+  print(time)
   temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch,  
-                           time = time, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
+                           time = time[3], geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
                            dimension_2 = seed(counts(tenx))@chunkdim[2])
   write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData", paste0(chunk,".csv")), 
               sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
