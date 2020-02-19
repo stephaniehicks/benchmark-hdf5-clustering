@@ -10,14 +10,14 @@ size <- commandArgs(trailingOnly=T)[2]
 chunk <- commandArgs(trailingOnly=T)[3]
 batch <- as.numeric(commandArgs(trailingOnly=T)[4])
 mode <- commandArgs(trailingOnly=T)[5]
-k <- 30
+k <- 15
 
 if (mode == "time"){
   time.start <- proc.time()
   tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                             paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
   invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(tenx))[2]*batch), 
-                    num_init=10, max_iters=100, calc_wcss = FALSE))
+                    num_init=1, max_iters=100, calc_wcss = FALSE, compute_labels=TRUE))
   time.end <- proc.time()
   time <- time.end - time.start
 
@@ -41,7 +41,7 @@ if (mode == "mem"){
   tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                             paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
   invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(tenx))[2]*batch), 
-                     num_init=10, max_iters=100, calc_wcss = FALSE))
+                     num_init=1, max_iters=100, calc_wcss = FALSE, compute_labels=TRUE))
   Rprof(NULL)
   
   profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), chunksize = -1L, 

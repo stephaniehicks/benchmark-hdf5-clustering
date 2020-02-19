@@ -23,7 +23,7 @@ doParallel::registerDoParallel(ncores)
 ## Data import 
 ```{r}
 dir.name <- here("main/case_studies/data/PBMC_raw/hg19")
-pbmc <- read10xCounts(dir.name1)
+pbmc <- read10xCounts(dir.name)
 pbmc
 
 ## Check that the counts object is a HDF5Array

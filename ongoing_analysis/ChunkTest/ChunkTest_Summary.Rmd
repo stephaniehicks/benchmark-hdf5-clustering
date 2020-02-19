@@ -19,6 +19,45 @@ library(here)
 ```
 
 ```{r}
+files <- list.files(path= here("ongoing_analysis","ChunkTest/TENxBrainData/Output"), pattern="^time_[a-z]+.csv", full.names=TRUE, recursive=FALSE)
+time_table <- NULL
+for (i in (1:length(files))){
+  temp_table <- read.csv(file = files[i], header=TRUE, sep=",")
+  time_table <- rbind(time_table, temp_table)
+}
+
+files <- list.files(path= here("ongoing_analysis","ChunkTest/TENxBrainData/Output"), pattern="^mem_[a-z]+.csv", full.names=TRUE, recursive=FALSE)
+mem_table <- NULL
+for (i in (1:length(files))){
+  temp_table <- read.csv(file = files[i], header=TRUE, sep=",")
+  mem_table <- rbind(mem_table, temp_table)
+}
+```
+
+```{r}
+time_table[,1:6] %>% 
+  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  #dplyr::summarize(mean = mean(time), 
+   #                sd = sd(time)) %>% 
+  ggplot(aes(x = abs.batch.size, y = time, color = geometry)) +
+          geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Time") + 
+  facet_wrap(~observations)
+```
+```{r}
+mem_table[,1:6] %>% 
+  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  #dplyr::summarize(mean = mean(time), 
+   #                sd = sd(time)) %>% 
+  ggplot(aes(x = abs.batch.size, y = memory, color = geometry)) +
+          geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Memory") + 
+  facet_wrap(~observations)
+```
+
+```{r include=FALSE}
 files <- list.files(path= here("ongoing_analysis","ChunkTest"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
 final_table <- NULL
@@ -29,7 +68,7 @@ for (i in (1:length(files))){
 }
 ```
 
-```{r}
+```{r include=FALSE}
 final_table %>% 
   dplyr::group_by(dimension, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(time), 
@@ -43,7 +82,7 @@ final_table %>%
   facet_wrap(~batch_size)
 ```
 
-```{r}
+```{r include=FALSE}
 final_table %>% 
   #dplyr::filter(dimension != "one") %>%
   dplyr::filter(observations < 250000) %>%
