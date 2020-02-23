@@ -92,8 +92,5 @@ if (mode == "mem"){
     write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                 sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
   }
-  
-  
-  
 }
 
