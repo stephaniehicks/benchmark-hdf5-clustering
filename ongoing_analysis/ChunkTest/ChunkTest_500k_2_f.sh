@@ -5,10 +5,9 @@
 module load conda_R/devel
 
 init=true
-CURRDATE="$(date +'%T')"
-FILE="csv"
-serial="2"
-file_name="${CURRDATE}_${serial}.${FILE}"
+CURRDATE="$(date +"%T. %6N")"
+FILE="rds"
+file_name="${CURRDATE}.${FILE}"
 
 data_name="obs_data_5e+05_2.h5"
 data_name_de="obs_data_5e+05_2_de.h5"

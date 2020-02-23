@@ -39,8 +39,8 @@ time_table[,1:6] %>%
   dplyr::group_by(geometry, observations, abs.batch.size) %>% 
   #dplyr::summarize(mean = mean(time), 
    #                sd = sd(time)) %>% 
-  ggplot(aes(x = abs.batch.size, y = time, color = geometry)) +
-          geom_line()+
+  ggplot(aes(x = as.factor(abs.batch.size), y = time, color = geometry)) +
+          #geom_line()+
           geom_point()+
           labs(title = "HDF5 Geometry: Time") + 
   facet_wrap(~observations)
@@ -48,10 +48,11 @@ time_table[,1:6] %>%
 ```{r}
 mem_table[,1:6] %>% 
   dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  #dplyr::filter(observations == 75000) %>%
   #dplyr::summarize(mean = mean(time), 
    #                sd = sd(time)) %>% 
-  ggplot(aes(x = abs.batch.size, y = memory, color = geometry)) +
-          geom_line()+
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory*.001, color = geometry)) +
+          #geom_line()+
           geom_point()+
           labs(title = "HDF5 Geometry: Memory") + 
   facet_wrap(~observations)
