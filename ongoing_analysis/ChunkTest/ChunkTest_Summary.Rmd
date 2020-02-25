@@ -35,27 +35,28 @@ for (i in (1:length(files))){
 ```
 
 ```{r}
-time_table[,1:6] %>% 
+time_table %>% 
+  gather("time_type", "time", -c(1:4,8:10)) %>%
+  filter(observations==500000) %>%
   dplyr::group_by(geometry, observations, abs.batch.size) %>% 
-  #dplyr::summarize(mean = mean(time), 
-   #                sd = sd(time)) %>% 
   ggplot(aes(x = as.factor(abs.batch.size), y = time, color = geometry)) +
           #geom_line()+
           geom_point()+
           labs(title = "HDF5 Geometry: Time") + 
-  facet_wrap(~observations)
+  facet_grid(time_type~observations, scales = "free")
 ```
 ```{r}
-mem_table[,1:6] %>% 
-  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+mem_table %>% 
+  dplyr::filter(!is.na(calc_label)) %>%
+  dplyr::group_by(geometry, observations, abs.batch.size, calc_label) %>% 
   #dplyr::filter(observations == 75000) %>%
   #dplyr::summarize(mean = mean(time), 
    #                sd = sd(time)) %>% 
-  ggplot(aes(x = as.factor(abs.batch.size), y = memory*.001, color = geometry)) +
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = geometry)) +
           #geom_line()+
           geom_point()+
           labs(title = "HDF5 Geometry: Memory") + 
-  facet_wrap(~observations)
+  facet_wrap(~observations+calc_label, scales="free")
 ```
 
 ```{r include=FALSE}
