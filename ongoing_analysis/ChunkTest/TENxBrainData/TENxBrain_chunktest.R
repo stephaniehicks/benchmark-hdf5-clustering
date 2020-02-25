@@ -14,14 +14,6 @@ calc_lab <- as.logical(commandArgs(trailingOnly=T)[6])
 cent_file_name <- commandArgs(trailingOnly=T)[7]
 choice <- commandArgs(trailingOnly=T)[8]
 k <- 15
-print(size)
-print(chunk)
-print(batch)
-print(mode)
-print(calc_lab)
-print(cent_file_name)
-print(choice)
-
 
 if (mode == "time"){
   if (choice == "full"){
