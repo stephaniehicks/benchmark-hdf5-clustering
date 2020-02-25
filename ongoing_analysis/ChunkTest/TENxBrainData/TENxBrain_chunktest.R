@@ -16,6 +16,7 @@ choice <- commandArgs(trailingOnly=T)[8]
 k <- 15
 
 if (mode == "time"){
+  print(choice)
   if (choice == "full"){
     time.start1 <- proc.time()
     tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
