@@ -19,6 +19,61 @@ library(here)
 ```
 
 ```{r}
+new_mem <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_mem.csv", header=TRUE, sep=",")
+```
+
+```{r}
+new_mem %>% 
+  filter(calc_label=="full") %>%
+  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = geometry)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Memory") + 
+  facet_wrap(~observations)
+```
+```{r}
+new_mem %>% 
+  filter(calc_label!="full") %>%
+  dplyr::group_by(geometry, observations, abs.batch.size, calc_label) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = geometry)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Memory in Two Steps") + 
+  facet_wrap(~observations+calc_label, scales="free")
+```
+
+
+```{r}
+new_time <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_time.csv", header=TRUE, sep=",")
+```
+
+```{r}
+new_time %>% 
+  filter(choice=="full") %>%
+  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = time1, color = geometry)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Time") + 
+  facet_wrap(~observations)
+```
+```{r}
+new_time %>% 
+  gather("time_type", "time", -c(1:5,8:12))%>%
+  filter(choice=="two steps") %>%
+  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = time, color = geometry)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Time") + 
+  facet_wrap(~observations+time_type)
+```
+
+
+
+
+```{r}
 files <- list.files(path= here("ongoing_analysis","ChunkTest/TENxBrainData/Output"), pattern="^time_[a-z]+.csv", full.names=TRUE, recursive=FALSE)
 time_table <- NULL
 for (i in (1:length(files))){
