@@ -79,7 +79,7 @@ if (mode == "time"){
       temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch, 
                                abs_batch_size =  as.integer(dim(counts(tenx))[2]*batch), 
                                time1 = time1[3], time2 = NA, time3 = NA, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
-                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full")
+                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full", method = "mbkmeans")
       write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
       
@@ -108,7 +108,7 @@ if (mode == "time"){
       temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch, 
                                abs_batch_size =  as.integer(dim(counts(tenx))[2]*batch), 
                                time1 = time1[3], time2 = time2[3], time3 = time3[3], geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
-                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "two steps")
+                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "two steps", method = "mbkmeans")
       write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
@@ -205,7 +205,7 @@ if (mode == "mem"){
       temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch, 
                                abs_batch_size =  as.integer(dim(counts(tenx))[2]*batch), 
                                time = max_mem, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
-                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full")
+                               dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full", method = "mbkmeans")
       write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }else{
@@ -227,7 +227,7 @@ if (mode == "mem"){
         temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch, 
                                  abs_batch_size =  as.integer(dim(counts(tenx))[2]*batch), 
                                  mem = max_mem, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
-                                 dimension_2 = seed(counts(tenx))@chunkdim[2], calc_lab = "FALSE")
+                                 dimension_2 = seed(counts(tenx))@chunkdim[2], calc_lab = "FALSE", method = "mbkmeans")
         write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                     sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
       }
@@ -248,7 +248,7 @@ if (mode == "mem"){
         temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], batch_size = batch, 
                                  abs_batch_size =  as.integer(dim(counts(tenx))[2]*batch), 
                                  mem = max_mem, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
-                                 dimension_2 = seed(counts(tenx))@chunkdim[2], calc_lab = "TRUE")
+                                 dimension_2 = seed(counts(tenx))@chunkdim[2], calc_lab = "TRUE", method = "mbkmeans")
         write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", paste0(mode, "_", chunk,".csv")), 
                     sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
       }
