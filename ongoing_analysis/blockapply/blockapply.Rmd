@@ -121,3 +121,64 @@ Compute labels, blockApply.
 system.time(labels4 <- blockApply(counts, all_labels, centroids = mbk$centroids))
 stopifnot(all(labels == unlist(labels4)))
 ```
+
+# Memory
+
+## HDF5
+
+Compute centroids.
+
+```{r}
+rm(counts)
+gc()
+now <- format(Sys.time(), "%b%d%H%M%OS3")
+out_name <- paste0(data_name, "centroids.out")
+if(!file.exists(here("ongoing_analysis/blockapply/Memory_output"))) {
+  dir.create(here("ongoing_analysis/blockapply/Memory_output"), recursive = TRUE)
+}
+Rprof(filename = here("ongoing_analysis/blockapply/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
+invisible(mbkmeans(counts(sce), clusters=15, batch_size = 100, num_init=1, 
+                max_iters=100, compute_labels = FALSE))
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis/blockapply/Memory_output", 
+                                        out_name),
+                                        chunksize = -1L,
+                          memory = "tseries", diff = FALSE)
+max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
+print(max_mem)
+```
+
+Compute labels, the old way.
+
+```{r}
+gc()
+out_name <- paste0(data_name, "oldlables.out")
+Rprof(filename = here("ongoing_analysis/blockapply/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
+invisible(predict_mini_batch(t(counts(sce)), mbk$centroids))
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis/blockapply/Memory_output", 
+                                        out_name),
+                                        chunksize = -1L,
+                          memory = "tseries", diff = FALSE)
+max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
+print(max_mem)
+```
+
+Compute labels, blockApply.
+
+```{r}
+gc()
+out_name <- paste0(data_name, "newlables.out")
+Rprof(filename = here("ongoing_analysis/blockapply/Memory_output", out_name), append = FALSE, memory.profiling = TRUE)
+labels4 <- blockApply(counts(sce), all_labels, centroids = mbk$centroids)
+Rprof(NULL)
+
+profile <- summaryRprof(filename = here("ongoing_analysis/blockapply/Memory_output", 
+                                        out_name),
+                                        chunksize = -1L,
+                          memory = "tseries", diff = FALSE)
+max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
+print(max_mem)
+```
