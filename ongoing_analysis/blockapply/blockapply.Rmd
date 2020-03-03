@@ -1,0 +1,123 @@
+---
+title: Testing blockapply vs beachmat
+author: Davide Risso
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      error = FALSE, message = FALSE, 
+                      cache = FALSE)
+```
+
+
+Here, I compare the current approach for label assignments to centroids to a simpler approach that uses the `blockApply` function.
+
+# Time
+
+## HDF5
+
+```{r}
+suppressPackageStartupMessages(library(HDF5Array))
+suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages(library(mbkmeans))
+```
+
+```{r}
+data_name <- "TENxBrainData_75k"
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full",
+                                               data_name, 
+                                               paste0(data_name, 
+                                                      "_preprocessed")),
+                                    prefix="")
+sce
+```
+
+Compute centroids.
+
+```{r}
+system.time(mbk <- mbkmeans(counts(sce), clusters=15, batch_size = 100, num_init=1, 
+                max_iters=100, compute_labels = FALSE))
+```
+
+Compute labels, the old way.
+
+```{r}
+system.time(labels <- predict_mini_batch(t(counts(sce)), mbk$centroids))
+```
+
+Compute labels, a simple apply.
+
+```{r}
+one_label <- function(x, centroids) {
+  which.min(colSums((x - t(centroids))^2))
+}
+
+system.time(labels2 <- apply(as.matrix(counts(sce)), 2, one_label, centroids = mbk$centroids))
+stopifnot(all(labels == labels2))
+```
+
+Compute labels, apply to centroids not to data.
+
+```{r}
+one_centroid <- function(x, data) {
+  colSums((x - data)^2)
+}
+
+all_labels <- function(data, centroids) {
+  ss <- apply(mbk$centroids, 1, one_centroid, data = data)
+  apply(ss, 1, which.min)
+}
+
+system.time(labels3 <- all_labels(as.matrix(counts(sce)), mbk$centroids))
+stopifnot(all(labels == labels3))
+```
+
+Compute labels, blockApply.
+
+```{r}
+system.time(labels4 <- blockApply(counts(sce), all_labels, centroids = mbk$centroids))
+stopifnot(all(labels == unlist(labels4)))
+```
+
+## In-memory
+
+Create in memory matrix.
+
+```{r}
+counts <- as.matrix(counts(sce))
+```
+
+Compute centroids.
+
+```{r}
+system.time(mbk <- mbkmeans(counts, clusters=15, batch_size = 100, num_init=1, 
+                max_iters=100, compute_labels = FALSE))
+```
+
+Compute labels, the old way.
+
+```{r}
+system.time(labels <- predict_mini_batch(t(counts), mbk$centroids))
+```
+
+Compute labels, a simple apply.
+
+```{r}
+system.time(labels2 <- apply(counts, 2, one_label, centroids = mbk$centroids))
+stopifnot(all(labels == labels2))
+```
+
+Compute labels, apply to centroids not to data.
+
+```{r}
+system.time(labels3 <- all_labels(as.matrix(counts), mbk$centroids))
+stopifnot(all(labels == labels3))
+```
+
+Compute labels, blockApply.
+
+```{r}
+system.time(labels4 <- blockApply(counts, all_labels, centroids = mbk$centroids))
+stopifnot(all(labels == unlist(labels4)))
+```
