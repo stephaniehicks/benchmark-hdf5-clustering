@@ -25,22 +25,35 @@ new_mem <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/C
 ```{r}
 new_mem %>% 
   filter(calc_label=="full") %>%
-  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
-  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = geometry)) +
+  filter(observations==75000 | observations==500000) %>%
+  dplyr::group_by(observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = label2)) +
           #geom_line()+
           geom_point()+
-          labs(title = "HDF5 Geometry: Memory") + 
-  facet_wrap(~observations)
+          labs(title = "HDF5 Geometry: Memory for the Whole Process") + 
+  facet_grid(~observations)
 ```
 ```{r}
 new_mem %>% 
-  filter(calc_label!="full") %>%
-  dplyr::group_by(geometry, observations, abs.batch.size, calc_label) %>% 
-  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = geometry)) +
+  filter(calc_label=="FALSE") %>%
+  filter(observations==75000 | observations==500000) %>%
+  dplyr::group_by(observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = label2)) +
           #geom_line()+
           geom_point()+
-          labs(title = "HDF5 Geometry: Memory in Two Steps") + 
-  facet_wrap(~observations+calc_label, scales="free")
+          labs(title = "HDF5 Geometry: Memory for Computing Centorids") + 
+  facet_grid(~observations)
+```
+```{r}
+new_mem %>% 
+  filter(calc_label=="TRUE") %>%
+  filter(observations==75000 | observations==500000) %>%
+  dplyr::group_by(observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = memory, color = label2)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Memory for Predicting Labels") + 
+  facet_grid(~observations)
 ```
 
 
@@ -51,26 +64,34 @@ new_time <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/
 ```{r}
 new_time %>% 
   filter(choice=="full") %>%
-  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
-  ggplot(aes(x = as.factor(abs.batch.size), y = time1, color = geometry)) +
+  dplyr::group_by(geometry, observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = time1, color = label2)) +
           #geom_line()+
           geom_point()+
-          labs(title = "HDF5 Geometry: Time") + 
-  facet_wrap(~observations)
+          labs(title = "HDF5 Geometry: Time for the Whole Process") + 
+  facet_grid(~observations)
 ```
 ```{r}
 new_time %>% 
-  gather("time_type", "time", -c(1:5,8:12))%>%
   filter(choice=="two steps") %>%
-  dplyr::group_by(geometry, observations, abs.batch.size) %>% 
-  ggplot(aes(x = as.factor(abs.batch.size), y = time, color = geometry)) +
+  dplyr::group_by(geometry, observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = time2, color = label2)) +
           #geom_line()+
           geom_point()+
-          labs(title = "HDF5 Geometry: Time") + 
-  facet_wrap(~observations+time_type)
+          labs(title = "HDF5 Geometry: Time for Computing the Centorids") + 
+  facet_grid(~observations)
 ```
 
-
+```{r}
+new_time %>% 
+  filter(choice=="two steps") %>%
+  dplyr::group_by(geometry, observations, abs.batch.size, label2) %>% 
+  ggplot(aes(x = as.factor(abs.batch.size), y = time3, color = label2)) +
+          #geom_line()+
+          geom_point()+
+          labs(title = "HDF5 Geometry: Time for Predicting Labels") + 
+  facet_grid(~observations)
+```
 
 
 ```{r}

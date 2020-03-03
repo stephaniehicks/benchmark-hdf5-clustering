@@ -148,13 +148,17 @@ final_results %>%
 
 # Subsampling analysis
 
+## Relative batch sizes
+
 ```{r}
 final_results %>%
   filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   filter(run == "davide_mac") -> df2
 
 final_results %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
     ggplot(aes(x = ncells, y = max_mem*.001, color = method, shape = batch_prop)) + 
   geom_line() +
@@ -168,8 +172,9 @@ final_results %>%
 final_results %>%
   dplyr::filter(time_type == "elapsed_time") %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
-    ggplot(aes(x = ncells, y = time/60, color = method, shape = batch_prop)) + 
+  ggplot(aes(x = ncells, y = time/60, color = method, shape = batch_prop)) + 
   geom_line() +
   geom_point(size = 4) + 
   ylab("Time (minutes)") + 
@@ -181,6 +186,7 @@ final_results %>%
 final_results %>%
   dplyr::filter(time_type == "elapsed_time") %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
     ggplot(aes(x = ncells, y = WCSS/ncells, color = method, shape = batch_prop)) + 
   geom_line() +
@@ -190,18 +196,70 @@ final_results %>%
   scale_color_discrete(name = "Method")
 ```
 
+## Absolute batch sizes
+
+```{r}
+final_results$batch_size <- as.factor(round(as.numeric(as.character(final_results$batch_prop)) * final_results$ncells))
+
+final_results %>%
+  filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_size %in% c(75, 150, 300, 500, 1000, 1500, 3000, 5000, 7500, 10000)) %>%
+  filter(method != "kmeans") %>%
+  group_by(method) %>%
+    ggplot(aes(x = batch_size, y = max_mem*.001, color = method)) + 
+  geom_line() +
+  geom_point(size = 4) + 
+  ylab("Memory (Gb)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method") +
+  facet_grid(~ncells)
+```
+
+```{r}
+final_results %>%
+  dplyr::filter(time_type == "elapsed_time") %>%
+  filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_size %in% c(75, 150, 300, 500, 1000, 1500, 3000, 5000, 7500, 10000)) %>%
+  filter(method != "kmeans") %>%
+  group_by(method) %>%
+  ggplot(aes(x = batch_size, y = time/60, color = method)) + 
+  geom_line() +
+  geom_point(size = 4) + 
+  ylab("Time (minutes)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method") +
+  facet_grid(~ncells)
+```
+
+```{r}
+final_results %>%
+  dplyr::filter(time_type == "elapsed_time") %>%
+  filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_size %in% c(75, 150, 300, 500, 1000, 1500, 3000, 5000, 7500, 10000)) %>%
+  group_by(method) %>%
+    ggplot(aes(x = batch_size, y = WCSS/ncells, color = method)) + 
+  geom_line() +
+  geom_point(size = 4) + 
+  ylab("WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  scale_color_discrete(name = "Method") +
+  facet_grid(~ncells)
+```
+
 # Subsampling analysis (with additional real data points)
 
 ```{r}
 final_results %>%
   filter(!(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k"))) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   dplyr::filter(time_type == "elapsed_time") %>%
   filter(run == "davide_mac") -> df2
 
 final_results %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
-    ggplot(aes(x = ncells, y = max_mem*.001, color = method, shape = batch_prop)) + 
+  ggplot(aes(x = ncells, y = max_mem*.001, color = method, shape = batch_prop)) + 
   geom_line() +
   geom_point(size = 4) + 
   geom_point(data = df2, size = 4) +
@@ -214,8 +272,9 @@ final_results %>%
 final_results %>%
   dplyr::filter(time_type == "elapsed_time") %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
-    ggplot(aes(x = ncells, y = time/60, color = method, shape = batch_prop)) + 
+  ggplot(aes(x = ncells, y = time/60, color = method, shape = batch_prop)) + 
   geom_line() +
   geom_point(size = 4) + 
   geom_point(data = df2, size = 4) +
@@ -228,8 +287,9 @@ final_results %>%
 final_results %>%
   dplyr::filter(time_type == "elapsed_time") %>%
   filter(dataset %in% paste0("TENxBrainData_", c(75, 150, 300, 500, 750, 1000), "k")) %>%
+  filter(batch_prop %in% c(0.001, 0.01)) %>%
   group_by(method) %>%
-    ggplot(aes(x = ncells, y = WCSS/ncells, color = method, shape = batch_prop)) + 
+  ggplot(aes(x = ncells, y = WCSS/ncells, color = method, shape = batch_prop)) + 
   geom_line() +
   geom_point(size = 4) + 
   geom_point(data = df2, size = 4) +
