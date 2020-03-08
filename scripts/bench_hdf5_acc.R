@@ -52,7 +52,7 @@ bench_hdf5_acc <- function(i, n_cells,
       batch_size = batch_size, num_init = num_init, 
       max_iters = max_iters, init_fraction = init_fraction,
       initializer = initializer, calc_wcss = TRUE)
-    
+    print ("finished!")
     output <- list(true_cluster = sim_data$true_cluster_id, cluster_output = cluster_output$Clusters, 
                    cluster_wcss = cluster_output$WCSS_per_cluster, best_init = cluster_output$best_initialization, 
                    iters = cluster_output$iters_per_initialization)

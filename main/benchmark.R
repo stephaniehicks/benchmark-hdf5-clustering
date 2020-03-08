@@ -34,23 +34,6 @@ B <- commandArgs(trailingOnly=T)[15]
 sim_center <- commandArgs(trailingOnly=T)[16]
 data_path <- commandArgs(trailingOnly=T)[17]
 
-print(init)
-print(mode)
-print(dir_name)
-print(file_name)
-print(method)
-print(size)
-print(B_name)
-print(cores)
-print(nC)
-print(nG)
-print(batch)
-print(k)
-print(initializer)
-print(B)
-print(sim_center)
-print(data_path)
-
 if (init){
   if (mode == "mem"){
     if(!file.exists(here("output_files"))){
