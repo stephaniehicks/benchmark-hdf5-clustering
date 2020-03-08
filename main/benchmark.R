@@ -27,7 +27,7 @@ B_name <- commandArgs(trailingOnly=T)[8]
 cores <- as.numeric(commandArgs(trailingOnly=T)[9])
 nC <- as.numeric(commandArgs(trailingOnly=T)[10])
 nG <- as.numeric(commandArgs(trailingOnly=T)[11])
-batch <- as.numeric(commandArgs(trailingOnly=T)[12])
+batch <- as.numeric(commandArgs(trailingOnly=T)[12]) #for accuracy, batch is the absolute batch size
 k <- as.numeric(commandArgs(trailingOnly=T)[13])
 initializer <- commandArgs(trailingOnly=T)[14]
 B <- commandArgs(trailingOnly=T)[15]
@@ -63,10 +63,10 @@ if (init){
   if (mode == "acc"){
     profile_table <- data.frame(matrix(vector(), 0, 11, 
                                        dimnames=list(c(), c("B", "observations", "genes",
-                                                            "batch_size","k",
+                                                            "abs_batch","k",
                                                             "initializer", "method","ARI","WCSS", "iterations", "fault"))),
                                 stringsAsFactors=F)
-    write.table(profile_table, file = here("output_tables", mode, file_name), 
+    write.table(profile_table, file = here("output_tables/abs_batch", mode, file_name), 
                 sep = ",", col.names = TRUE)
   }
   
@@ -118,7 +118,7 @@ if (!init){
     cluster_output <- mclapply(seq_len(B), bench_hdf5_acc, 
                                n_cells = nC, n_genes = nG, 
                                k_centers = k,
-                               batch_size = nC*batch, num_init = 10, max_iters = 100,
+                               batch_size = batch, num_init = 10, max_iters = 100,
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
@@ -127,7 +127,7 @@ if (!init){
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
                                method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
-      write.table(temp_table, file = here("output_tables", mode, file_name), sep = ",", 
+      write.table(temp_table, file = here("output_tables/abs_batch", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
   }

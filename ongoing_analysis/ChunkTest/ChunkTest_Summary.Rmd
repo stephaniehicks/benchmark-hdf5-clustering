@@ -94,7 +94,7 @@ new_time %>%
 ```
 
 
-```{r}
+```{r, include=FALSE}
 files <- list.files(path= here("ongoing_analysis","ChunkTest/TENxBrainData/Output"), pattern="^time_[a-z]+.csv", full.names=TRUE, recursive=FALSE)
 time_table <- NULL
 for (i in (1:length(files))){
@@ -110,7 +110,7 @@ for (i in (1:length(files))){
 }
 ```
 
-```{r}
+```{r, include=FALSE}
 time_table %>% 
   gather("time_type", "time", -c(1:4,8:10)) %>%
   filter(observations==500000) %>%
@@ -121,7 +121,7 @@ time_table %>%
           labs(title = "HDF5 Geometry: Time") + 
   facet_grid(time_type~observations, scales = "free")
 ```
-```{r}
+```{r include=FALSE}
 mem_table %>% 
   dplyr::filter(!is.na(calc_label)) %>%
   dplyr::group_by(geometry, observations, abs.batch.size, calc_label) %>% 
@@ -135,7 +135,7 @@ mem_table %>%
   facet_wrap(~observations+calc_label, scales="free")
 ```
 
-```{r include=FALSE}
+```{r, include=FALSE}
 files <- list.files(path= here("ongoing_analysis","ChunkTest"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
 final_table <- NULL
@@ -146,7 +146,7 @@ for (i in (1:length(files))){
 }
 ```
 
-```{r include=FALSE}
+```{r, include=FALSE}
 final_table %>% 
   dplyr::group_by(dimension, observations, batch_size) %>% 
   dplyr::summarize(mean = mean(time), 
@@ -160,7 +160,7 @@ final_table %>%
   facet_wrap(~batch_size)
 ```
 
-```{r include=FALSE}
+```{r, include=FALSE}
 final_table %>% 
   #dplyr::filter(dimension != "one") %>%
   dplyr::filter(observations < 250000) %>%
