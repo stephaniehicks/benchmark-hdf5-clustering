@@ -76,11 +76,75 @@ acc_table <- acc_table %>%
 levels(acc_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
+## Accuracy w/ absolute batch size
+```{r}
+files_acc <- list.files(path= here("output_tables/abs_batch", "acc"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+acc_table_abs <- NULL
+
+for (i in (1:length(files_acc))){
+  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
+  acc_table_abs <- rbind(acc_table_abs, temp_table)
+}
+acc_table_abs <- acc_table_abs %>% 
+  #mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
+         #batch_size = factor(scales::percent(acc_table_abs$batch_size), 
+        #                     levels = c("500", "2000", "4000", 
+        #                                "5000", "8000","10000", "25000"))) %>%
+  transform(normal_WCSS = WCSS/observations)
+#levels(acc_table_abs$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+```
+
+
 
 # Figures 
 
 
 ## simulation studies
+```{r, warning=FALSE}
+p_ari_obs_line_abs <- acc_table_abs %>% 
+  #dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  #dplyr::filter((observations <= 10e3)) %>%
+  dplyr::group_by(method, observations, abs_batch) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+      labs(title = "Accuracy (ARI) for increasing number of cells and absolute batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Adjusted Rand Index") + 
+  facet_wrap(~abs_batch, scales = "free") 
+  #theme(legend.position = "none", legend.justification= "center") +
+  #scale_color_discrete(name = "Method",
+  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_ari_obs_line_abs
+```
+```{r, warning=FALSE}
+p_wcss_obs_line_abs <- acc_table_abs %>% 
+  #dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  #dplyr::filter((observations <= 10e3)) %>%
+  dplyr::group_by(method, observations, abs_batch) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (WCSS) for increasing number of cells and absolute batch size") + 
+        xlab("Number of cells (thousands)") + 
+        ylab("Normalized WCSS") + 
+  facet_wrap(~abs_batch, scales = "free") 
+  #theme(legend.position = "none", legend.justification= "center") +
+  #scale_color_discrete(name = "Method",
+  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_wcss_obs_line_abs
+```
 
 
 ```{r, warning=FALSE}
