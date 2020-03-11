@@ -19,11 +19,10 @@ B <- commandArgs(trailingOnly=T)[9]
 
 
 if(init){
-  profile_table <- data.frame(matrix(vector(), 0, 11, 
+  profile_table <- data.frame(matrix(vector(), 0, 7, 
                                      dimnames=list(c(), c("B", "observations", "genes",
                                                           "abs_batch","k",
-                                                          "method","WCSS"))),
-                              stringsAsFactors=F)
+                                                          "method","WCSS"))), stringsAsFactors=F)
   write.table(profile_table, file = here("output_tables/abs_batch", mode, file_name), 
               sep = ",", col.names = TRUE)
 }
