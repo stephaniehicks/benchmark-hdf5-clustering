@@ -15,7 +15,7 @@ method <- commandArgs(trailingOnly=T)[5]
 cores <- as.numeric(commandArgs(trailingOnly=T)[6])
 batch <- as.numeric(commandArgs(trailingOnly=T)[7])
 k <- as.numeric(commandArgs(trailingOnly=T)[8]) 
-B <- commandArgs(trailingOnly=T)[9]
+B <- as.numeric(commandArgs(trailingOnly=T)[9])
 
 
 if(init){
