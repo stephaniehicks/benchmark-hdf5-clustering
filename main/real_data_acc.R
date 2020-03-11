@@ -16,17 +16,6 @@ cores <- as.numeric(commandArgs(trailingOnly=T)[6])
 batch <- as.numeric(commandArgs(trailingOnly=T)[7])
 k <- as.numeric(commandArgs(trailingOnly=T)[8]) 
 B <- as.numeric(commandArgs(trailingOnly=T)[9])
-print(init)
-print(mode)
-print(file_name)
-print(method)
-print(cores)
-print(batch)
-print(k)
-print(B)
-print(seq_len(B))
-
-
 
 if(init){
   profile_table <- data.frame(matrix(vector(), 0, 7, 
