@@ -103,7 +103,7 @@ acc_table_abs <- acc_table_abs %>%
 ## simulation studies
 ```{r, warning=FALSE}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  dplyr::filter((abs_batch %in% c(10,75,500)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
@@ -125,7 +125,7 @@ p_ari_obs_line_abs
 ```
 ```{r, warning=FALSE}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
+  dplyr::filter((abs_batch %in% c(10,75,500)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(normal_WCSS), 
@@ -362,6 +362,20 @@ pdf(here::here("main", "figs", "fig-sims-memory-obs-full-log.pdf"), width = 10, 
 print(p2_log)
 dev.off()
 ```
+
+```{r}
+p2_abs <- ggdraw() +
+    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.25, width = 1, height = .25) +
+    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.5, width = 1, height = .25) 
+p2_abs
+    #draw_plot_label(label = LETTERS[1:4], size = 25,
+    #                x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
+
+pdf(here::here("main", "figs", "fig-sims-memory-obs-full-log.pdf"), width = 10, height =12)
+print(p2_log)
+dev.off()
+```
+
 # Figure 2
 
 # Figure 3
