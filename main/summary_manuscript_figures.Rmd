@@ -95,6 +95,19 @@ acc_table_abs <- acc_table_abs %>%
 #levels(acc_table_abs$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
+## Accuracy-real data w/ absolute batch size
+```{r}
+files_acc <- list.files(path= here("output_tables/abs_batch/acc/real_data"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+acc_real_table_abs <- NULL
+
+for (i in (1:length(files_acc))){
+  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
+  acc_real_table_abs <- rbind(acc_real_table_abs, temp_table)
+}
+acc_real_table_abs <- acc_real_table_abs %>% 
+  transform(normal_WCSS = WCSS/observations)
+```
 
 
 # Figures 
@@ -103,12 +116,12 @@ acc_table_abs <- acc_table_abs %>%
 ## simulation studies
 ```{r, warning=FALSE}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((abs_batch %in% c(10,75,500)))%>%
+  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+  ggplot(aes(x = abs_batch, y = mean, color = method)) + #observations/1e3
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
@@ -116,7 +129,7 @@ p_ari_obs_line_abs <- acc_table_abs %>%
       labs(title = "Accuracy (ARI) for increasing number of cells and absolute batch size") + 
         xlab("Number of cells (thousands)") + 
         ylab("Adjusted Rand Index") + 
-  facet_wrap(~abs_batch, scales = "free") 
+  facet_wrap(~observations, scales = "free") 
   #theme(legend.position = "none", legend.justification= "center") +
   #scale_color_discrete(name = "Method",
   #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
@@ -125,12 +138,12 @@ p_ari_obs_line_abs
 ```
 ```{r, warning=FALSE}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((abs_batch %in% c(10,75,500)))%>%
+  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
+  ggplot(aes(x = abs_batch, y = mean, color = method)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
@@ -138,12 +151,35 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
      labs(title = "Accuracy (WCSS) for increasing number of cells and absolute batch size") + 
         xlab("Number of cells (thousands)") + 
         ylab("Normalized WCSS") + 
-  facet_wrap(~abs_batch, scales = "free") 
+  facet_wrap(~observations, scales = "free") 
   #theme(legend.position = "none", legend.justification= "center") +
   #scale_color_discrete(name = "Method",
   #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
   #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
 p_wcss_obs_line_abs
+```
+
+```{r, warning=FALSE}
+p_wcss_real_abs <- acc_real_table_abs %>% 
+  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
+  #dplyr::filter((observations <= 10e3)) %>%
+  dplyr::group_by(method, abs_batch) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = abs_batch, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (WCSS) for increasing absolute batch size") + 
+        xlab("Absolute Batch Size") + 
+        ylab("Normalized WCSS") 
+  #facet_wrap(~abs_batch, scales = "free") 
+  #theme(legend.position = "none", legend.justification= "center") +
+  #scale_color_discrete(name = "Method",
+  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
+  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+p_wcss_real_abs
 ```
 
 
