@@ -87,12 +87,7 @@ for (i in (1:length(files_acc))){
   acc_table_abs <- rbind(acc_table_abs, temp_table)
 }
 acc_table_abs <- acc_table_abs %>% 
-  #mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         #batch_size = factor(scales::percent(acc_table_abs$batch_size), 
-        #                     levels = c("500", "2000", "4000", 
-        #                                "5000", "8000","10000", "25000"))) %>%
   transform(normal_WCSS = WCSS/observations)
-#levels(acc_table_abs$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
 ## Accuracy-real data w/ absolute batch size
@@ -112,11 +107,10 @@ acc_real_table_abs <- acc_real_table_abs %>%
 
 # Figures 
 
-
 ## simulation studies
 ```{r, warning=FALSE}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
+  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
@@ -126,19 +120,15 @@ p_ari_obs_line_abs <- acc_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-      labs(title = "Accuracy (ARI) for increasing number of cells and absolute batch size") + 
+      labs(title = "Accuracy (ARI) for increasing number of cells and absolute batch size on simulated data") + 
         xlab("Number of cells (thousands)") + 
         ylab("Adjusted Rand Index") + 
   facet_wrap(~observations, scales = "free") 
-  #theme(legend.position = "none", legend.justification= "center") +
-  #scale_color_discrete(name = "Method",
-  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
 p_ari_obs_line_abs
 ```
 ```{r, warning=FALSE}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
+  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(normal_WCSS), 
@@ -148,14 +138,10 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing number of cells and absolute batch size") + 
+     labs(title = "Accuracy (WCSS) for increasing number of cells and absolute batch size on simulated data") + 
         xlab("Number of cells (thousands)") + 
         ylab("Normalized WCSS") + 
   facet_wrap(~observations, scales = "free") 
-  #theme(legend.position = "none", legend.justification= "center") +
-  #scale_color_discrete(name = "Method",
-  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
 p_wcss_obs_line_abs
 ```
 
@@ -163,7 +149,7 @@ p_wcss_obs_line_abs
 p_wcss_real_abs <- acc_real_table_abs %>% 
   #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
-  dplyr::group_by(method, abs_batch) %>% 
+  dplyr::group_by(observations, method, abs_batch) %>% 
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
   ggplot(aes(x = abs_batch, y = mean, color = method)) +
@@ -171,17 +157,12 @@ p_wcss_real_abs <- acc_real_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing absolute batch size") + 
+     labs(title = "Accuracy (WCSS) for increasing absolute batch size on real data") + 
         xlab("Absolute Batch Size") + 
-        ylab("Normalized WCSS") 
-  #facet_wrap(~abs_batch, scales = "free") 
-  #theme(legend.position = "none", legend.justification= "center") +
-  #scale_color_discrete(name = "Method",
-  #                     breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-  #                     labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
+        ylab("Normalized WCSS") +
+      facet_wrap(~observations, scales = "free") 
 p_wcss_real_abs
 ```
-
 
 ```{r, warning=FALSE}
 p_ari_obs_line <- acc_table %>% 
@@ -401,14 +382,15 @@ dev.off()
 
 ```{r}
 p2_abs <- ggdraw() +
-    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.25, width = 1, height = .25) +
-    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.5, width = 1, height = .25) 
+    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.67, width = 1, height = .33) +
+    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.34, width = 1, height = .33) +
+    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .33)
+    
 p2_abs
-    #draw_plot_label(label = LETTERS[1:4], size = 25,
-    #                x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
+
 
 pdf(here::here("main", "figs", "fig-sims-memory-obs-full-log.pdf"), width = 10, height =12)
-print(p2_log)
+print(p2_abs)
 dev.off()
 ```
 
