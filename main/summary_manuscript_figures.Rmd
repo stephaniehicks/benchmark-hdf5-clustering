@@ -389,7 +389,7 @@ p2_abs <- ggdraw() +
 p2_abs
 
 
-pdf(here::here("main", "figs", "fig-sims-memory-obs-full-log.pdf"), width = 10, height =12)
+pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =12)
 print(p2_abs)
 dev.off()
 ```
