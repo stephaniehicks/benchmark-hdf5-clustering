@@ -101,7 +101,9 @@ for (i in (1:length(files_acc))){
   acc_real_table_abs <- rbind(acc_real_table_abs, temp_table)
 }
 acc_real_table_abs <- acc_real_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations)
+  transform(normal_WCSS = WCSS/observations) 
+acc_real_table_abs$method <- factor(acc_real_table_abs$method, levels = c("kmeans", "hdf5", "mbkmeans"))
+#acc_real_table_abs$observations <- factor(acc_real_table_abs$observations, levels = c(75,150,300,500,750,1000,1500,3000,7500,10000))
 ```
 
 
@@ -120,7 +122,7 @@ p_ari_obs_line_abs <- acc_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-      labs(title = "Accuracy (ARI) for increasing number of cells and absolute batch size on simulated data") + 
+      labs(title = "Accuracy (ARI) for increasing number of cells and \n absolute batch size on simulated data") + 
         xlab("Number of cells (thousands)") + 
         ylab("Adjusted Rand Index") + 
   facet_wrap(~observations, scales = "free") 
@@ -138,7 +140,7 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing number of cells and absolute batch size on simulated data") + 
+     labs(title = "Accuracy (WCSS) for increasing number of cells and \n absolute batch size on simulated data") + 
         xlab("Number of cells (thousands)") + 
         ylab("Normalized WCSS") + 
   facet_wrap(~observations, scales = "free") 
@@ -157,7 +159,7 @@ p_wcss_real_abs <- acc_real_table_abs %>%
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing absolute batch size on real data") + 
+     labs(title = "Accuracy (WCSS) for increasing number of cells and \n increasing absolute batch size on real data") + 
         xlab("Absolute Batch Size") + 
         ylab("Normalized WCSS") +
       facet_wrap(~observations, scales = "free") 
