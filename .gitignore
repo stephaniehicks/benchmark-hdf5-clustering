@@ -33,4 +33,3 @@ main/case_studies/output/real_data_summary.html
 *.rds
 core.*
 ongoing_analysis/ChunkTest/TENxBrainData/Run-2-23
-ongoing_analysis/ChunkTest/TENxBrainData/Output/time_best.csv
