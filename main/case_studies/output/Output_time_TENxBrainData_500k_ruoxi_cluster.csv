@@ -1,0 +1,16 @@
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.00015,1,659.544,307.198,967.56
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.00015,1,726.319,314.557,1044.05
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,3e-04,1,689.825,282.088,974.371
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,3e-04,1,701.704,418.157,1120.868
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,6e-04,1,675.475,279.836,959.504
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,6e-04,1,714.732,312.545,1028.673
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.002,1,695.145,286.824,1001.511
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.002,1,760.521,336.276,1099.987
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.003,1,673.384,266.144,950.232
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.003,1,661.667,285.746,948.702
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.006,1,792.387,325.624,1143.75
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.006,1,710.931,285.885,997.362
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.015,1,819.024,401.795,1223.294
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.015,1,896.677,358.984,1324.235
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,mbkmeans,0.02,1,869.65,356.765,1228.496
+TENxBrainData_500k,ruoxi_cluster,500000,5000,01_full_cluster,hdf5,0.02,1,980.717,392.204,1449.236
