@@ -109,7 +109,8 @@ acc_real_table_abs$method <- factor(acc_real_table_abs$method, levels = c("kmean
 
 # Figures 
 
-## simulation studies
+## Figure 2:
+### simulation studies
 ```{r, warning=FALSE}
 p_ari_obs_line_abs <- acc_table_abs %>% 
   dplyr::filter((observations %in% c(5000,10000,25000)))%>%
@@ -146,7 +147,7 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
   facet_wrap(~observations, scales = "free") 
 p_wcss_obs_line_abs
 ```
-
+### real data
 ```{r, warning=FALSE}
 p_wcss_real_abs <- acc_real_table_abs %>% 
   #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
@@ -382,11 +383,14 @@ print(p2_log)
 dev.off()
 ```
 
+# Figure 2
 ```{r}
 p2_abs <- ggdraw() +
     draw_plot(p_ari_obs_line_abs, x = 0, y = 0.67, width = 1, height = .33) +
     draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.34, width = 1, height = .33) +
-    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .33)
+    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .33) +
+    draw_plot_label(label = LETTERS[1:3], size = 25,
+                    x = c(0, 0, 0), y = c(1, 0.67, 0.34))
     
 p2_abs
 
@@ -395,8 +399,5 @@ pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =12)
 print(p2_abs)
 dev.off()
 ```
-
-# Figure 2
-
 # Figure 3
 
