@@ -49,7 +49,8 @@ if (mode == "time"){
       time2 <- time.end2 - time.start2
     
       time.start3 <- proc.time()
-      mbkmeans::predict_mini_batch(counts(tenx), output$centroids)
+      
+      mbkmeans::predict_mini_batch_r(counts(tenx), output$centroids)
       time.end3 <- proc.time()
       time3 <- time.end3 - time.start3
       
@@ -98,7 +99,7 @@ if (mode == "time"){
       time2 <- time.end2 - time.start2
       
       time.start3 <- proc.time()
-      mbkmeans::predict_mini_batch(tenx_km, output$centroids)
+      mbkmeans::predict_mini_batch_r(tenx_km, output$centroids)
       time.end3 <- proc.time()
       time3 <- time.end3 - time.start3
       
@@ -170,7 +171,7 @@ if (mode == "mem"){
         Rprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), append = FALSE, memory.profiling = TRUE)
         tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                                   paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
-        mbkmeans::predict_mini_batch(counts(tenx),centroids)
+        mbkmeans::predict_mini_batch_r(counts(tenx),centroids)
         Rprof(NULL)
         
         profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), chunksize = -1L, 
@@ -237,7 +238,7 @@ if (mode == "mem"){
         tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                                   paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
         tenx_km <- realize(counts(tenx))
-        mbkmeans::predict_mini_batch(tenx_km,centroids)
+        mbkmeans::predict_mini_batch_r(tenx_km,centroids)
         Rprof(NULL)
         
         profile <- summaryRprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), chunksize = -1L, 
