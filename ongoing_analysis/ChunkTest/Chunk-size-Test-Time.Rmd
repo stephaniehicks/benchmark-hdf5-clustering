@@ -20,7 +20,7 @@ library(here)
 ```
 
 ```{r}
-time_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_time.csv", header=TRUE, sep=",")
+time_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_time_blockapp.csv", header=TRUE, sep=",")
 time_blockApp$label2 <- factor(time_blockApp$label2, levels = c("mbkmeans", "Best-HDF5", "Worst-HDF5"))
 time_blockApp_steps <- time_blockApp %>% 
   filter(choice == "two steps")  %>% 
@@ -36,7 +36,7 @@ time_blockApp_full <- time_blockApp %>%
 time_blockApp <- rbind(time_blockApp_steps,time_blockApp_full)
   
 
-time_old <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/before_BloackApp/new_time_old.csv", header=TRUE, sep=",")
+time_old <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/before_BloackApp/new_time_getrow.csv", header=TRUE, sep=",")
 time_old$label2 <- factor(time_old$label2, levels = c("mbkmeans-OLD", "Best-HDF5-OLD", "Worst-HDF5-OLD"))
 time_old_steps <- time_old %>% 
   filter(choice == "two steps")  %>% 
@@ -61,11 +61,11 @@ p_time <- time_blockApp %>%
   dplyr::group_by(observations, abs.batch.size, label2) %>% 
   ggplot(aes(x = as.factor(abs.batch.size), y = time/60, color = label2)) +
           geom_point()+
-    labs(title = "Time: Three Measures Side by Side (blockApply())") + 
+    labs(title = "Time: Three Measures Side by Side (blockApply)") + 
     xlab("Absolute Batch Size")+
     ylab("Time(Minutes)")+
     facet_grid(~observations+calc_label)
-p_time
+#p_time
 ```
 ```{r}
 p_time2 <- time_old %>% 
@@ -73,26 +73,29 @@ p_time2 <- time_old %>%
   dplyr::group_by(observations, abs.batch.size, label2) %>% 
   ggplot(aes(x = as.factor(abs.batch.size), y = time/60, color = label2)) +
           geom_point()+
-    labs(title = "Time: Three Measures Side by Side (with getrow())") + 
+    labs(title = "Time: Three Measures Side by Side (with getrow)") + 
     xlab("Absolute Batch Size")+
     ylab("Time(Minutes)")+
     facet_grid(~observations+calc_label)
-p_time2
+#p_time2
 ```
 
-### Take aways:
+
+```{r}
+require(gridExtra)
+p_time_combine <- grid.arrange(p_time, p_time2, ncol=2)
+```
+
+### Take aways: Time analysis makes sense now
 1. The relationship between mbkmeans and best HDF5 is what we saw before. it’s faster to use mbkmeans in memory. This makes sense.
 
-2. Worst HDF5 is the slowest (when you assess the whole process).  This makes sense too.
+2. Worst HDF5 is the slowest. This makes sense too.
 
-3. the slowest part of the process is predicting the labels. this makes sense because we are loading in the obs into memory 1 at a time.
+3. the slowest part of the process is predicting the labels. this makes sense because we are loading in the obs into memory 1 at a time (for our old method with getrow).
 
-4. for computing centroids, worst HDF5 is the slowest. This makes sense.
 
-5. for computing labels, best HDF5 is the slowest. This does not make sense.
-
+```{r eval = FALSE, echo = FALSE}
 # Compare blockApply with getrow
-```{r}
 p_time_compare_mbkm1 <- time %>% 
   filter(calc_label=="Labels") %>%
   filter(label2=="mbkmeans"|label2=="mbkmeans-OLD") %>%
@@ -106,7 +109,7 @@ p_time_compare_mbkm1 <- time %>%
 p_time_compare_mbkm1
 ```
 
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_time_compare_mbkm2 <- time %>% 
   filter(calc_label=="Whole") %>%
   filter(label2=="mbkmeans"|label2=="mbkmeans-OLD") %>%
@@ -120,7 +123,7 @@ p_time_compare_mbkm2 <- time %>%
 p_time_compare_mbkm2
 ```
 
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_time_compare_hdf51 <- time %>% 
   filter(calc_label=="Labels") %>%
   filter(label2=="Best-HDF5"|label2=="Best-HDF5-OLD") %>%
@@ -133,7 +136,7 @@ p_time_compare_hdf51 <- time %>%
     facet_grid(~observations)
 p_time_compare_hdf51
 ```
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_time_compare_hdf52 <- time %>% 
   filter(calc_label=="Whole") %>%
   filter(label2=="Best-HDF5"|label2=="Best-HDF5-OLD") %>%

@@ -19,14 +19,14 @@ library(here)
 ```
 
 ```{r}
-mem_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_mem.csv", header=TRUE, sep=",")
+mem_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_mem_blockapp.csv", header=TRUE, sep=",")
 mem_blockApp$label2 <- factor(mem_blockApp$label2, levels = c("mbkmeans", "Best-HDF5", "Worst-HDF5"))
-mem_blockApp$calc_label <- factor(mem_blockApp$calc_label, levels = c("Whole", "Centroid", "Labels"))
+mem_blockApp$calc_label <- factor(mem_blockApp$calc_label, levels = c("Centroid", "Labels", "Whole"))
 mem_blockApp <- na.omit(mem_blockApp)
 
-mem_old <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/before_BloackApp/new_mem_old.csv", header=TRUE, sep=",")
+mem_old <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/before_BloackApp/new_mem_getrow.csv", header=TRUE, sep=",")
 mem_old$label2 <- factor(mem_old$label2, levels = c("mbkmeans-OLD", "Best-HDF5-OLD", "Worst-HDF5-OLD"))
-mem_old$calc_label <- factor(mem_old$calc_label, levels = c("Whole", "Centroid", "Labels"))
+mem_old$calc_label <- factor(mem_old$calc_label, levels = c("Centroid", "Labels", "Whole"))
 
 mem <- rbind(mem_blockApp, mem_old)
 ```
@@ -42,7 +42,7 @@ p_mem <- mem_blockApp %>%
     xlab("Absolute Batch Size")+
     ylab("Memory(GB)")+
     facet_grid(~observations+calc_label)
-p_mem
+#p_mem
 ```
 
 ```{r}
@@ -55,21 +55,29 @@ p_mem_old <- mem_old %>%
     xlab("Absolute Batch Size")+
     ylab("Memory(GB)")+
     facet_grid(~observations+calc_label)
-p_mem_old
+#p_mem_old
 ```
+
+```{r}
+require(gridExtra)
+p_mem_combine <- grid.arrange(p_mem, p_mem_old, ncol=2)
+p_mem_combine
+```
+
 ### Take aways:
 
 1. mbkmeans increases memory with batch size. This makes sense. (with blockApply, this is not true...)
 
 2. memory use with HDF5 mbkmeans does not increase with batch size. this does not make sense. We would expect a small increase in memory consumption as the batch size increases. The difference is that the data are not loaded into memory.
 
-3. There is no difference in memory between best and worst HDF5. This does not make sense.
+3. There is no difference in memory between best and worst HDF5. This does not make sense. [After using BlockApply, a slightly bigger differnece could be seen in predicting labels step].
 
-4. Computing the centroids is the part that takes the most amount of memory and it increases with batch size. In contrast, the labeling part does not increase with batch size. This makes snese because we are only loading in 1 obs into memory at a time for the labeling. 
+4. Computing the centroids is the part that takes the most amount of memory and it increases with batch size. In contrast, the labeling part does not increase with batch size. This makes sense because we are only loading in 1 obs into memory at a time for the labeling. 
 
 
+
+```{r eval = FALSE, echo = FALSE}
 # Compare blockApply with getrow
-```{r}
 p_mem_compare_mbkm1 <- mem %>% 
   filter(calc_label=="Labels") %>%
   filter(label2=="mbkmeans"|label2=="mbkmeans-OLD") %>%
@@ -82,7 +90,7 @@ p_mem_compare_mbkm1 <- mem %>%
     facet_grid(~observations)
 p_mem_compare_mbkm1
 ```
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_mem_compare_mbkm2 <- mem %>% 
   filter(calc_label=="Whole") %>%
   filter(label2=="mbkmeans"|label2=="mbkmeans-OLD") %>%
@@ -96,7 +104,7 @@ p_mem_compare_mbkm2 <- mem %>%
 p_mem_compare_mbkm2
 ```
 
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_mem_compare_hdf51 <- mem %>% 
   filter(calc_label=="Labels") %>%
   filter(label2=="Best-HDF5"|label2=="Best-HDF5-OLD") %>%
@@ -109,7 +117,7 @@ p_mem_compare_hdf51 <- mem %>%
     facet_grid(~observations)
 p_mem_compare_hdf51
 ```
-```{r}
+```{r eval = FALSE, echo = FALSE}
 p_mem_compare_hdf52 <- mem %>% 
   filter(calc_label=="Whole") %>%
   filter(label2=="Best-HDF5"|label2=="Best-HDF5-OLD") %>%
