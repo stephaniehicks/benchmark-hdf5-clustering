@@ -127,7 +127,7 @@ if (!init){
     cluster_output <- mclapply(seq_len(B), bench_hdf5_acc_k, 
                                n_cells = nC, n_genes = nG, 
                                k_centers = k,
-                               batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
+                               batch_size = batch, num_init = num_init, max_iters = max_iters,
                                init_fraction = 0.1, initializer = initializer, 
                                method = method, size = size, sim_center = sim_center, mc.cores=cores)
     
