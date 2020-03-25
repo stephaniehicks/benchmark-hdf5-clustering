@@ -432,3 +432,18 @@ dev.off()
 ```
 # Figure 3
 
+# Figure for Varying K
+```{r}
+files_vark <- list.files(path = here("output_tables/abs_batch", "acc"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+acc_table_abs <- NULL
+
+for (i in (1:length(files_acc))){
+  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
+  acc_table_abs <- rbind(acc_table_abs, temp_table)
+}
+acc_table_abs <- acc_table_abs %>% 
+  transform(normal_WCSS = WCSS/observations)
+```
+
