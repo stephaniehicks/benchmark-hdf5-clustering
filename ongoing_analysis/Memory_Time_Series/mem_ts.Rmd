@@ -147,3 +147,11 @@ text(1, 6, "load \ndata", cex = .7, col = "blue")
 text(20, 6, "mbkmeans::mini_batch", cex = .7, col = "red")
 #text(600, 15, "mbkmeans::predict_mini_batch_r", cex = .7, col = "red")
 ```
+
+```{r eval=FALSE}
+profile_500k_i <- summaryRprof(filename = "/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/Memory_Time_Series/75k_interactive.out", chunksize = -1L, memory = "tseries", diff = FALSE)
+df_500k_i <- rowSums(profile_500k_i[,1:3])*0.00000095367432
+df_500k_i <- as.data.frame(df_500k_i)
+
+plot(rownames(df_500k_i),df_500k_i$df_500k_i/1024,type="l", xlab="Time(seconds)", ylab="Memory(GB)", main = "loading 75k data")
+```
