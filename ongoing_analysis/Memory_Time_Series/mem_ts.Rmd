@@ -149,9 +149,25 @@ text(20, 6, "mbkmeans::mini_batch", cex = .7, col = "red")
 ```
 
 ```{r eval=FALSE}
-profile_500k_i <- summaryRprof(filename = "/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/Memory_Time_Series/75k_interactive.out", chunksize = -1L, memory = "tseries", diff = FALSE)
+profile_500k_i <- summaryRprof(filename = "/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/Memory_Time_Series/500k_hdf5_500bs_whole.out", chunksize = -1L, memory = "tseries", diff = FALSE)
 df_500k_i <- rowSums(profile_500k_i[,1:3])*0.00000095367432
 df_500k_i <- as.data.frame(df_500k_i)
 
-plot(rownames(df_500k_i),df_500k_i$df_500k_i/1024,type="l", xlab="Time(seconds)", ylab="Memory(GB)", main = "loading 75k data")
+plot(rownames(df_500k_i),df_500k_i$df_500k_i/1024,type="l", xlab="Time(seconds)", ylab="Memory(GB)", main = "HDF5 on 500k data, 500bs, whole")
 ```
+
+```{r}
+profile_hdf5_500k_0.02bs <- summaryRprof(filename = "/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/Memory_Time_Series/old_hdf5TENxBrainData_500k_ruoxi_cluster_step1_Mar25163019.748_0.02.out", chunksize = -1L, memory = "tseries", diff = FALSE)
+df_hdf5_500k_0.02bs <- rowSums(profile_hdf5_500k_0.02bs[,1:3])*0.00000095367432
+df_hdf5_500k_0.02bs <- as.data.frame(df_hdf5_500k_0.02bs)
+zoom <- rowSums(profile_hdf5_500k_0.02bs[1:3000,1:3])*0.00000095367432
+zoom <-  as.data.frame(zoom)
+
+plot(rownames(zoom),zoom$zoom/1024,type="l", xlab="Time(seconds)", ylab="Memory(GB)", main = "first 60 seconds: the 5 GB baseline is not caused by loading")
+abline(v=276*0.02, col="blue")
+abline(v=24084*0.02, col="green")
+text(0.1, 15, "load \ndata", cex = .7, col = "blue")
+text(200, 15, "mini_batch", cex = .7, col = "red")
+text(800, 15, "predict_mini_batch_r", cex = .7, col = "red")
+```
+
