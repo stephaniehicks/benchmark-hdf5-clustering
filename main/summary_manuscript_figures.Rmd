@@ -89,6 +89,7 @@ for (i in (1:length(files_acc))){
 }
 acc_table_abs <- acc_table_abs %>% 
   transform(normal_WCSS = WCSS/observations)
+acc_table_abs$method <- factor(acc_table_abs$method, levels = c("kmeans", "hdf5", "mbkmeans"))
 ```
 
 ## Accuracy-real data w/ absolute batch size
@@ -116,7 +117,7 @@ acc_real_table_abs$method <- factor(acc_real_table_abs$method, levels = c("kmean
 ### Accuracy (ARI) w/ absolute batch size and simulated data
 ```{r, warning=FALSE}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  #dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
@@ -137,9 +138,11 @@ p_ari_obs_line_abs
 ### Accuracy (WCSS) w/ absolute batch size and simulated data
 ```{r, warning=FALSE}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  #dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   #dplyr::filter((observations <= 10e3)) %>%
   dplyr::group_by(method, observations, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number())%>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
   ggplot(aes(x = abs_batch, y = mean, color = method)) +
@@ -150,30 +153,39 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
      labs(title = "Accuracy (WCSS) for increasing number of cells using simulated data") + 
         xlab("Absolute batch sizes") + 
         ylab("Normalized WCSS") + 
-  theme(legend.position = "none", legend.justification= "center") +
+  theme(legend.position = "top", legend.justification= "center") +
   facet_wrap(~observations, scales = "free") 
 p_wcss_obs_line_abs
 ```
 
 ### Accuracy (WCSS) w/ absolute batch size and real data
 ```{r, warning=FALSE}
-p_wcss_real_abs <- acc_real_table_abs %>% 
+p_wcss_real_abs <- acc_real_table_abs %>%   
   #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
-  #dplyr::filter((observations <= 10e3)) %>%
+  #dplyr::filter((abs_batch > 10)) %>%
   dplyr::group_by(observations, method, abs_batch) %>% 
-  dplyr::summarize(mean = mean(normal_WCSS), 
+  mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number())%>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  dplyr::summarize(mean = median(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
+                   #sd = sd(normal_WCSS)/sqrt(unique(observations))) %>% 
   ggplot(aes(x = abs_batch, y = mean, color = method)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-  theme(legend.position = "none", legend.justification= "center") +
+  theme(legend.position = "top", legend.justification= "center") +
   labs(title = "Accuracy (WCSS) for increasing number of cells using real scRNA-seq data") + 
         xlab("Absolute batch sizes") + 
         ylab("Normalized WCSS") +
   facet_wrap(~observations, scales = "free") 
 p_wcss_real_abs
+
+#temp <- acc_real_table_abs %>% group_by(observations, method, abs_batch) %>% mutate(q90 = quantile(normal_WCSS, 0.85)) %>% dplyr::filter(normal_WCSS <= q90) 
+
+#temp <- temp %>% summarize(se = sd(normal_WCSS))
+#unique(temp$observations)
+#temp$se/unique(unique(temp$observations))
 ```
 
 ### Accuracy (ARI) w/ relative batch size and simulated data
