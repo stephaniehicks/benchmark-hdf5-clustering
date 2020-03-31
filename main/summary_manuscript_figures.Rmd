@@ -161,11 +161,11 @@ p_wcss_obs_line_abs
 ### Accuracy (WCSS) w/ absolute batch size and real data
 ```{r, warning=FALSE}
 p_wcss_real_abs <- acc_real_table_abs %>%   
-  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
-  #dplyr::filter((abs_batch > 10)) %>%
+  #dplyr::filter((method %in% c("kmeans, mbkmeans")))%>%
+  #dplyr::filter((method != "hdf5")) %>%
   dplyr::group_by(observations, method, abs_batch) %>% 
-  mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number())%>% 
-  dplyr::filter(normal_WCSS <= q90) %>%
+  mutate(q85 = quantile(normal_WCSS, 0.85), row = row_number())%>% 
+  dplyr::filter(normal_WCSS <= q85) %>%
   dplyr::summarize(mean = median(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
                    #sd = sd(normal_WCSS)/sqrt(unique(observations))) %>% 
@@ -365,6 +365,60 @@ print(p2_abs)
 dev.off()
 ```
 
+# Figure for Varying K
+```{r}
+files_vark <- list.files(path = here("output_tables/Varying_k/", "acc"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+vark_table <- NULL
+
+for (i in (1:length(files_vark))){
+  temp_table <- read.csv(file = files_vark[i], header=TRUE, sep=",")
+  vark_table <- rbind(vark_table, temp_table)
+}
+vark_table <- vark_table %>% 
+  transform(normal_WCSS = WCSS/observations)
+```
+
+```{r, warning=FALSE}
+p_vark_ari <- vark_table %>% 
+  dplyr::filter((observations == 25000)) %>%
+  #dplyr::filter((method == "kmeans")) %>%
+  dplyr::group_by(method, observations, batch_size,k) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = k, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (ARI) for increasing number of K using simulated data") + 
+        xlab("Number of K") + 
+        ylab("ARI") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations+batch_size, scales = "free") 
+p_vark_ari
+```
+
+```{r, warning=FALSE}
+p_vark <- vark_table %>% 
+  dplyr::filter((observations == 25000)) %>%
+  #dplyr::filter((method == "kmeans")) %>%
+  dplyr::group_by(method, observations, batch_size,k) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = k, y = mean, color = method)) +
+          geom_line()+
+          geom_point()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (WCSS) for increasing number of K using simulated data") + 
+        xlab("Number of K") + 
+        ylab("Normalized WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations+batch_size, scales = "free") 
+p_vark
+```
 
 
 !!!!! Everything below this point is older
@@ -444,18 +498,4 @@ dev.off()
 ```
 # Figure 3
 
-# Figure for Varying K
-```{r}
-files_vark <- list.files(path = here("output_tables/abs_batch", "acc"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
-acc_table_abs <- NULL
-
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_table_abs <- rbind(acc_table_abs, temp_table)
-}
-acc_table_abs <- acc_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations)
-```
 
