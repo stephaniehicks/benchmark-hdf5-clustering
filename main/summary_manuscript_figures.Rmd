@@ -437,6 +437,61 @@ p_wcss_real_abs_all
 ```
 
 
+## Varying K
+```{r, eval=FALSE}
+files_vark <- list.files(path = here("output_tables/Varying_k", "acc"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+vark_table_abs <- NULL
+for (i in (1:length(files_vark))){
+  temp_table <- read.csv(file = files_vark[i], header=TRUE, sep=",")
+  vark_table_abs <- rbind(vark_table_abs, temp_table)
+}
+
+vark_table_abs <- vark_table_abs %>% 
+  transform(normal_WCSS = WCSS/observations) %>% 
+  dplyr::rename(Algorithm = method)
+vark_table_abs$Algorithm <- factor(vark_table_abs$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+```
+
+```{r}
+p_vark_ari <- vark_table_abs %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (ARI) for increasing number of k using simulated data") + 
+        xlab("Absolute batch sizes") + 
+        ylab("Number of k") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations+batch_size, scales = "free") 
+p_vark_ari
+```
+```{r}
+p_vark_wcss <- vark_table_abs %>% 
+  #filter(Algorithm == "mbkmeans") %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Accuracy (WCSS) for increasing number of k using simulated data") + 
+        xlab("Absolute batch sizes") + 
+        ylab("Normalized WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations+batch_size, scales = "free") 
+p_vark_wcss
+```
+
+
 
 # to delete 
 
@@ -584,18 +639,4 @@ p2_abs
 pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =12)
 print(p2_abs)
 dev.off()
-```
-
-
-Figure for Varying K
-```{r, eval=FALSE}
-files_vark <- list.files(path = here("output_tables/abs_batch", "acc"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-acc_table_abs <- NULL
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_table_abs <- rbind(acc_table_abs, temp_table)
-}
-acc_table_abs <- acc_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations)
 ```
