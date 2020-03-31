@@ -1,19 +1,27 @@
 ---
 title: mbkmeans manuscript figures
-author: Stephanie Hicks, Davide Risso, Elizabeth Purdom
-output: html_document
+author: Ruoxi Liu, Stephanie Hicks, Davide Risso, Elizabeth Purdom
+output: 
+    html_document:
+        theme: cosmo 
+        toc: true
+        toc_float: true
+        highlight: tango
+        number_sections: false
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 14, fig.height = 10)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE}
+library(here)
 library(tidyr)
+library(dplyr)
 library(ggplot2)
 library(cowplot)
+library(ggpubr)
 library(gridExtra)
-library(dplyr)
 library(grid)
 library(here)
 theme_set(theme_cowplot())
@@ -23,18 +31,18 @@ theme_set(theme_cowplot())
 
 ## Memory
 ```{r}
-files_mem <- list.files(path= here("output_tables", "mem"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
+files_mem <- list.files(path= here("output_tables", "mem"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
 mem_table <- NULL
-
 for (i in (1:length(files_mem))){
   temp_table <- read.csv(file = files_mem[i], header=TRUE, sep=",")
   mem_table <- rbind(mem_table, temp_table)
 }
-
 mem_table <- mem_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(mem_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%",
+                                        "20.0%", "50.0%", "80.0%", "100.0%")))
 levels(mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 mem_table <- na.omit(mem_table)
 ```
@@ -42,10 +50,9 @@ mem_table <- na.omit(mem_table)
 ## Time 
 
 ```{r}
-files_time <- list.files(path= here("output_tables", "time"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
+files_time <- list.files(path= here("output_tables", "time"), 
+                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
 time_table <- NULL
-
 for (i in (1:length(files_time))){
   temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
   time_table <- rbind(time_table, temp_table)
@@ -53,61 +60,75 @@ for (i in (1:length(files_time))){
 time_table <- time_table %>% 
   mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
          batch_size_perc = factor(scales::percent(time_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", "20.0%", "50.0%", "80.0%", "100.0%")))
+                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", 
+                                        "20.0%", "50.0%", "80.0%", "100.0%")))
 levels(time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
 ```
 
-## Accuracy 
+## Accuracy
+
+Here we are using the performance metrics adjusted Rand index (ARI) and 
+within-clusters sum of squares (WCSS). 
+All assessments in this section use absolute batch sizes.
+
+### Simulated data
+
+#### Fixed $k$
 
 ```{r}
-files_acc <- list.files(path= here("output_tables", "acc"), pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
-acc_table <- NULL
-
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_table <- rbind(acc_table, temp_table)
-}
-acc_table <- acc_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size_perc = factor(scales::percent(acc_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", 
-                                        "10.0%", "20.0%","35.0%", "50.0%"))) %>%
-  transform(normal_WCSS = WCSS/observations)
-levels(acc_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
-```
-
-## Accuracy w/ absolute batch size
-```{r}
-files_acc <- list.files(path = here("output_tables/abs_batch", "acc"), 
+files_acc <- list.files(path = here("output_tables", "abs_batch", "acc"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
 acc_table_abs <- NULL
-
 for (i in (1:length(files_acc))){
   temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
   acc_table_abs <- rbind(acc_table_abs, temp_table)
 }
 acc_table_abs <- acc_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations)
-acc_table_abs$method <- factor(acc_table_abs$method, levels = c("kmeans", "hdf5", "mbkmeans"))
+  transform(normal_WCSS = WCSS/observations) %>% 
+  dplyr::rename(Algorithm = method)
+acc_table_abs$Algorithm <- factor(acc_table_abs$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(acc_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
-## Accuracy-real data w/ absolute batch size
+#### Varying $k$
+
 ```{r}
-files_acc <- list.files(path= here("output_tables/abs_batch/acc/real_data"), 
+files_vark <- list.files(path = here("output_tables", "Varying_k", "acc"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
+vark_table_abs <- NULL
+for (i in (1:length(files_vark))){
+  temp_table <- read.csv(file = files_vark[i], header=TRUE, sep=",")
+  vark_table_abs <- rbind(vark_table_abs, temp_table)
+}
 
+vark_table_abs <- vark_table_abs %>% 
+  transform(normal_WCSS = WCSS/observations) %>% 
+  dplyr::rename(Algorithm = method)
+vark_table_abs$Algorithm <- factor(vark_table_abs$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+```
+
+### TENxBrain data
+
+#### Fixed $k$
+
+```{r}
+files_acc <- list.files(path = here("output_tables", "abs_batch", 
+                                    "acc", "real_data"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
 acc_real_table_abs <- NULL
-
 for (i in (1:length(files_acc))){
   temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
   acc_real_table_abs <- rbind(acc_real_table_abs, temp_table)
 }
 acc_real_table_abs <- acc_real_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations) 
-acc_real_table_abs$method <- factor(acc_real_table_abs$method, levels = c("kmeans", "hdf5", "mbkmeans"))
-#acc_real_table_abs$observations <- factor(acc_real_table_abs$observations, levels = c(75,150,300,500,750,1000,1500,3000,7500,10000))
+  transform(normal_WCSS = WCSS/observations) %>% 
+  dplyr::rename(Algorithm = method)
+acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 ## Subsampling data
@@ -159,7 +180,11 @@ sub_time_table <- sub_time_table %>%
 
 # Figures 
 
-## Figure 1:
+## Figure 1
+
+Here we select one dataset size ($N$ = XXX) by downsampling from the 
+`TENxBrainData` and show the impact of memory and time with mbkmeans and 
+kmeans using a specific $k=15$ and batch size ($b$ = XXX). 
 
 ### Time
 
@@ -193,133 +218,272 @@ sub_mem_plot <- sub_mem_table %>%
 sub_mem_plot
 ```
 
-## Figure 2:
+```{r}
+p1 <- ggdraw() +
+    draw_plot(sub_time_plot, x = 0, y = 0.51, width = 1, height = .45) +
+    draw_plot(sub_mem_plot, x = 0, y = 0, width = 1, height = .45) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(1, 0.53))
+    
+p1
 
-### Accuracy (ARI) w/ absolute batch size and simulated data
-```{r, warning=FALSE}
+pdf(here::here("main", "figs", "fig1.pdf"), width = 10, height =10)
+print(p1)
+dev.off()
+```
+
+## Figure 2
+
+Here we select three sizes of datasets ($N$) and show the accuracy 
+as a function of absolute batch size using both simulated and 
+real scRNA-seq data. 
+
+### ARI 
+```{r}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((observations %in% c(5000,10000,25000)))%>%
-  #dplyr::filter((observations <= 10e3)) %>%
-  dplyr::group_by(method, observations, abs_batch) %>% 
+  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
-  ggplot(aes(x = abs_batch, y = mean, color = method)) + #observations/1e3
-          geom_line()+
-          geom_point()+
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-      labs(title = "Accuracy (ARI) for increasing number of cells using simulated data") + 
+                position=position_dodge(0.05)) +
+      ylim(0.95, 1) + 
+      labs(title = "Performance of accuracy with three simulated scRNA-seq datasets") + 
         xlab("Absolute batch sizes") + 
-        ylab("Adjusted Rand Index") + 
+        ylab("ARI") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_wrap(~observations, scales = "free") 
 p_ari_obs_line_abs
 ```
 
-### Accuracy (WCSS) w/ absolute batch size and simulated data
-```{r, warning=FALSE}
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(p_ari_obs_line_abs)
+```
+
+Resave figure without legend
+
+```{r}
+p_ari_obs_line_abs <- 
+  p_ari_obs_line_abs + 
+  theme(legend.position = "none", legend.justification= "center")
+```
+
+
+
+### WCSS
+```{r}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  #dplyr::filter((observations %in% c(5000,10000,25000)))%>%
-  #dplyr::filter((observations <= 10e3)) %>%
-  dplyr::group_by(method, observations, abs_batch) %>% 
-  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number())%>% 
+  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
-  ggplot(aes(x = abs_batch, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing number of cells using simulated data") + 
+     labs(title = "Performance of accuracy with three simulated scRNA-seq datasets") + 
         xlab("Absolute batch sizes") + 
-        ylab("Normalized WCSS") + 
-  theme(legend.position = "top", legend.justification= "center") +
+        ylab("WCSS") + 
+  theme(legend.position = "none", legend.justification= "center") +
   facet_wrap(~observations, scales = "free") 
 p_wcss_obs_line_abs
 ```
 
-### Accuracy (WCSS) w/ absolute batch size and real data
-```{r, warning=FALSE}
+```{r}
 p_wcss_real_abs <- acc_real_table_abs %>%   
-  #dplyr::filter((abs_batch %in% c(10,75,500)))%>%
-  #dplyr::filter((abs_batch > 10)) %>%
-  dplyr::group_by(observations, method, abs_batch) %>% 
-  mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number())%>% 
+  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  dplyr::group_by(observations, Algorithm, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
   dplyr::summarize(mean = median(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
-                   #sd = sd(normal_WCSS)/sqrt(unique(observations))) %>% 
-  ggplot(aes(x = abs_batch, y = mean, color = method)) +
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
           geom_line()+
           geom_point()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-  theme(legend.position = "top", legend.justification= "center") +
-  labs(title = "Accuracy (WCSS) for increasing number of cells using real scRNA-seq data") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  labs(title = "Performance of accuracy with three real scRNA-seq datasets") + 
         xlab("Absolute batch sizes") + 
-        ylab("Normalized WCSS") +
+        ylab("WCSS") +
   facet_wrap(~observations, scales = "free") 
 p_wcss_real_abs
-
-#temp <- acc_real_table_abs %>% group_by(observations, method, abs_batch) %>% mutate(q90 = quantile(normal_WCSS, 0.85)) %>% dplyr::filter(normal_WCSS <= q90) 
-
-#temp <- temp %>% summarize(se = sd(normal_WCSS))
-#unique(temp$observations)
-#temp$se/unique(unique(temp$observations))
 ```
 
-### Accuracy (ARI) w/ relative batch size and simulated data
-```{r, warning=FALSE}
-p_ari_obs_line <- acc_table %>% 
-  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
-  dplyr::filter((observations <= 10e3)) %>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
+### save fig
+
+```{r}
+p2_abs <- ggdraw() +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.94, width = 1, height = 0.05) + 
+    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.62, width = 1, height = .32) +
+    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.31, width = 1, height = .31) +
+    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .31) +
+    draw_plot_label(label = LETTERS[1:3], size = 25,
+                    x = c(0, 0, 0), y = c(1, 0.64, 0.33))
+    
+p2_abs
+pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =10)
+print(p2_abs)
+dev.off()
+```
+
+
+## Figure 3
+
+Here we select one size of datasets ($N$) and show role of 
+batch size on time and memory using real scRNA-seq data. 
+as a function of absolute batch size using both simulated and 
+real scRNA-seq data. 
+
+
+
+## Figure 4
+
+HDF5 geometry (real data). Best, worst, default. K=15
+
+## Figure 5
+
+Add here. 
+
+
+
+
+# Supplemental Figures
+
+## Simulated data (all N)
+All assessments in this section use absolute batch sizes.
+
+### Accuracy (ARI)
+
+#### Fixed $k$
+
+```{r}
+p_ari_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-      labs(title = "Accuracy (ARI) for increasing number of cells and batch size") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Adjusted Rand Index") + 
-  facet_wrap(~batch_size_perc, scales = "free") + 
-  theme(legend.position = "none", legend.justification= "center") +
-  scale_color_discrete(name = "Method",
-                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
-p_ari_obs_line
+      ylim(0.95, 1) + 
+      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets") + 
+        xlab("Absolute batch sizes") + 
+        ylab("adjusted Rand index (ARI)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations, scales = "free") 
+p_ari_obs_line_abs_all
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari.pdf"), width = 10, height =10)
+print(p_ari_obs_line_abs_all)
+dev.off()
+```
+
+#### Varying $k$ 
+
+```{r}
+p_vark_ari <- vark_table_abs %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("adjusted Rand index (ARI)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_ari
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari-varyingk.pdf"), width = 10, height =10)
+print(p_vark_ari)
+dev.off()
 ```
 
 
-### Accuracy (WCSS) w/ relative batch size and simulated data
-```{r, warning=FALSE}
-p_wcss_obs_line <- acc_table %>% 
-  dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
-  dplyr::filter((observations <= 10e3)) %>%
-  dplyr::group_by(method, observations, batch_size_perc) %>% 
+### Accuracy (WCSS)
+
+#### Fixed $k$
+
+```{r}
+p_wcss_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
-  ggplot(aes(x = observations/1e3, y = mean, color = method)) +
-          geom_line()+
-          geom_point()+
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Accuracy (WCSS) for increasing number of cells and batch size") + 
-        xlab("Number of cells (thousands)") + 
-        ylab("Normalized WCSS") + 
-  facet_wrap(~batch_size_perc, scales = "free") + 
-  theme(legend.position = "none", legend.justification= "center") +
-  scale_color_discrete(name = "Method",
-                       breaks=c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new"),
-                       labels=c("k-means", "mbkmeans", "mbkmeans (HDF5)")) 
-p_wcss_obs_line
+     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets") + 
+        xlab("Absolute batch sizes") + 
+        ylab("WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations, scales = "free") 
+p_wcss_obs_line_abs_all
 ```
 
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-wcss.pdf"), width = 10, height =10)
+print(p_wcss_obs_line_abs_all)
+dev.off()
+```
 
-### memory and time (under 200K cells)
+#### Varying $k$ 
+
+Using absolute batch sizes. Fixed $k$.
+```{r}
+p_vark_wcss <- vark_table_abs %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000)\n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_wcss
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-varyingk.pdf"), width = 10, height =10)
+print(p_vark_wcss)
+dev.off()
+```
+
+## TENxBrain data (all N)
+
+### Accuracy (WCSS)
+
+Only three sizes of datasets were assessed (5000, 10000, 25000). These 
+results were shown in Figure 2. 
+
+
+### Memory and time 
+
+memory and time (under 200K cells)
 
 Performance of memory usage as a function of increasing number of 
 cells and batch sizes. 
@@ -347,7 +511,7 @@ p_mem_obs <- mem_table %>%
 p_mem_obs
 ```
 
-```{r, warning=FALSE}
+```{r}
 p_time_obs <- time_table %>% 
   dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
   dplyr::filter((observations <= 200000)) %>%
@@ -373,7 +537,7 @@ p_time_obs
 ```
 
 
-### memory and time (up to a million cells)
+memory and time (up to a million cells)
 
 Performance of memory usage as a function of increasing number of 
 cells and batch sizes. 
@@ -402,7 +566,7 @@ p_mem_obs_all
 ```
 
 
-```{r, warning=FALSE}
+```{r}
 p_time_obs_all <- time_table %>% 
   dplyr::filter((batch_size %in% c(0.005, 0.05, 0.20)))%>%
   # dplyr::filter((observations <= 200000)) %>%
@@ -427,131 +591,4 @@ p_time_obs_all <- time_table %>%
 p_time_obs_all
 ```
 
-## create figures
-
-### Figure 1
-```{r}
-p1 <- ggdraw() +
-    draw_plot(sub_time_plot, x = 0, y = 0.51, width = 1, height = .45) +
-    draw_plot(sub_mem_plot, x = 0, y = 0, width = 1, height = .45) +
-    draw_plot_label(label = LETTERS[1:2], size = 25,
-                    x = c(0, 0), y = c(1, 0.53))
-    
-p1
-
-pdf(here::here("main", "figs", "fig1.pdf"), width = 10, height =10)
-print(p1)
-dev.off()
-```
-
-### Figure 2
-```{r}
-p2_abs <- ggdraw() +
-    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.62, width = 1, height = .38) +
-    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.31, width = 1, height = .31) +
-    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .31) +
-    draw_plot_label(label = LETTERS[1:3], size = 25,
-                    x = c(0, 0, 0), y = c(1, 0.64, 0.33))
-    
-p2_abs
-
-
-pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =10)
-print(p2_abs)
-dev.off()
-```
-
-
-
-!!!!! Everything below this point is older
-
-```{r}
-p2 <- ggdraw() + 
-    draw_plot(p_mem_obs, x = 0, y = .70, width = 1, height = .30) +
-    draw_plot(p_time_obs, x = 0, y = .46, width = 1, height = .24) +
-    draw_plot(p_ari_obs_line, x = 0, y = 0.23, width = 1, height = .23) +
-    draw_plot(p_wcss_obs_line, x = 0, y = 0, width = 1, height = .23) +
-    draw_plot_label(label = LETTERS[1:4], size = 25,
-                    x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
-
-pdf(here::here("main", "figs", "fig-sims-memory-obs.pdf"), width = 10, height =12)
-print(p2)
-dev.off()
-```
-
-```{r}
-p2_log <- ggdraw() + 
-    draw_plot(p_mem_obs + scale_y_log10() + scale_x_log10(), x = 0, y = .70, width = 1, height = .30) +
-    draw_plot(p_time_obs + scale_y_log10() + scale_x_log10(), x = 0, y = .46, width = 1, height = .24) +
-    draw_plot(p_ari_obs_line, x = 0, y = 0.23, width = 1, height = .23) +
-    draw_plot(p_wcss_obs_line, x = 0, y = 0, width = 1, height = .23) +
-    draw_plot_label(label = LETTERS[1:4], size = 25,
-                    x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
-
-pdf(here::here("main", "figs", "fig-sims-memory-obs-log.pdf"), width = 10, height =12)
-print(p2_log)
-dev.off()
-```
-
-
-```{r}
-p2 <- ggdraw() + 
-    draw_plot(p_mem_obs_all, x = 0, y = .70, width = 1, height = .30) +
-    draw_plot(p_time_obs_all, x = 0, y = .46, width = 1, height = .24) +
-    draw_plot(p_ari_obs_line, x = 0, y = 0.23, width = 1, height = .23) +
-    draw_plot(p_wcss_obs_line, x = 0, y = 0, width = 1, height = .23) +
-    draw_plot_label(label = LETTERS[1:4], size = 25,
-                    x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
-
-pdf(here::here("main", "figs", "fig-sims-memory-obs-full.pdf"), width = 10, height =12)
-print(p2)
-dev.off()
-```
-
-```{r}
-p2_log <- ggdraw() + 
-    draw_plot(p_mem_obs_all + scale_y_log10() + scale_x_log10(), x = 0, y = .70, width = 1, height = .30) +
-    draw_plot(p_time_obs_all + scale_y_log10() + scale_x_log10(), x = 0, y = .46, width = 1, height = .24) +
-    draw_plot(p_ari_obs_line, x = 0, y = 0.23, width = 1, height = .23) +
-    draw_plot(p_wcss_obs_line, x = 0, y = 0, width = 1, height = .23) +
-    draw_plot_label(label = LETTERS[1:4], size = 25,
-                    x = c(0, 0, 0, 0), y = c(1, 0.75, 0.50, 0.25))
-
-pdf(here::here("main", "figs", "fig-sims-memory-obs-full-log.pdf"), width = 10, height =12)
-print(p2_log)
-dev.off()
-```
-
-# Figure 2
-```{r}
-p2_abs <- ggdraw() +
-    draw_plot(p_ari_obs_line_abs, x = 0, y = 0.67, width = 1, height = .33) +
-    draw_plot(p_wcss_obs_line_abs, x = 0, y = 0.34, width = 1, height = .33) +
-    draw_plot(p_wcss_real_abs, x = 0, y = 0, width = 1, height = .33) +
-    draw_plot_label(label = LETTERS[1:3], size = 25,
-                    x = c(0, 0, 0), y = c(1, 0.67, 0.34))
-    
-p2_abs
-
-
-pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =12)
-print(p2_abs)
-dev.off()
-```
-# Figure 3
-
-# Figure for Varying K
-```{r}
-files_vark <- list.files(path = here("output_tables/abs_batch", "acc"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
-acc_table_abs <- NULL
-
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_table_abs <- rbind(acc_table_abs, temp_table)
-}
-acc_table_abs <- acc_table_abs %>% 
-  transform(normal_WCSS = WCSS/observations)
-```
 
