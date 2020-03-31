@@ -16,6 +16,7 @@ library(gridExtra)
 library(dplyr)
 library(grid)
 library(here)
+theme_set(theme_cowplot())
 ```
 
 # Load data
@@ -109,8 +110,88 @@ acc_real_table_abs$method <- factor(acc_real_table_abs$method, levels = c("kmean
 #acc_real_table_abs$observations <- factor(acc_real_table_abs$observations, levels = c(75,150,300,500,750,1000,1500,3000,7500,10000))
 ```
 
+## Subsampling data
+
+### Memory
+
+```{r}
+files_sub <- list.files(path= here("main", "case_studies", "output"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+files_sub <- files_sub[grep("TENxBrainData", files_sub)]
+files_sub <- files_sub[grep("k_davide_mac", files_sub)]
+files_sub_mem <- files_sub[grep("memory", files_sub)]
+
+sub_mem_table <- NULL
+
+for (i in (1:length(files_sub_mem))){
+  temp_table <- read.csv(file = files_sub_mem[i], header=FALSE, sep=",")
+  sub_mem_table <- rbind(sub_mem_table, temp_table)
+}
+
+colnames(sub_mem_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
+                             "method", "batch_size", "B", "memory")
+sub_mem_table <- sub_mem_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
+         batch = round(batch_size * ncells),
+         memory = memory/1000)
+```
+
+### Time
+
+```{r}
+files_sub_time <- files_sub[grep("time", files_sub)]
+
+sub_time_table <- NULL
+
+for (i in (1:length(files_sub_time))){
+  temp_table <- read.csv(file = files_sub_time[i], header=FALSE, sep=",")
+  sub_time_table <- rbind(sub_time_table, temp_table)
+}
+
+colnames(sub_time_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
+                             "method", "batch_size", "B", "user", "system",
+                             "elapsed")
+sub_time_table <- sub_time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
+         batch = round(batch_size * ncells))
+```
 
 # Figures 
+
+## Figure 1:
+
+### Time
+
+```{r, warning=FALSE}
+sub_time_plot <- sub_time_table %>% 
+  dplyr::filter(method == "kmeans" | batch == 500) %>%
+  dplyr::group_by(method) %>% 
+  ggplot(aes(x = ncells, y = elapsed, color = method)) +
+          geom_line() +
+          geom_point(size = 3) +
+      labs(title = "Elapsed Time for increasing number of cells") + 
+        xlab("Number of cells") + 
+        ylab("Elapsed time") + 
+  theme(legend.position = "top", legend.justification= "center")
+sub_time_plot
+```
+
+### Memory
+
+```{r, warning=FALSE}
+sub_mem_plot <- sub_mem_table %>% 
+  dplyr::filter(method == "kmeans" | batch == 500) %>%
+  dplyr::group_by(method) %>% 
+  ggplot(aes(x = ncells, y = memory, color = method)) +
+          geom_line()+
+          geom_point(size = 3)+
+      labs(title = "Memory Usage (RAM) for increasing number of cells") + 
+        xlab("Number of cells") + 
+        ylab("Memory Usage (Gb)") + 
+  theme(legend.position = "top", legend.justification= "center")
+sub_mem_plot
+```
 
 ## Figure 2:
 
@@ -347,6 +428,21 @@ p_time_obs_all
 ```
 
 ## create figures
+
+### Figure 1
+```{r}
+p1 <- ggdraw() +
+    draw_plot(sub_time_plot, x = 0, y = 0.51, width = 1, height = .45) +
+    draw_plot(sub_mem_plot, x = 0, y = 0, width = 1, height = .45) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(1, 0.53))
+    
+p1
+
+pdf(here::here("main", "figs", "fig1.pdf"), width = 10, height =10)
+print(p1)
+dev.off()
+```
 
 ### Figure 2
 ```{r}
