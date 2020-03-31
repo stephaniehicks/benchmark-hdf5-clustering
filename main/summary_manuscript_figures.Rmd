@@ -284,10 +284,16 @@ p_ari_obs_line_abs_all <- acc_table_abs %>%
       ylim(0.95, 1) + 
       labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets") + 
         xlab("Absolute batch sizes") + 
-        ylab("ARI") + 
+        ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_wrap(~observations, scales = "free") 
 p_ari_obs_line_abs_all
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari.pdf"), width = 10, height =10)
+print(p_ari_obs_line_abs_all)
+dev.off()
 ```
 
 #### Varying $k$ 
@@ -302,12 +308,18 @@ p_vark_ari <- vark_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05)) +
-     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) with\n the true number of clusters k = 15") + 
-        xlab("Number of clusters (k)") + 
-        ylab("ARI") + 
+     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
 p_vark_ari
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari-varyingk.pdf"), width = 10, height =10)
+print(p_vark_ari)
+dev.off()
 ```
 
 
@@ -335,6 +347,12 @@ p_wcss_obs_line_abs_all <- acc_table_abs %>%
 p_wcss_obs_line_abs_all
 ```
 
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-wcss.pdf"), width = 10, height =10)
+print(p_wcss_obs_line_abs_all)
+dev.off()
+```
+
 #### Varying $k$ 
 
 Using absolute batch sizes. Fixed $k$.
@@ -348,14 +366,19 @@ p_vark_wcss <- vark_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) with\n the true number of clusters k = 15") + 
-        xlab("Number of clusters (k)") + 
+     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000)\n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
         ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
 p_vark_wcss
 ```
 
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-varyingk.pdf"), width = 10, height =10)
+print(p_vark_wcss)
+dev.off()
+```
 
 ## TENxBrain data (all N)
 
