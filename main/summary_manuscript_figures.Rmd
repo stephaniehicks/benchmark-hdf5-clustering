@@ -30,40 +30,61 @@ theme_set(theme_cowplot())
 # Load data
 
 ## Memory
+
+### Subsampling TENxBrainData 
+
 ```{r}
-files_mem <- list.files(path= here("output_tables", "mem"), 
+files_sub <- list.files(path= here("main", "case_studies", "output"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-mem_table <- NULL
-for (i in (1:length(files_mem))){
-  temp_table <- read.csv(file = files_mem[i], header=TRUE, sep=",")
-  mem_table <- rbind(mem_table, temp_table)
+
+files_sub <- files_sub[grep("TENxBrainData", files_sub)]
+files_sub <- files_sub[grep("k_davide_mac", files_sub)]
+files_sub_mem <- files_sub[grep("memory", files_sub)]
+
+sub_mem_table <- NULL
+
+for (i in (1:length(files_sub_mem))){
+  temp_table <- read.csv(file = files_sub_mem[i], header=FALSE, sep=",")
+  sub_mem_table <- rbind(sub_mem_table, temp_table)
 }
-mem_table <- mem_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size_perc = factor(scales::percent(mem_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", "10.0%",
-                                        "20.0%", "50.0%", "80.0%", "100.0%")))
-levels(mem_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
-mem_table <- na.omit(mem_table)
+
+colnames(sub_mem_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
+                             "method", "batch_size", "B", "memory")
+sub_mem_table <- sub_mem_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
+         batch = round(batch_size * ncells),
+         memory = memory/1000) %>% 
+  dplyr::rename(Algorithm = method)
+
+levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 ## Time 
 
+### Subsampling TENxBrainData 
+
 ```{r}
-files_time <- list.files(path= here("output_tables", "time"), 
-                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-time_table <- NULL
-for (i in (1:length(files_time))){
-  temp_table <- read.csv(file = files_time[i], header=TRUE, sep=",")
-  time_table <- rbind(time_table, temp_table)
+files_sub_time <- files_sub[grep("time", files_sub)]
+
+sub_time_table <- NULL
+
+for (i in (1:length(files_sub_time))){
+  temp_table <- read.csv(file = files_sub_time[i], header=FALSE, sep=",")
+  sub_time_table <- rbind(sub_time_table, temp_table)
 }
-time_table <- time_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")), 
-         batch_size_perc = factor(scales::percent(time_table$batch_size), 
-                             levels = c("0.5%", "1.0%", "5.0%", "10.0%", 
-                                        "20.0%", "50.0%", "80.0%", "100.0%")))
-levels(time_table$method) <- c("kmeans-new", "mbkmeans-new", "mbkmean_hdf5-new")
+
+colnames(sub_time_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
+                             "method", "batch_size", "B", "user", "system",
+                             "elapsed")
+sub_time_table <- sub_time_table %>% 
+  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
+         batch = round(batch_size * ncells)) %>% 
+  dplyr::rename(Algorithm = method)
+
+levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+
 ```
+
 
 ## Accuracy
 
@@ -110,7 +131,7 @@ vark_table_abs$Algorithm <- factor(vark_table_abs$Algorithm,
 levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
-### TENxBrain data
+### Subsampling TENxBrainData 
 
 #### Fixed $k$
 
@@ -131,52 +152,6 @@ acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm,
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
-## Subsampling data
-
-### Memory
-
-```{r}
-files_sub <- list.files(path= here("main", "case_studies", "output"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
-files_sub <- files_sub[grep("TENxBrainData", files_sub)]
-files_sub <- files_sub[grep("k_davide_mac", files_sub)]
-files_sub_mem <- files_sub[grep("memory", files_sub)]
-
-sub_mem_table <- NULL
-
-for (i in (1:length(files_sub_mem))){
-  temp_table <- read.csv(file = files_sub_mem[i], header=FALSE, sep=",")
-  sub_mem_table <- rbind(sub_mem_table, temp_table)
-}
-
-colnames(sub_mem_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
-                             "method", "batch_size", "B", "memory")
-sub_mem_table <- sub_mem_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
-         batch = round(batch_size * ncells),
-         memory = memory/1000)
-```
-
-### Time
-
-```{r}
-files_sub_time <- files_sub[grep("time", files_sub)]
-
-sub_time_table <- NULL
-
-for (i in (1:length(files_sub_time))){
-  temp_table <- read.csv(file = files_sub_time[i], header=FALSE, sep=",")
-  sub_time_table <- rbind(sub_time_table, temp_table)
-}
-
-colnames(sub_time_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
-                             "method", "batch_size", "B", "user", "system",
-                             "elapsed")
-sub_time_table <- sub_time_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
-         batch = round(batch_size * ncells))
-```
 
 # Figures 
 
@@ -184,31 +159,31 @@ sub_time_table <- sub_time_table %>%
 
 Here we select one dataset size ($N$ = XXX) by downsampling from the 
 `TENxBrainData` and show the impact of memory and time with mbkmeans and 
-kmeans using a specific $k=15$ and batch size ($b$ = XXX). 
+kmeans using a specific $k=15$ and batch size (`batch` = 500). 
 
 ### Time
 
-```{r, warning=FALSE}
+```{r}
 sub_time_plot <- sub_time_table %>% 
-  dplyr::filter(method == "kmeans" | batch == 500) %>%
-  dplyr::group_by(method) %>% 
-  ggplot(aes(x = ncells, y = elapsed, color = method)) +
+  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
+  dplyr::group_by(Algorithm) %>% 
+  ggplot(aes(x = ncells, y = elapsed / 60, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
       labs(title = "Elapsed Time for increasing number of cells") + 
         xlab("Number of cells") + 
-        ylab("Elapsed time") + 
+        ylab("Elapsed time (mins)") + 
   theme(legend.position = "top", legend.justification= "center")
 sub_time_plot
 ```
 
 ### Memory
 
-```{r, warning=FALSE}
+```{r}
 sub_mem_plot <- sub_mem_table %>% 
-  dplyr::filter(method == "kmeans" | batch == 500) %>%
-  dplyr::group_by(method) %>% 
-  ggplot(aes(x = ncells, y = memory, color = method)) +
+  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
+  dplyr::group_by(Algorithm) %>% 
+  ggplot(aes(x = ncells, y = memory, color = Algorithm)) +
           geom_line()+
           geom_point(size = 3)+
       labs(title = "Memory Usage (RAM) for increasing number of cells") + 
