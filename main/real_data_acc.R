@@ -16,13 +16,15 @@ cores <- as.numeric(commandArgs(trailingOnly=T)[6])
 batch <- as.numeric(commandArgs(trailingOnly=T)[7])
 k <- as.numeric(commandArgs(trailingOnly=T)[8]) 
 B <- as.numeric(commandArgs(trailingOnly=T)[9])
+data_name <- commandArgs(trailingOnly=T)[10]
+
 
 if(init){
   profile_table <- data.frame(matrix(vector(), 0, 7, 
                                      dimnames=list(c(), c("B", "observations", "genes",
                                                           "abs_batch","k",
                                                           "method","WCSS"))), stringsAsFactors=F)
-  write.table(profile_table, file = here("output_tables/abs_batch", mode, file_name), 
+  write.table(profile_table, file = here("output_tables/abs_batch", mode, "real_data", file_name), 
               sep = ",", col.names = TRUE)
 }
   
@@ -42,9 +44,9 @@ if(!init){
     return(output_list)
   }
   
-  bench_hdf5_acc <- function(i, k, batch, method){
+  bench_hdf5_acc <- function(i, k, batch, method, data_name){
     if (method == "hdf5"){
-      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData/TENxBrainData_25k/TENxBrainData_25k_preprocessed"), prefix="")
+      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       cluster_output <- mbkmeans(counts(sce), clusters=k, batch_size = batch, num_init=1, max_iters=100, calc_wcss = TRUE)
       
       output <- list(cluster_output = cluster_output$Clusters, 
@@ -52,7 +54,7 @@ if(!init){
     }
     
     if (method == "mbkmeans"){
-      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData/TENxBrainData_25k/TENxBrainData_25k_preprocessed"), prefix="")
+      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       sce_km <- realize(DelayedArray::t(counts(sce)))
       
       cluster_output <- mbkmeans:: mini_batch(sce_km, cluster = k, batch_size = batch,
@@ -63,7 +65,7 @@ if(!init){
     }
     
     if (method == "kmeans"){
-      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData/TENxBrainData_25k/TENxBrainData_25k_preprocessed"), prefix="")
+      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       sce_km <- realize(DelayedArray::t(counts(sce)))
       
       cluster_output <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
@@ -72,14 +74,14 @@ if(!init){
     }
     return(output)
   }
-  cluster_output <- mclapply(seq_len(B), bench_hdf5_acc, k = k, batch = batch, method = method,
+  cluster_output <- mclapply(seq_len(B), bench_hdf5_acc, k = k, batch = batch, method = method, data_name = data_name,
                              mc.cores=cores)
   cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method = method, mc.cores=cores)
   
   for (i in seq_len(B)){
-    temp_table <- data.frame(i, 25000, 5000, batch, k,
+    temp_table <- data.frame(i, ncol(sce), nrow(sce), batch, k,
                              method, cluster_acc[[i]]$wcss)
-    write.table(temp_table, file = here("output_tables/abs_batch", mode, file_name), sep = ",", 
+    write.table(temp_table, file = here("output_tables/abs_batch", mode, "real_data", file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
   }
 }
