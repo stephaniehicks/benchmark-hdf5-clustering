@@ -24,6 +24,8 @@ sh_files <- list.files(here("main", "case_studies", "output"),
                           pattern = "_stephanie_cluster.csv")
 dr_files <- list.files(here("main", "case_studies", "output"), 
                           pattern = "_davide_mac.csv")
+rx_files <- list.files(here("main", "case_studies", "output"), 
+                          pattern = "_ruoxi_cluster.csv")
 ```
 
 Read in files from `_stephanie_cluster.csv`
@@ -50,6 +52,32 @@ for(ty in analysis_type){
   pef_results[[ty]] <- tmp
 }
 ```
+
+Read in files from `_ruoxi_cluster.csv`
+```{r}
+colnames_memory <- c("dataset", "run", "ncells", "ngenes", "step", 
+                   "method", "batch_prop", "B", "max_mem")
+colnames_time <- c("dataset", "run", "ncells", "ngenes", "step", 
+                   "method", "batch_prop", "B", "user_time", 
+                   "system_time", "elapsed_time")
+#colnames_wcss <- c("dataset", "run", "ncells", "ngenes", "step", 
+#                   "method", "batch_prop", "B", "WCSS")
+
+analysis_type <- c("memory", "time")
+pef_results <- vector("list", length(analysis_type))
+for(ty in analysis_type){
+  tmp <- rx_files[grep(ty, rx_files)] %>% 
+            map(read_csv, col_names = FALSE) %>% 
+            bind_rows()
+  
+  if(ty == "memory"){ colnames(tmp) <- colnames_memory }
+  if(ty == "time"){ colnames(tmp) <- colnames_time }
+  #if(ty == "wcss"){ colnames(tmp) <- colnames_wcss }
+  
+  pef_results[[ty]] <- tmp
+}
+```
+
 
 Read in files from `_davide_mac.csv`
 ```{r}
@@ -82,6 +110,24 @@ sh_results$dataset <-
   forcats::fct_reorder(sh_results$dataset, sh_results$ncells, .desc = FALSE)
 sh_results$batch_prop <- factor(sh_results$batch_prop)
 sh_results 
+```
+
+Convert three datasets from `_ruoxi_cluster.csv` into one long dataset
+
+```{r}
+pef_results$time <- 
+  pef_results$time %>% 
+  tidyr::pivot_longer(cols = -c(dataset:B), 
+                      names_to = "time_type", 
+                      values_to = "time")
+rx_results <- dplyr::left_join(pef_results$time, pef_results$memory)
+
+rx_results$dataset <- 
+  forcats::fct_reorder(rx_results$dataset, rx_results$ncells, .desc = FALSE)
+rx_results$batch_prop <- factor(rx_results$batch_prop)
+rx_results
+
+final_results <- rx_results
 ```
 
 Convert three datasets from `_davide_mac.csv` into one long dataset
