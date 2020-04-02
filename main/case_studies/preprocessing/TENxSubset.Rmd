@@ -48,7 +48,7 @@ We will next create subsets of the data of the following sizes: 75k, 150k, 300k,
 
 ```{r}
 set.seed(138)
-ncells <- c(0.5,5,25) 
+ncells <- c(1000) 
 #ncells <- c(75, 150, 300, 500, 750, 1000) 
 cellidx <- lapply(ncells, function(n) sample(colnames(tenx), n * 1000))
 sapply(cellidx, length)
@@ -82,7 +82,7 @@ for(i in seq_along(cellidx)) {
   saveHDF5SummarizedExperiment(sub, 
                         dir = here("main/case_studies/data/subset/TENxBrainData",
                                    paste0("TENxBrainData_", ncells[[i]], "k"),
-                                   paste0("TENxBrainData_", ncells[[i]], "k_preprocessed")), 
+                                   paste0("TENxBrainData_", ncells[[i]], "k_preprocessed_best")), 
                              prefix="", replace=TRUE, 
                              chunkdim=c(dim(counts(sub))[1],1), 
                              level=NULL, verbose=FALSE)
