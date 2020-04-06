@@ -61,6 +61,16 @@ We select the 5000 top variable genes from the smallest dataset (75k).
 
 ```{r}
 sub <- tenx[,cellidx[[1]]]
+
+saveHDF5SummarizedExperiment(sub, 
+                        dir = here("main/case_studies/data/subset/TENxBrainData",
+                                   paste0("TENxBrainData_", ncells[[i]], "k"),
+                                   paste0("TENxBrainData_", ncells[[i]], "k_preprocessed_allgenes")), 
+                             prefix="", replace=TRUE, 
+                             chunkdim=c(dim(counts(sub))[1],1), 
+                             level=NULL, verbose=FALSE)
+
+
 sub <- logNormCounts(sub)
 mat <- as.matrix(logcounts(sub))
 vars <- rowVars(mat)
