@@ -79,7 +79,7 @@ if(!init){
   cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method = method, mc.cores=cores)
   
   for (i in seq_len(B)){
-    temp_table <- data.frame(i, ncol(sce), nrow(sce), batch, k,
+    temp_table <- data.frame(i, dim(counts(sce))[2], dim(counts(sce))[1], batch, k,
                              method, cluster_acc[[i]]$wcss)
     write.table(temp_table, file = here("output_tables/abs_batch", mode, "real_data", file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
