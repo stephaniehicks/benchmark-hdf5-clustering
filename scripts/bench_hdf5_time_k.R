@@ -7,7 +7,6 @@ bench_hdf5_time_k <- function(i,n_cells,
                             batch_size = batch_size, 
                             num_init = num_init, 
                             max_iters = max_iters, 
-                            init_fraction = init_fraction, 
                             initializer = initializer, 
                             method, size, index) {
   invisible(gc())
@@ -25,7 +24,7 @@ bench_hdf5_time_k <- function(i,n_cells,
     mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", n_cells, "_15_", index, ".rds"))
     invisible(mbkmeans::mini_batch(mydata, clusters = k_centers, 
                                    batch_size = batch_size, num_init = num_init, 
-                                   max_iters = max_iters, init_fraction = init_fraction,
+                                   max_iters = max_iters, 
                                    initializer = initializer, calc_wcss = FALSE))
     time.end <- proc.time()
     time <- time.end - time.start
@@ -36,7 +35,7 @@ bench_hdf5_time_k <- function(i,n_cells,
     sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", nC, "_15_", index, ".h5"), name = "obs")
     invisible(mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                                    batch_size = batch_size, num_init = num_init, 
-                                   max_iters = max_iters, init_fraction = init_fraction,
+                                   max_iters = max_iters, 
                                    initializer = initializer, calc_wcss = FALSE))
     time.end <- proc.time()
     time <- time.end - time.start

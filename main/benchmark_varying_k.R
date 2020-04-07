@@ -111,8 +111,9 @@ if (!init){
     cluster_mem <- mclapply(1, bench_hdf5_mem_k, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
-                            batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
-                            init_fraction = min(0.1, batch), initializer = initializer, 
+                            batch_size = batch, num_init = num_init, max_iters = max_iters,
+                            #init_fraction = min(0.1, batch), 
+                            initializer = initializer, 
                             method = method, size = size, dir_name = dir_name, 
                             index = index, mc.cores=cores)
     
@@ -145,8 +146,8 @@ if (!init){
     cluster_time <- mclapply(seq_len(B), bench_hdf5_time_k, 
                              n_cells = nC, n_genes = nG, 
                              k_centers = k,
-                             batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
-                             init_fraction = 0.1, initializer = initializer, 
+                             batch_size = batch, num_init = num_init, max_iters = max_iters,
+                             initializer = initializer, 
                              method = method, size = size,  
                              index = index, mc.cores=cores)
     
