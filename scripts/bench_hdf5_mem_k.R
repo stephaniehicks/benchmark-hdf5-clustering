@@ -13,7 +13,6 @@ bench_hdf5_mem_k <- function(i, n_cells,
                            batch_size = batch_size, 
                            num_init = num_init, 
                            max_iters = max_iters, 
-                           init_fraction = init_fraction, 
                            initializer = initializer, 
                            method, size, dir_name, index) {
   
