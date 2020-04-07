@@ -17,7 +17,7 @@ set.seed(123)
 y_sds <- sample(1:10, sim_center, replace = TRUE)/10
 prop1 <- rep(1/sim_center, sim_center)
 
-for (i in 1:50){
+for (i in 4:50){
   sim_data <- simulate_gauss_mix_k(n_cells = nC, n_genes = nG, k = sim_center, 
                                    x_mus = x_mus, x_sds = x_sds, y_mus = y_mus, y_sds = y_sds, prop1=prop1)
   
