@@ -150,7 +150,7 @@ if (mode == "mem"){
       Rprof(filename = here("main/case_studies/output/Memory_output/chunk_test",out_name), append = FALSE, memory.profiling = TRUE)
       tenx <- loadHDF5SummarizedExperiment(here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_", size), 
                                                 paste0("TENxBrainData_", size, "_preprocessed_", chunk)))
-      invisible(mbkmeans(counts(tenx), clusters=k, batch_size = as.integer(dim(counts(tenx))[2]*batch), 
+      invisible(mbkmeans(counts(tenx), clusters=k, batch_size = 500, 
                          num_init=1, max_iters=100, calc_wcss = FALSE, compute_labels=TRUE))
       Rprof(NULL)
       
