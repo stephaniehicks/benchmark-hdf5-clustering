@@ -66,8 +66,38 @@ levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 #### Varying $k$
 
-Ruoxi: After you run the code tracking memory for the increasing $k$ analysis, 
-can you load it here? 
+```{r}
+files_vark_mem <- list.files(path = here("output_tables", "Varying_k", "mem"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+vark_table_mem <- NULL
+for (i in (1:length(files_vark_mem))){
+  temp_table <- read.csv(file = files_vark_mem[i], header=TRUE, sep=",")
+  vark_table_mem <- rbind(vark_table_mem, temp_table)
+}
+
+vark_table_mem <- vark_table_mem %>% 
+  dplyr::rename(Algorithm = method)
+
+vark_table_mem$Algorithm <- factor(vark_table_mem$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(vark_table_mem$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+```
+
+```{r}
+p_vark_mem <- vark_table_mem %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  ggplot(aes(x = k, y = memory/1024, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+          #      position=position_dodge(0.05)) +
+     labs(title = "Memory Usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("Memory Usage (Gb)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_mem
+```
 
 ## Time 
 
@@ -101,9 +131,40 @@ levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 #### Varying $k$
 
-Ruoxi: After you run the code tracking memory for the increasing $k$ analysis, 
-can you load it here? 
+```{r}
+files_vark_time <- list.files(path = here("output_tables", "Varying_k", "time"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+vark_table_time <- NULL
+for (i in (1:length(files_vark_time))){
+  temp_table <- read.csv(file = files_vark_time[i], header=TRUE, sep=",")
+  vark_table_time <- rbind(vark_table_time, temp_table)
+}
 
+vark_table_time <- vark_table_time %>% 
+  dplyr::rename(Algorithm = method)
+
+vark_table_time$Algorithm <- factor(vark_table_time$Algorithm, 
+                               levels = c("kmeans", "mbkmeans", "hdf5"))
+levels(vark_table_time$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+```
+
+```{r}
+p_vark_time <- vark_table_time %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(elapsed_time/60), 
+                   sd = sd(elapsed_time/60)) %>%
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Elapsed time with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("Elapsed time (mins)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_time
+```
 
 ## Accuracy
 

@@ -16,3 +16,5 @@ TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,mbkmeans,0.006,1,19773
 TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,mbkmeans,0.01,1,19653.0576454701
 TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,mbkmeans,0.015,1,19653.0576454701
 TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,mbkmeans,0.02,1,19653.0576454701
+TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,hdf5,0.001,1,1260.57031725023
+TENxBrainData_500k,davide_mac,500000,5000,01_full_cluster,mbkmeans,0.001,1,19653.0576454701

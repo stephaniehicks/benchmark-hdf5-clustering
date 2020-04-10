@@ -59,14 +59,14 @@ if (init){
     write.table(profile_table, file = here("output_tables","Varying_k", mode, file_name), 
                 sep = ",", col.names = TRUE)
     
-    sink(file = here("output_files", dir_name, "info.txt"))
-    cat("RAM Info:\n")
-    print(get_ram())
-    cat("CPU Info: \n")
-    print(get_cpu())
-    cat("Session Info:\n")
-    print(sessionInfo())
-    sink()
+    #sink(file = here("output_files", dir_name, "info.txt"))
+    #cat("RAM Info:\n")
+    #print(get_ram())
+    #cat("CPU Info: \n")
+    #print(get_cpu())
+    #cat("Session Info:\n")
+    #print(sessionInfo())
+    #sink()
   }
   
   if (mode == "acc"){
@@ -111,14 +111,15 @@ if (!init){
     cluster_mem <- mclapply(1, bench_hdf5_mem_k, 
                             n_cells = nC, n_genes = nG, 
                             k_centers = k,
-                            batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
-                            init_fraction = min(0.1, batch), initializer = initializer, 
+                            batch_size = batch, num_init = num_init, max_iters = max_iters,
+                            #init_fraction = min(0.1, batch), 
+                            initializer = initializer, 
                             method = method, size = size, dir_name = dir_name, 
                             index = index, mc.cores=cores)
     
     max_mem <- cluster_mem[[1]]
     
-    temp_table <- data.frame(B_name, nC, nG, batch, k, initializer, method, max_mem, num_init, max_iters)
+    temp_table <- data.frame(B_name, nC, nG, batch, k, initializer, method, max_mem)
     write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
   }
@@ -145,14 +146,14 @@ if (!init){
     cluster_time <- mclapply(seq_len(B), bench_hdf5_time_k, 
                              n_cells = nC, n_genes = nG, 
                              k_centers = k,
-                             batch_size = nC*batch, num_init = num_init, max_iters = max_iters,
-                             init_fraction = 0.1, initializer = initializer, 
+                             batch_size = batch, num_init = num_init, max_iters = max_iters,
+                             initializer = initializer, 
                              method = method, size = size,  
                              index = index, mc.cores=cores)
     
     for (i in seq_len(B)){ 
       time <- cluster_time[[i]]
-      temp_table <- data.frame(i, nC, nG, batch, k, initializer, method, time[1], time[2], time[3], num_init, max_iters)
+      temp_table <- data.frame(i, nC, nG, batch, k, initializer, method, time[1], time[2], time[3])
       write.table(temp_table, file = here("output_tables","Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }

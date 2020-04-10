@@ -1,17 +1,16 @@
-#$ -l mem_free=10G,h_vmem=10G
+#$ -l mem_free=6G,h_vmem=6G
 #$ -cwd
 #$ -m e
 #$ -M rliu38@jhu.edu
+module load conda_R/3.6.x
 
-nC=(100000)
+nC=(25000 100000)
 nG=(1000)
 sim_center=15
-data_path="/fastscratch/myscratch/rliu/Aug_data_15k"
+data_path="/fastscratch/myscratch/rliu/April_data_15k"
 
 for c in "${nC[@]}"; do 
-	for g in "${nG[@]}"; do 
-		for i in {3..50}; do
-			Rscript simulation_k.R --args $c $g $sim_center $data_path $i
-		done
+	for g in "${nG[@]}"; do
+		Rscript simulation_k.R --args $c $g $sim_center $data_path
 	done
 done

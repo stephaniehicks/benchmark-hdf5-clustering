@@ -13,12 +13,11 @@ bench_hdf5_mem_k <- function(i, n_cells,
                            batch_size = batch_size, 
                            num_init = num_init, 
                            max_iters = max_iters, 
-                           init_fraction = init_fraction, 
                            initializer = initializer, 
                            method, size, dir_name, index) {
   
   now <- format(Sys.time(), "%b%d%H%M%S")
-  out_name <- paste0(method,"_",n_cells,"_",batch,"_",k_centers,"k_" , now, ".out")
+  out_name <- paste0("varying_k_", method,"_",n_cells,"_",batch,"_",k_centers,"k_" , now, ".out")
   invisible(gc())
   
   if (method == "kmeans"){
@@ -37,7 +36,7 @@ bench_hdf5_mem_k <- function(i, n_cells,
     mydata <- readRDS(file = paste0(data_path, "/", "obs_data_", n_cells, "_15_", index, ".rds"))
     mbkmeans::mini_batch(mydata, clusters = k_centers, 
                          batch_size = batch_size, num_init = num_init, 
-                         max_iters = max_iters, init_fraction = init_fraction,
+                         max_iters = max_iters, 
                          initializer = initializer, calc_wcss = FALSE)
     
     Rprof(NULL)
@@ -52,7 +51,7 @@ bench_hdf5_mem_k <- function(i, n_cells,
     sim_data_hdf5 <- HDF5Array(file = paste0(data_path, "/", "obs_data_", n_cells, "_15_", index, ".h5"), name = "obs")
     mbkmeans::mini_batch(sim_data_hdf5, clusters = k_centers, 
                          batch_size = batch_size, num_init = num_init, 
-                         max_iters = max_iters, init_fraction = init_fraction,
+                         max_iters = max_iters, 
                          initializer = initializer, calc_wcss = FALSE)
     Rprof(NULL)
     

@@ -17,6 +17,7 @@ batch <- as.numeric(commandArgs(trailingOnly=T)[7])
 k <- as.numeric(commandArgs(trailingOnly=T)[8]) 
 B <- as.numeric(commandArgs(trailingOnly=T)[9])
 data_name <- commandArgs(trailingOnly=T)[10]
+nC <- as.numeric(commandArgs(trailingOnly=T)[11])
 
 
 if(init){
@@ -79,7 +80,7 @@ if(!init){
   cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method = method, mc.cores=cores)
   
   for (i in seq_len(B)){
-    temp_table <- data.frame(i, ncol(sce), nrow(sce), batch, k,
+    temp_table <- data.frame(i, nC, 1000, batch, k,
                              method, cluster_acc[[i]]$wcss)
     write.table(temp_table, file = here("output_tables/abs_batch", mode, "real_data", file_name), sep = ",", 
                 append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
