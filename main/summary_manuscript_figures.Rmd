@@ -398,10 +398,60 @@ dev.off()
 
 ## Figure 3
 
-Here we select one size of datasets ($N$) and show role of 
+Here we select one size of datasets ($N = 500K$) and show role of 
 batch size on time and memory using real scRNA-seq data. 
 as a function of absolute batch size using both simulated and 
-real scRNA-seq data. 
+real scRNA-seq data.
+
+### Time
+
+```{r}
+fig3_time_plot <- sub_time_table %>% 
+  dplyr::filter(ncells == 300000, 
+                Algorithm != "k-means",
+                machine == "solid state drive") %>%
+  dplyr::group_by(Algorithm) %>% 
+  ggplot(aes(x = batch, y = elapsed / 60, color = Algorithm)) +
+          geom_line() +
+          geom_point(size = 3) +
+      labs(title = "Elapsed Time for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Elapsed time (mins)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center") 
+fig3_time_plot
+```
+
+### Memory
+
+```{r}
+fig3_mem_plot <- sub_mem_table %>% 
+  dplyr::filter(ncells == 300000, 
+                Algorithm != "k-means",
+                machine == "solid state drive") %>%
+  dplyr::group_by(Algorithm) %>% 
+  ggplot(aes(x = batch, y = memory, color = Algorithm)) +
+          geom_line()+
+          geom_point(size = 3)+
+      labs(title = "Memory Usage (RAM) for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Memory Usage (Gb)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center")
+fig3_mem_plot
+```
+
+```{r}
+p3 <- ggdraw() +
+    draw_plot(fig3_mem_plot, x = 0, y = 0.51, width = 1, height = .45) +
+    draw_plot(fig3_time_plot, x = 0, y = 0, width = 1, height = .45) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(1, 0.53))
+    
+p3
+
+pdf(here::here("main", "figs", "fig3.pdf"), width = 6, height =8)
+print(p3)
+dev.off()
+```
 
 
 
@@ -412,9 +462,6 @@ HDF5 geometry (real data). Best, worst, default. K=15
 ## Figure 5
 
 Add here. 
-
-
-
 
 # Supplemental Figures
 
