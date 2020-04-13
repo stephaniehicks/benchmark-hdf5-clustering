@@ -1,0 +1,2 @@
+"observations","genes","abs.batch.size","memory","geometry","dimension_1","dimension_2","choice","label"
+75000,5000,500,993.246845173536,default,258,3872,full,default_hdf5
