@@ -2,7 +2,7 @@ observations,genes,abs.batch.size,time1,time2,time3,geometry,dimension_1,dimensi
 75000,5000,500,239.286,NA,NA,best,5000,1,full,best_hdf5
 75000,5000,500,315.998,NA,NA,default,258,3872,full,default_hdf5
 75000,5000,500,251.698,NA,NA,worst,1,75000,full,worst_hdf5
-75000,5000,500,399.217,NA,NA,singleChunk,5000,75000,full,singleChunk_hdf5500000,5000,500,1147.851,NA,NA,default,100,10000,full,default_hdf5
+75000,5000,500,399.217,NA,NA,singleChunk,5000,75000,full,singleChunk_hdf5
 500000,5000,500,1238.339,NA,NA,best,5000,1,full,best_hdf5
 150000,5000,500,534.725,NA,NA,worst,1,150000,full,worst_hdf5
 150000,5000,500,575.34,NA,NA,default,182,5477,full,default_hdf5
@@ -10,3 +10,4 @@ observations,genes,abs.batch.size,time1,time2,time3,geometry,dimension_1,dimensi
 500000,5000,500,2142.069,NA,NA,worst,1,500000,full,worst_hdf5
 300000,5000,500,895.494,NA,NA,default,129,7745,full,default_hdf5
 300000,5000,500,949.116,NA,NA,worst,1,300000,full,worst_hdf5
+500000,5000,500,1147.851,NA,NA,default,100,10000,full,default_hdf5

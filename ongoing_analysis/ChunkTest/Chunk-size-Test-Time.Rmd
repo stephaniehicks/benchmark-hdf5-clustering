@@ -20,7 +20,7 @@ library(here)
 ```
 
 ```{r}
-time_table <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/time.csv", header=TRUE, sep=",")
+time_table <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/time_ruoxi_cluster.csv", header=TRUE, sep=",")
 
 time_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_time_blockapp.csv", header=TRUE, sep=",")
 time_blockApp$label2 <- factor(time_blockApp$label2, levels = c("mbkmeans", "Best-HDF5", "Worst-HDF5"))
@@ -60,12 +60,13 @@ time <- rbind(time_blockApp, time_old)
 ```{r}
 p_time <- time_table %>% 
   dplyr::group_by(observations, label) %>% 
-  ggplot(aes(x = geometry, y = time1/60, color = label)) +
+  ggplot(aes(x = observations, y = time1/60, color = geometry)) +
           geom_point()+
-    labs(title = "Time: Three Measures Side by Side (blockApply)") + 
-    xlab("Absolute Batch Size")+
-    ylab("Time(Minutes)")+
-    facet_grid(~observations)
+          geom_line()+
+    labs(title = "THDF5 Geometry: Time") + 
+    xlab("Observations")+
+    ylab("Time(Minutes)")
+    #facet_grid(~observations)
 p_time
 ```
 

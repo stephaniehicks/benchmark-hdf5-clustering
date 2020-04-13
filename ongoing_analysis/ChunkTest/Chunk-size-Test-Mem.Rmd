@@ -19,7 +19,7 @@ library(here)
 ```
 
 ```{r}
-mem_table <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_best.csv", header=TRUE, sep=",")
+mem_table <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_ruoxi_cluster.csv", header=TRUE, sep=",")
 
 
 mem_blockApp <- read.csv("/Users/April30/benchmark-hdf5-clustering/ongoing_analysis/ChunkTest/TENxBrainData/Output/new_mem_blockapp.csv", header=TRUE, sep=",")
@@ -38,12 +38,13 @@ mem <- rbind(mem_blockApp, mem_old)
 ```{r}
 p_mem <- mem_table %>% 
   dplyr::group_by(observations, label) %>% 
-  ggplot(aes(x = geometry, y = memory/1024)) +
+  ggplot(aes(x = observations, y = memory/1024, color=geometry)) +
           geom_point()+
-    labs(title = "Memory: Three Measures Side by Side (BlockApply)") + 
-    xlab("Absolute Batch Size")+
-    ylab("Memory(GB)")+
-    facet_grid(~observations)
+          geom_line()+
+    labs(title = "HDF5 Geometry: Memory") + 
+    xlab("Observations")+
+    ylab("Memory(GB)")
+    #facet_grid(~geometry)
 p_mem
 ```
 
