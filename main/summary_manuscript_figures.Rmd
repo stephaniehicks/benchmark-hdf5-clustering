@@ -460,7 +460,36 @@ dev.off()
 
 ## Figure 4
 
-HDF5 geometry (real data). Best, worst, default. K=15
+```{r}
+mem_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_ruoxi_cluster.csv"), header=TRUE, sep=",")
+time_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/time_ruoxi_cluster.csv"), header=TRUE, sep=",")
+```
+
+```{r}
+p_mem <- mem_table %>% 
+  dplyr::group_by(observations, label) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=geometry)) +
+          geom_point()+
+          geom_line()+
+    labs(title = "HDF5 Geometry: Memory") + 
+    xlab("Observations")+
+    ylab("Memory(GB)")
+    #facet_grid(~geometry)
+p_mem
+```
+
+```{r}
+p_time <- time_table %>% 
+  dplyr::group_by(observations, label) %>% 
+  ggplot(aes(x = observations, y = time1/60, color = geometry)) +
+          geom_point()+
+          geom_line()+
+    labs(title = "THDF5 Geometry: Time") + 
+    xlab("Observations")+
+    ylab("Time(Minutes)")
+    #facet_grid(~observations)
+p_time
+```
 
 ## Figure 5
 
