@@ -14,18 +14,20 @@ calc_lab <- as.logical(commandArgs(trailingOnly=T)[6])
 cent_file_name <- commandArgs(trailingOnly=T)[7]
 choice <- commandArgs(trailingOnly=T)[8]
 method <- commandArgs(trailingOnly=T)[9]
+run_id <- commandArgs(trailingOnly=T)[10]
 k <- 15
 
-file_name <- paste0(mode,"_",chunk,".csv")
+time_file <- paste0("time_", run_id, ".csv")
+mem_file <- paste0("mem_", run_id, ".csv")
 
 if (mode == "time"){
-  if(!file.exists(here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name))){
+  if(!file.exists(here("ongoing_analysis/ChunkTest/TENxBrainData/Output", time_file))){
     profile_table <- data.frame(matrix(vector(), 0, 11, 
                                      dimnames=list(c(), c("observations", "genes",
                                                           "abs batch size",
                                                           "time1", "time2","time3","geometry","dimension_1","dimension_2","choice","label"))),
                               stringsAsFactors=F)
-    write.table(profile_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name), 
+    write.table(profile_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", time_file), 
               sep = ",", col.names = TRUE)
   }
   
@@ -41,12 +43,12 @@ if (mode == "time"){
       time1 <- time.end1 - time.start1
       
       temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1], 
-                               batch_size = 500, abs_batch_size = 500,
+                               abs_batch_size = 500,
                                #batch_size = batch, 
                                #abs_batch_size =  round(dim(counts(tenx))[2]*batch, -1), 
                                time1 = time1[3], time2 = NA, time3 = NA, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
                                dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full", label = paste0(chunk, "_", method))
-      write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name), 
+      write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", time_file), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
       
     }else{
@@ -134,13 +136,13 @@ if (mode == "mem"){
   if(!file.exists(here("main/case_studies/output/Memory_output/chunk_test"))) {
     dir.create(here("main/case_studies/output/Memory_output/chunk_test"), recursive = TRUE)}
   
-  if(!file.exists(here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name))){
+  if(!file.exists(here("ongoing_analysis/ChunkTest/TENxBrainData/Output", mem_file))){
     profile_table <- data.frame(matrix(vector(), 0, 9, 
                                        dimnames=list(c(), c("observations", "genes",
                                                             "abs batch size",
                                                             "memory","geometry","dimension_1","dimension_2","choice","label"))),
                                 stringsAsFactors=F)
-    write.table(profile_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name), 
+    write.table(profile_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", mem_file), 
                 sep = ",", col.names = TRUE)
   }
   
@@ -158,14 +160,13 @@ if (mode == "mem"){
                               memory = "tseries", diff = FALSE)
       max_mem <- max(rowSums(profile[,1:3]))*0.00000095367432
       
-      print(max_mem)
       temp_table <- data.frame(observations = dim(counts(tenx))[2], genes = dim(counts(tenx))[1],
                                abs_batch_size = 500,
                                #batch_size = batch, 
                                #abs_batch_size =  round(dim(counts(tenx))[2]*batch, -1), 
                                mem = max_mem, geometry = chunk, dimension_1 = seed(counts(tenx))@chunkdim[1], 
                                dimension_2 = seed(counts(tenx))@chunkdim[2], choice = "full", label=paste0(chunk, "_", method))
-      write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", file_name), 
+      write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", mem_file), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }else{
       if (!calc_lab){
