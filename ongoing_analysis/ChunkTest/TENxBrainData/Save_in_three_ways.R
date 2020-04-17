@@ -20,8 +20,8 @@ saveHDF5SummarizedExperiment(tenx,
                              level=NULL, verbose=FALSE)
 
 # save in single chunk
-saveHDF5SummarizedExperiment(tenx, 
-                             dir = here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_",size), paste0("TENxBrainData_", size, "_preprocessed_singleChunk")),
-                             prefix="", replace=TRUE, 
-                             chunkdim=c(dim(counts(tenx))[1], dim(counts(tenx))[2]), 
-                             level=NULL, verbose=FALSE)
+#saveHDF5SummarizedExperiment(tenx, 
+#                             dir = here(paste0("main/case_studies/data/subset/TENxBrainData/TENxBrainData_",size), paste0("TENxBrainData_", size, "_preprocessed_singleChunk")),
+#                             prefix="", replace=TRUE, 
+#                             chunkdim=c(dim(counts(tenx))[1], dim(counts(tenx))[2]), 
+#                             level=NULL, verbose=FALSE)
