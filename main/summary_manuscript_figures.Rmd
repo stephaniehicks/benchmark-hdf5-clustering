@@ -458,9 +458,13 @@ p_mem
 ```{r}
 p_time <- time_table %>% 
   dplyr::group_by(observations, label) %>% 
-  ggplot(aes(x = observations, y = time1/60, color = geometry)) +
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = label)) +
           geom_point()+
           geom_line()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
     labs(title = "THDF5 Geometry: Time") + 
     xlab("Observations")+
     ylab("Time(Minutes)")
