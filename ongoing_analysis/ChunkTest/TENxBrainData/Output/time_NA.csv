@@ -1,1 +1,15 @@
-observations,genes,abs.batch.size,time1,time2,time3,geometry,dimension_1,dimension_2,choice,label
+observations,genes,abs.batch.size,time1,time2,time3,geometry,dimension_1,dimension_2,choice,label75000,5000,500,246.899,NA,NA,worst,1,75000,full,worst_hdf5
+75000,5000,500,263.998,NA,NA,worst,1,75000,full,worst_hdf5
+75000,5000,500,307.66,NA,NA,best,5000,1,full,best_hdf5
+75000,5000,500,294.07,NA,NA,best,5000,1,full,best_hdf5
+75000,5000,500,266.621,NA,NA,worst,1,75000,full,worst_hdf5
+75000,5000,500,281.108,NA,NA,default,258,3872,full,default_hdf5
+75000,5000,500,283.652,NA,NA,default,258,3872,full,default_hdf5
+75000,5000,500,303.837,NA,NA,best,5000,1,full,best_hdf5
+75000,5000,500,304.556,NA,NA,best,5000,1,full,best_hdf5
+75000,5000,500,285.318,NA,NA,worst,1,75000,full,worst_hdf5
+75000,5000,500,319.25,NA,NA,best,5000,1,full,best_hdf5
+75000,5000,500,328.699,NA,NA,default,258,3872,full,default_hdf5
+75000,5000,500,335.384,NA,NA,worst,1,75000,full,worst_hdf5
+75000,5000,500,344.485,NA,NA,default,258,3872,full,default_hdf5
+75000,5000,500,431.104,NA,NA,default,258,3872,full,default_hdf5
