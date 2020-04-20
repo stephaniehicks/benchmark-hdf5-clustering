@@ -227,8 +227,9 @@ kmeans using a specific $k=15$ and batch size (`batch` = 500).
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
                 machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm, machine) %>% 
-  ggplot(aes(x = ncells, y = elapsed / 60, color = Algorithm)) +
+  dplyr::group_by(Algorithm, ncells, batch_size) %>%
+  dplyr::summarize(mean_elapsed = mean(elapsed/60)) %>%
+  ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
       labs(title = "Elapsed Time for increasing number of cells") + 
@@ -387,13 +388,16 @@ real scRNA-seq data.
 
 ```{r}
 fig3_time_plot <- sub_time_table %>% 
-  dplyr::filter(ncells == 300000, 
+  dplyr::filter(ncells == 1000000, 
                 Algorithm != "k-means",
                 machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm) %>% 
-  ggplot(aes(x = batch, y = elapsed / 60, color = Algorithm)) +
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(mean = mean(elapsed/60), sd = sd(elapsed/60)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
+#            geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+#                position=position_dodge(0.05)) +
       labs(title = "Elapsed Time for increasing batch size") + 
         xlab("Number of cells in batch") + 
         ylab("Elapsed time (mins)") + scale_x_log10() +
@@ -405,11 +409,12 @@ fig3_time_plot
 
 ```{r}
 fig3_mem_plot <- sub_mem_table %>% 
-  dplyr::filter(ncells == 300000, 
+  dplyr::filter(ncells == 1000000, 
                 Algorithm != "k-means",
                 machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm) %>% 
-  ggplot(aes(x = batch, y = memory, color = Algorithm)) +
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
           geom_line()+
           geom_point(size = 3)+
       labs(title = "Memory Usage (RAM) for increasing batch size") + 
