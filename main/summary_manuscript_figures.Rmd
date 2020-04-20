@@ -31,9 +31,12 @@ theme_set(theme_cowplot())
 
 ## Memory
 
+Here we are profiling memory useage in R using `Rprof()` in base R. 
+All assessments in this section use absolute batch sizes.
+
 ### Subsampling TENxBrainData 
 
-This loads in results from both Davide and Ruoxi
+This loads in results from both Davide and Ruoxi. 
 
 ```{r}
 files_sub <- list.files(path= here("main", "case_studies", "output"), 
@@ -64,6 +67,8 @@ levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Simulated data
 
+This currently loads in results from only Ruoxi. Need to add Davide's output. 
+
 #### Varying $k$
 
 ```{r}
@@ -83,27 +88,11 @@ vark_table_mem$Algorithm <- factor(vark_table_mem$Algorithm,
 levels(vark_table_mem$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
-```{r}
-p_vark_mem <- vark_table_mem %>% 
-  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
-  ggplot(aes(x = k, y = memory/1024, color = Algorithm)) +
-          geom_line() +
-          geom_point() +
-          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-          #      position=position_dodge(0.05)) +
-     labs(title = "Memory Usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
-        xlab("Number of clusters (k) used in clustering algorithm") + 
-        ylab("Memory Usage (Gb)") + 
-  theme(legend.position = "top", legend.justification= "center") +
-  facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_mem
-```
-
 ## Time 
 
 ### Subsampling TENxBrainData 
 
-This loads in results from both Davide and Ruoxi
+This loads in results from both Davide and Ruoxi.
 
 ```{r}
 files_sub_time <- files_sub[grep("time", files_sub)]
@@ -129,6 +118,8 @@ levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Simulated data
 
+This currently loads in results from only Ruoxi. Need to add Davide's output. 
+
 #### Varying $k$
 
 ```{r}
@@ -148,26 +139,6 @@ vark_table_time$Algorithm <- factor(vark_table_time$Algorithm,
 levels(vark_table_time$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
-```{r}
-p_vark_time <- vark_table_time %>% 
-  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
-  mutate(q90 = quantile(elapsed_time, 0.85), row = row_number()) %>% 
-  #mutate(q15 = quantile(elapsed_time, 0.15), row = row_number()) %>% 
-  dplyr::filter(elapsed_time < q90) %>%
-  dplyr::summarize(mean = mean(elapsed_time/60), 
-                   sd = sd(elapsed_time/60)) %>%
-  ggplot(aes(x = k, y = mean, color = Algorithm)) +
-          geom_line() +
-          geom_point() +
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-     labs(title = "Elapsed time with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
-        xlab("Number of clusters (k) used in clustering algorithm") + 
-        ylab("Elapsed time (mins)") + 
-  theme(legend.position = "top", legend.justification= "center") +
-  facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_time
-```
 
 ## Accuracy
 
@@ -176,6 +147,8 @@ within-clusters sum of squares (WCSS).
 All assessments in this section use absolute batch sizes.
 
 ### Simulated data
+
+This currently loads in results from only Ruoxi. Need to add Davide's output. 
 
 #### Fixed $k$
 
@@ -216,6 +189,8 @@ levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Subsampling TENxBrainData 
 
+This currently loads in results from only Ruoxi. Need to add Davide's output. 
+
 #### Fixed $k$
 
 ```{r}
@@ -234,6 +209,8 @@ acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm,
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
+
+
 
 
 # Figures 
@@ -393,7 +370,7 @@ p2_abs <- ggdraw() +
                     x = c(0, 0, 0), y = c(1, 0.64, 0.33))
     
 p2_abs
-pdf(here::here("main", "figs", "fig2.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-sims-and-real-accuracy.pdf"), width = 10, height =10)
 print(p2_abs)
 dev.off()
 ```
@@ -481,9 +458,13 @@ p_mem
 ```{r}
 p_time <- time_table %>% 
   dplyr::group_by(observations, label) %>% 
-  ggplot(aes(x = observations, y = time1/60, color = geometry)) +
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = label)) +
           geom_point()+
           geom_line()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
     labs(title = "THDF5 Geometry: Time") + 
     xlab("Observations")+
     ylab("Time(Minutes)")
@@ -499,6 +480,52 @@ Add here.
 
 ## Simulated data (all N)
 All assessments in this section use absolute batch sizes.
+
+### Memory 
+
+#### Varying $k$
+
+```{r}
+p_vark_mem <- vark_table_mem %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  ggplot(aes(x = k, y = memory/1024, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+          #      position=position_dodge(0.05)) +
+     labs(title = "Memory Usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("Memory Usage (Gb)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_mem
+```
+
+### Time 
+
+#### Varying $k$
+
+```{r}
+p_vark_time <- vark_table_time %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  mutate(q90 = quantile(elapsed_time, 0.85), row = row_number()) %>% 
+  #mutate(q15 = quantile(elapsed_time, 0.15), row = row_number()) %>% 
+  dplyr::filter(elapsed_time < q90) %>%
+  dplyr::summarize(mean = mean(elapsed_time/60), 
+                   sd = sd(elapsed_time/60)) %>%
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Elapsed time with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("Elapsed time (mins)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_time
+```
+
 
 ### Accuracy (ARI)
 
