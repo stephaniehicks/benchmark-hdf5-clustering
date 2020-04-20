@@ -18,3 +18,11 @@ TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.003,1,389
 TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.005,1,38987.942499214
 TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.0075,1,39068.8747962719
 TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.01,1,38938.8217409722
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,hdf5,0.02,1,4051.8006286718
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,hdf5,0.05,1,8861.37694837053
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,hdf5,0.1,1,16912.0295589692
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,hdf5,0.2,1,27480.1322446672
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.02,1,38938.8012636772
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.05,1,38935.837945795
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.1,1,46648.209076237
+TENxBrainData_1000k,davide_mac,1000000,5000,01_full_cluster,mbkmeans,0.2,1,46706.044106057
