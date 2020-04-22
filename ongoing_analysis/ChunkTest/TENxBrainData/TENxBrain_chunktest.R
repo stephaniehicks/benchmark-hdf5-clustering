@@ -51,7 +51,8 @@ if (mode == "time"){
       write.table(temp_table, file = here("ongoing_analysis/ChunkTest/TENxBrainData/Output", time_file), 
                   sep = ",", append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
-  }    
+  }
+}
 
     
 if (mode == "mem"){
