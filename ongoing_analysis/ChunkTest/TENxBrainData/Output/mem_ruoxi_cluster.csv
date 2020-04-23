@@ -16,3 +16,5 @@ observations,genes,abs.batch.size,memory,geometry,dimension_1,dimension_2,choice
 750000,5000,500,1483.681028,default,81,12247,full,default_hdf5
 1000000,5000,500,1887.139144,default,70,14142,full,default_hdf5
 750000,5000,500,1368.488935,best,5000,1,full,best_hdf5
+750000,5000,500,2563.20167,worst,1,750000,full,worst_hdf5
+1000000,5000,500,3820.838943,worst,1,1000000,full,worst_hdf5
