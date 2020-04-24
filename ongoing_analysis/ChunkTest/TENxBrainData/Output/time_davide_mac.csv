@@ -179,3 +179,4 @@
 1000000,5000,500,583.833,NA,NA,best,5000,1,full,best_hdf5
 1000000,5000,500,1661.612,NA,NA,worst,1,1000000,full,worst_hdf5
 1000000,5000,500,990.16,NA,NA,default,70,14142,full,default_hdf5
+75000,5000,500,118.056,NA,NA,singleChunk,5000,75000,full,singleChunk_hdf5
