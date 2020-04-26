@@ -405,6 +405,24 @@ fig3_time_plot <- sub_time_table %>%
 fig3_time_plot
 ```
 
+```{r}
+fig3_time_plot_rx <- sub_time_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means",
+                machine == "hard disk drive") %>%
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(mean = mean(elapsed/60), sd = sd(elapsed/60)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point(size = 3) +
+            #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+            #    position=position_dodge(0.05)) +
+      labs(title = "Elapsed Time for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Elapsed time (mins)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center") 
+fig3_time_plot_rx
+```
 ### Memory
 
 ```{r}
@@ -422,6 +440,23 @@ fig3_mem_plot <- sub_mem_table %>%
         ylab("Memory Usage (Gb)") + scale_x_log10() +
   theme(legend.position = "top", legend.justification= "center")
 fig3_mem_plot
+```
+
+```{r}
+fig3_mem_plot_rx <- sub_mem_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means",
+                machine == "hard disk drive") %>%
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+          geom_line()+
+          geom_point(size = 3)+
+      labs(title = "Memory Usage (RAM) for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Memory Usage (Gb)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center")
+fig3_mem_plot_rx
 ```
 
 ```{r}
