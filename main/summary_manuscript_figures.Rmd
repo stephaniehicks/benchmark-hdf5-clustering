@@ -478,8 +478,8 @@ dev.off()
 ## Figure 4
 
 ```{r}
-mem_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_ruoxi_cluster.csv"), header=TRUE, sep=",")
-time_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/time_ruoxi_cluster.csv"), header=TRUE, sep=",")
+mem_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_davide_mac.csv"), header=TRUE, sep=",")
+time_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/time_davide_mac.csv"), header=TRUE, sep=",")
 ```
 
 ```{r}
