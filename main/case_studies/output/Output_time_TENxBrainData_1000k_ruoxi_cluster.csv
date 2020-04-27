@@ -101,3 +101,4 @@ TENxBrainData_1000k,ruoxi_cluster,1000000,5000,01_full_cluster,mbkmeans,0.2,1,73
 TENxBrainData_1000k,ruoxi_cluster,1000000,5000,01_full_cluster,hdf5,0.2,1,7938.514,1205.665,9152.956
 TENxBrainData_1000k,ruoxi_cluster,1000000,5000,01_full_cluster,mbkmeans,0.2,1,11040.727,2213.619,13253.89
 TENxBrainData_1000k,ruoxi_cluster,1000000,5000,01_full_cluster,mbkmeans,0.2,1,11089.71,2238.326,13327.361
+TENxBrainData_1000k,ruoxi_cluster,1000000,5000,01_full_cluster,hdf5,0.2,1,11735.079,2032.281,13820.012
