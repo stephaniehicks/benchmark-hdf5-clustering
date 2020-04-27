@@ -35,6 +35,9 @@ sim_center <- as.numeric(commandArgs(trailingOnly=T)[16])
 data_path <- commandArgs(trailingOnly=T)[17]
 max_iters <- as.numeric(commandArgs(trailingOnly=T)[18])
 num_init <- as.numeric(commandArgs(trailingOnly=T)[19])
+data_number <- as.numeric(commandArgs(trailingOnly=T)[20])
+id <- commandArgs(trailingOnly=T)[21]
+file_name <- paste0(dir_name, "_", id, ".csv")
 
 if (init){
   if(!file.exists(here("output_files"))){
@@ -58,15 +61,6 @@ if (init){
                                 stringsAsFactors=F)
     write.table(profile_table, file = here("output_tables","Varying_k", mode, file_name), 
                 sep = ",", col.names = TRUE)
-    
-    #sink(file = here("output_files", dir_name, "info.txt"))
-    #cat("RAM Info:\n")
-    #print(get_ram())
-    #cat("CPU Info: \n")
-    #print(get_cpu())
-    #cat("Session Info:\n")
-    #print(sessionInfo())
-    #sink()
   }
   
   if (mode == "acc"){
@@ -88,23 +82,23 @@ if (init){
     write.table(profile_table, file = here("output_tables","Varying_k", mode, file_name), 
                 sep = ",", col.names = TRUE)
     
-    sink(file = here("output_tables","Varying_k", mode, paste0(dir_name, "_info.txt"))) #dir_name is same as file_name, except dir_name doesn't have ".csv"
-    cat("RAM Info:\n")
-    print(get_ram())
-    cat("CPU Info: \n")
-    print(get_cpu())
-    cat("Session Info:\n")
-    print(sessionInfo())
-    sink()
+    #sink(file = here("output_tables","Varying_k", mode, paste0(dir_name, "_info.txt"))) #dir_name is same as file_name, except dir_name doesn't have ".csv"
+    #cat("RAM Info:\n")
+    #print(get_ram())
+    #cat("CPU Info: \n")
+    #print(get_cpu())
+    #cat("Session Info:\n")
+    #print(sessionInfo())
+    #sink()
   }
 }
 
 if (!init){
   if (size == "small"){
-    index <- sample(c(1:50), 1)
+    index <- sample(c(1:data_number), 1)
   }
   if(size == "large"){
-    index <- sample(c(1:10), 1)
+    index <- sample(c(1:3), 1)
   }
   
   if (mode == "mem"){
@@ -136,7 +130,7 @@ if (!init){
   
     for (i in seq_len(B)){
       temp_table <- data.frame(i, nC, nG, batch, k, initializer, 
-                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault, num_init, max_iters)
+                               method, cluster_acc[[i]]$ari, cluster_acc[[i]]$wcss, cluster_acc[[i]]$iters, cluster_acc[[i]]$fault)
       write.table(temp_table, file = here("output_tables", "Varying_k", mode, file_name), sep = ",", 
                   append = TRUE, quote = FALSE, col.names = FALSE, row.names = FALSE)
     }
