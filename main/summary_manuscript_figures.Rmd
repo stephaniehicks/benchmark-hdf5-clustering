@@ -179,7 +179,6 @@ acc_table_abs <-
       "machine" = c(rep("solid state drive", nrow(acc_table_abs_davide)),
                     rep("hard disk drive", nrow(acc_table_abs_ruoxi))))
 
-
 acc_table_abs <- acc_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
@@ -219,24 +218,67 @@ levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 #### Fixed $k$
 
 This currently loads in results from only Ruoxi. 
-Need Ruxoi to relabel these files too. 
 Need to add Davide's output. 
 
 ```{r}
-files_acc <- list.files(path = here("output_tables", "abs_batch", 
+# load in Ruoxi's files
+files_acc_ruoxi <- list.files(path = here("output_tables", "abs_batch", 
                                     "acc", "real_data"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-acc_real_table_abs <- NULL
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_real_table_abs <- rbind(acc_real_table_abs, temp_table)
+files_acc_ruoxi <- files_acc_ruoxi[grep("_ruoxi_cluster", files_acc_ruoxi)]
+
+acc_real_table_abs_ruoxi <- NULL
+for (i in (1:length(files_acc_ruoxi))){
+  temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
+  acc_real_table_abs_ruoxi <- rbind(acc_real_table_abs_ruoxi, temp_table)
 }
+head(acc_real_table_abs_ruoxi) 
+# > table(acc_real_table_abs_ruoxi$observations)
+#   5000 10000 25000 
+#   1050  1050  1050 
+
+# load in Davide's files
+files_acc_davide <- list.files(path = here("main", "case_studies", "output"), 
+                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+files_acc_davide <- files_acc_davide[grep("wcss_TENxBrainData", files_acc_davide)]
+files_acc_davide <- files_acc_davide[grep("_davide_mac", files_acc_davide)]
+
+acc_real_table_abs_davide <- NULL
+for (i in (1:length(files_acc_davide))){
+  temp_table <- read.csv(file = files_acc_davide[i], header=FALSE, sep=",")
+  acc_real_table_abs_davide <- rbind(acc_real_table_abs_davide, temp_table)
+}
+head(acc_real_table_abs_davide)
+# > table(acc_real_table_abs_davide$V3)
+#  75000  150000  300000  500000  750000 1000000 
+#     11      11      11      10      10      10 
+acc_real_table_abs_davide <- 
+  acc_real_table_abs_davide[,-c(1:2)][,c(6,1,2,5,4,7)]
+colnames(acc_real_table_abs_davide) <- colnames(acc_real_table_abs_ruoxi)[-5]
+acc_real_table_abs_davide <- 
+  acc_real_table_abs_davide %>% 
+  mutate(abs_batch = round(observations*abs_batch))
+
+
+acc_real_table_abs <- 
+  cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi[-5]), 
+      "machine" = c(rep("solid state drive", nrow(acc_real_table_abs_davide)),
+                    rep("hard disk drive", nrow(acc_real_table_abs_ruoxi))))
+
 acc_real_table_abs <- acc_real_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
+acc_table_abs$machine <- factor(acc_table_abs$machine, 
+                                levels = c("solid state drive", "hard disk drive"))
 acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+# > table(acc_real_table_abs$machine, acc_real_table_abs$abs_batch)
+#                   
+#                     10  35  75 150 300 500 750 1000 1500 3000 5000 7500 10000
+#  hard disk drive   450 450 450 450   0 450 450  450    0    0    0    0     0
+#  solid state drive   0   0   6   6   5   6   1    6    7    8    6    6     6
 ```
 
 
@@ -246,9 +288,10 @@ levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5
 
 ## Figure 1
 
-Here we select one dataset size ($N$ = XXX) by downsampling from the 
-`TENxBrainData` and show the impact of memory and time with mbkmeans and 
-kmeans using a specific $k=15$ and batch size (`batch` = 500). 
+Here, we downsampling from the `TENxBrainData` 
+($N=$ 75000, 150000, 300000, 500000  750000, and 1000000 observations)
+and show the impact of memory and time with `mbkmeans` and 
+k-means using a specific $k=15$ and batch size (`batch` = 500). 
 In this figure we show the solid state drive 
 results and show the hard disk drive results in supplemental. 
 
@@ -387,8 +430,12 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
 p_wcss_obs_line_abs
 ```
 
+!!! This need to be changed to `machine == "solid disk drive"` when obs match.
+Need to ask Davide about this. 
+
 ```{r}
 p_wcss_real_abs <- acc_real_table_abs %>%   
+  dplyr::filter(machine == "hard disk drive") %>% 
   dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   dplyr::group_by(observations, Algorithm, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number()) %>% 
