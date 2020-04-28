@@ -169,7 +169,7 @@ for (i in (1:length(files_acc_davide))){
 
 
 acc_table_abs_ruoxi <- NULL
-for (i in (1:length(files_acc_davide))){
+for (i in (1:length(files_acc_ruoxi))){
   temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
   acc_table_abs_ruoxi <- rbind(acc_table_abs_ruoxi, temp_table)
 }
