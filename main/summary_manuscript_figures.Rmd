@@ -331,20 +331,19 @@ sub_mem_plot <-
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
                 machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm, ncells, batch_size) %>%
-  dplyr::summarize(mean_elapsed = mean(elapsed/60)) %>%
+  dplyr::group_by(Algorithm, ncells) %>%
+  dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
+          geom_errorbar(aes(ymin=mean_elapsed-sd, ymax=mean_elapsed+sd), width=.2,
+                        position=position_dodge(0.05)) +
       labs(title = "Elapsed time for increasing number of cells") + 
         xlab("Number of cells") + 
         ylab("Elapsed time (mins)") + 
   theme(legend.position = "none", legend.justification= "center") 
 sub_time_plot
 ```
-
-
-
 
 ```{r}
 p1 <- ggdraw() +
