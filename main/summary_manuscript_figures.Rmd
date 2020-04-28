@@ -249,6 +249,38 @@ levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5
 Here we select one dataset size ($N$ = XXX) by downsampling from the 
 `TENxBrainData` and show the impact of memory and time with mbkmeans and 
 kmeans using a specific $k=15$ and batch size (`batch` = 500). 
+In this figure we show the solid state drive 
+results and show the hard disk drive results in supplemental. 
+
+### Memory
+
+```{r}
+sub_mem_plot <- sub_mem_table %>% 
+  dplyr::filter(Algorithm == "k-means" | batch == 500, 
+                machine == "solid state drive") %>%
+  dplyr::group_by(Algorithm) %>% 
+  ggplot(aes(x = ncells, y = memory, color = Algorithm)) +
+          geom_line()+
+          geom_point(size = 3)+
+      labs(title = "Memory usage for increasing number of cells") + 
+        xlab("Number of cells") + 
+        ylab("Max memory usage (GB)") + 
+  theme(legend.position = "top", legend.justification= "center")
+sub_mem_plot
+```
+
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(sub_mem_plot)
+```
+
+Resave figure without legend
+
+```{r}
+sub_mem_plot <- 
+  sub_mem_plot + 
+  theme(legend.position = "none", legend.justification= "center")
+```
 
 ### Time
 
@@ -261,38 +293,23 @@ sub_time_plot <- sub_time_table %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
-      labs(title = "Elapsed Time for increasing number of cells") + 
+      labs(title = "Elapsed time for increasing number of cells") + 
         xlab("Number of cells") + 
         ylab("Elapsed time (mins)") + 
-  theme(legend.position = "top", legend.justification= "center") 
+  theme(legend.position = "none", legend.justification= "center") 
 sub_time_plot
 ```
 
 
 
-### Memory
-
-```{r}
-sub_mem_plot <- sub_mem_table %>% 
-  dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm) %>% 
-  ggplot(aes(x = ncells, y = memory, color = Algorithm)) +
-          geom_line()+
-          geom_point(size = 3)+
-      labs(title = "Memory Usage (RAM) for increasing number of cells") + 
-        xlab("Number of cells") + 
-        ylab("Memory Usage (Gb)") + 
-  theme(legend.position = "top", legend.justification= "center")
-sub_mem_plot
-```
 
 ```{r}
 p1 <- ggdraw() +
-    draw_plot(sub_mem_plot, x = 0, y = 0.51, width = 1, height = .45) +
-    draw_plot(sub_time_plot, x = 0, y = 0, width = 1, height = .45) +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.96, width = 1, height = 0.05) + 
+    draw_plot(sub_mem_plot, x = 0, y = 0.48, width = 1, height = .48) +
+    draw_plot(sub_time_plot, x = 0, y = 0, width = 1, height = .48) +
     draw_plot_label(label = LETTERS[1:2], size = 25,
-                    x = c(0, 0), y = c(1, 0.53))
+                    x = c(0, 0), y = c(0.98, 0.51))
     
 p1
 
@@ -307,12 +324,14 @@ dev.off()
 
 Here we select three sizes of datasets ($N$) and show the accuracy 
 as a function of absolute batch size using both simulated and 
-real scRNA-seq data. 
+real scRNA-seq data. In this figure we show the solid state drive 
+results and show the hard disk drive results in supplemental. 
 
 ### ARI 
 ```{r}
 p_ari_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  dplyr::filter(observations %in% c(5000,10000,25000), 
+                machine == "solid state drive") %>%
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -348,7 +367,8 @@ p_ari_obs_line_abs <-
 ### WCSS
 ```{r}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
-  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+  dplyr::filter(observations %in% c(5000,10000,25000), 
+                machine == "solid state drive") %>%
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
@@ -408,10 +428,45 @@ dev.off()
 
 ## Figure 3
 
-Here we select one size of datasets ($N = 500K$) and show role of 
+Here we select one size of datasets ($N = 1,000,000$) and show role of 
 batch size on time and memory using real scRNA-seq data. 
 as a function of absolute batch size using both simulated and 
-real scRNA-seq data.
+real scRNA-seq data. In this figure we show the solid state drive 
+results and show the hard disk drive results in supplemental. 
+
+
+### Memory
+
+```{r}
+fig3_mem_plot <- sub_mem_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means",
+                machine == "solid state drive") %>%
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+          geom_line()+
+          geom_point(size = 3)+
+      labs(title = "Memory usage for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Max memory usage (GB)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center")
+fig3_mem_plot
+```
+
+
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(fig3_mem_plot)
+```
+
+Resave figure without legend
+
+```{r}
+fig3_mem_plot <- 
+  fig3_mem_plot + 
+  theme(legend.position = "none", legend.justification= "center")
+```
 
 ### Time
 
@@ -425,79 +480,26 @@ fig3_time_plot <- sub_time_table %>%
   ggplot(aes(x = batch, y = mean, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
-#            geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-#                position=position_dodge(0.05)) +
-      labs(title = "Elapsed Time for increasing batch size") + 
+            geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+      labs(title = "Elapsed time for increasing batch size") + 
         xlab("Number of cells in batch") + 
         ylab("Elapsed time (mins)") + scale_x_log10() +
-  theme(legend.position = "top", legend.justification= "center") 
+  theme(legend.position = "none", legend.justification= "center") 
 fig3_time_plot
 ```
 
-```{r}
-fig3_time_plot_rx <- sub_time_table %>% 
-  dplyr::filter(ncells == 1000000, 
-                Algorithm != "k-means",
-                machine == "hard disk drive") %>%
-  dplyr::group_by(Algorithm, ncells, batch) %>%
-  dplyr::summarize(mean = mean(elapsed/60), sd = sd(elapsed/60)) %>%
-  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
-          geom_line() +
-          geom_point(size = 3) +
-            #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-            #    position=position_dodge(0.05)) +
-      labs(title = "Elapsed Time for increasing batch size") + 
-        xlab("Number of cells in batch") + 
-        ylab("Elapsed time (mins)") + scale_x_log10() +
-  theme(legend.position = "top", legend.justification= "center") 
-fig3_time_plot_rx
-```
-### Memory
-
-```{r}
-fig3_mem_plot <- sub_mem_table %>% 
-  dplyr::filter(ncells == 1000000, 
-                Algorithm != "k-means",
-                machine == "solid state drive") %>%
-  dplyr::group_by(Algorithm, ncells, batch) %>%
-  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
-  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
-          geom_line()+
-          geom_point(size = 3)+
-      labs(title = "Memory Usage (RAM) for increasing batch size") + 
-        xlab("Number of cells in batch") + 
-        ylab("Memory Usage (Gb)") + scale_x_log10() +
-  theme(legend.position = "top", legend.justification= "center")
-fig3_mem_plot
-```
-
-```{r}
-fig3_mem_plot_rx <- sub_mem_table %>% 
-  dplyr::filter(ncells == 1000000, 
-                Algorithm != "k-means",
-                machine == "hard disk drive") %>%
-  dplyr::group_by(Algorithm, ncells, batch) %>%
-  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
-  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
-          geom_line()+
-          geom_point(size = 3)+
-      labs(title = "Memory Usage (RAM) for increasing batch size") + 
-        xlab("Number of cells in batch") + 
-        ylab("Memory Usage (Gb)") + scale_x_log10() +
-  theme(legend.position = "top", legend.justification= "center")
-fig3_mem_plot_rx
-```
 
 ```{r}
 p3 <- ggdraw() +
-    draw_plot(fig3_mem_plot, x = 0, y = 0.51, width = 1, height = .45) +
-    draw_plot(fig3_time_plot, x = 0, y = 0, width = 1, height = .45) +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.96, width = 1, height = 0.05) + 
+    draw_plot(fig3_mem_plot, x = 0, y = 0.48, width = 1, height = .48) +
+    draw_plot(fig3_time_plot, x = 0, y = 0, width = 1, height = .48) +
     draw_plot_label(label = LETTERS[1:2], size = 25,
-                    x = c(0, 0), y = c(1, 0.53))
-    
+                    x = c(0, 0), y = c(0.98, 0.51))
 p3
 
-pdf(here::here("main", "figs", "fig3.pdf"), width = 6, height =8)
+pdf(here::here("main", "figs", "fig-real-timeandmemory-acrossbatch.pdf"), width = 6, height =8)
 print(p3)
 dev.off()
 ```
@@ -505,6 +507,9 @@ dev.off()
 
 
 ## Figure 4
+
+In this figure we show the solid state drive 
+results and show the hard disk drive results in supplemental. 
 
 ```{r}
 mem_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_davide_mac.csv"), header=TRUE, sep=",")
@@ -602,6 +607,7 @@ p_vark_time
 
 ```{r}
 p_ari_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::filter(machine == "solid state drive") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -611,7 +617,7 @@ p_ari_obs_line_abs_all <- acc_table_abs %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
       ylim(0.95, 1) + 
-      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets") + 
+      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a solid state drive") + 
         xlab("Absolute batch sizes") + 
         ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -620,11 +626,38 @@ p_ari_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-ari.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-ari-ssdrive.pdf"), width = 10, height =10)
 print(p_ari_obs_line_abs_all)
 dev.off()
 ```
 
+
+
+```{r}
+p_ari_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::filter(machine == "hard disk drive") %>% 
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+      ylim(0.95, 1) + 
+      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a hard disk drive") + 
+        xlab("Absolute batch sizes") + 
+        ylab("adjusted Rand index (ARI)") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations, scales = "free") 
+p_ari_obs_line_abs_all
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari-hddrive.pdf"), width = 10, height =10)
+print(p_ari_obs_line_abs_all)
+dev.off()
+```
 #### Varying $k$ 
 
 ```{r}
@@ -658,6 +691,7 @@ dev.off()
 
 ```{r}
 p_wcss_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::filter(machine == "solid state drive") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
@@ -668,7 +702,7 @@ p_wcss_obs_line_abs_all <- acc_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets") + 
+     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a solid state drive") + 
         xlab("Absolute batch sizes") + 
         ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -677,10 +711,38 @@ p_wcss_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-wcss.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-ssdrive.pdf"), width = 10, height =10)
 print(p_wcss_obs_line_abs_all)
 dev.off()
 ```
+
+```{r}
+p_wcss_obs_line_abs_all <- acc_table_abs %>% 
+  dplyr::filter(machine == "hard disk drive") %>% 
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05))+
+     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a hard disk drive") + 
+        xlab("Absolute batch sizes") + 
+        ylab("WCSS") + 
+  theme(legend.position = "top", legend.justification= "center") +
+  facet_wrap(~observations, scales = "free") 
+p_wcss_obs_line_abs_all
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-hddrive.pdf"), width = 10, height =10)
+print(p_wcss_obs_line_abs_all)
+dev.off()
+```
+
 
 #### Varying $k$ 
 
@@ -726,9 +788,9 @@ sub_mem_plot <- sub_mem_table %>%
   ggplot(aes(x = ncells, y = memory, color = Algorithm)) +
           geom_line()+
           geom_point(size = 3, )+
-      labs(title = "Memory Usage (RAM) for increasing number of cells") + 
+      labs(title = "Memory usage for increasing number of cells") + 
         xlab("Number of cells") + 
-        ylab("Memory Usage (Gb)") + 
+        ylab("Max memory usage (GB)") + 
   theme(legend.position = "top", legend.justification= "center") + 
   facet_grid(~machine)
 sub_mem_plot
@@ -751,7 +813,7 @@ sub_time_plot <- sub_time_table %>%
   ggplot(aes(x = ncells, y = elapsed / 60, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
-      labs(title = "Elapsed Time for increasing number of cells") + 
+      labs(title = "Elapsed time for increasing number of cells") + 
         xlab("Number of cells") + 
         ylab("Elapsed time (mins)") + 
   theme(legend.position = "top", legend.justification= "center")+ 
