@@ -67,7 +67,8 @@ levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Simulated data
 
-This currently loads in results from only Ruoxi. Need to add Davide's output. 
+This currently loads in results from only Ruoxi. 
+Need to add Davide's output (should be ready by 4/29). 
 
 #### Varying $k$
 
@@ -118,7 +119,8 @@ levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Simulated data
 
-This currently loads in results from only Ruoxi. Need to add Davide's output. 
+This currently loads in results from only Ruoxi. 
+Need to add Davide's output (should be ready by 4/29).
 
 #### Varying $k$
 
@@ -148,27 +150,51 @@ All assessments in this section use absolute batch sizes.
 
 ### Simulated data
 
-This currently loads in results from only Ruoxi. Need to add Davide's output. 
-
 #### Fixed $k$
+
+This loads in results from both Davide and Ruoxi. 
 
 ```{r}
 files_acc <- list.files(path = here("output_tables", "abs_batch", "acc"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-acc_table_abs <- NULL
-for (i in (1:length(files_acc))){
-  temp_table <- read.csv(file = files_acc[i], header=TRUE, sep=",")
-  acc_table_abs <- rbind(acc_table_abs, temp_table)
+
+files_acc_davide <- files_acc[grep("_davide_mac", files_acc)]
+files_acc_ruoxi <- files_acc[grep("_ruoxi_cluster", files_acc)]
+
+acc_table_abs_davide <- NULL
+for (i in (1:length(files_acc_davide))){
+  temp_table <- read.csv(file = files_acc_davide[i], header=TRUE, sep=",")
+  acc_table_abs_davide <- rbind(acc_table_abs_davide, temp_table)
 }
+
+
+acc_table_abs_ruoxi <- NULL
+for (i in (1:length(files_acc_davide))){
+  temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
+  acc_table_abs_ruoxi <- rbind(acc_table_abs_ruoxi, temp_table)
+}
+
+acc_table_abs <- 
+  cbind(rbind(acc_table_abs_davide, acc_table_abs_ruoxi), 
+      "machine" = c(rep("solid state drive", nrow(acc_table_abs_davide)),
+                    rep("hard disk drive", nrow(acc_table_abs_ruoxi))))
+
+
 acc_table_abs <- acc_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
+acc_table_abs$machine <- factor(acc_table_abs$machine, 
+                                levels = c("solid state drive", "hard disk drive"))
 acc_table_abs$Algorithm <- factor(acc_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
+
 #### Varying $k$
+
+This currently loads in results from only Ruoxi. 
+Need to add Davide's output (should be ready by 4/29).
 
 ```{r}
 files_vark <- list.files(path = here("output_tables", "Varying_k", "acc"), 
@@ -189,9 +215,12 @@ levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 ### Subsampling TENxBrainData 
 
-This currently loads in results from only Ruoxi. Need to add Davide's output. 
 
 #### Fixed $k$
+
+This currently loads in results from only Ruoxi. 
+Need Ruxoi to relabel these files too. 
+Need to add Davide's output. 
 
 ```{r}
 files_acc <- list.files(path = here("output_tables", "abs_batch", 
