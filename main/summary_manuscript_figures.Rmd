@@ -854,7 +854,8 @@ dev.off()
 
 ```{r}
 sub_time_plot <- sub_time_table %>% 
-  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
+  dplyr::filter(Algorithm == "k-means" | batch == 500, 
+                machine == "hard disk drive") %>%
   dplyr::group_by(Algorithm, machine) %>% 
   ggplot(aes(x = ncells, y = elapsed / 60, color = Algorithm)) +
           geom_line() +
