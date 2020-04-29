@@ -115,8 +115,6 @@ sub_time_table <- sub_time_table %>%
 
 levels(sub_time_table$machine) <- c("solid state drive", "hard disk drive")
 levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
-
-sub_time_table %>% filter(Algorithm == "k-means")
 ```
 
 ### Simulated data
