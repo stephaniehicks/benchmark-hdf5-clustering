@@ -115,6 +115,8 @@ sub_time_table <- sub_time_table %>%
 
 levels(sub_time_table$machine) <- c("solid state drive", "hard disk drive")
 levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+
+sub_time_table %>% filter(Algorithm == "k-means")
 ```
 
 ### Simulated data
@@ -330,7 +332,7 @@ sub_mem_plot <-
 ```{r}
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "solid state drive") %>%
+                machine == "hard disk drive") %>%
   dplyr::group_by(Algorithm, ncells) %>%
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -856,8 +858,9 @@ dev.off()
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
                 machine == "hard disk drive") %>%
-  dplyr::group_by(Algorithm, machine) %>% 
-  ggplot(aes(x = ncells, y = elapsed / 60, color = Algorithm)) +
+  dplyr::group_by(Algorithm, ncells, machine) %>% 
+  dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
+  ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
       labs(title = "Elapsed time for increasing number of cells") + 
