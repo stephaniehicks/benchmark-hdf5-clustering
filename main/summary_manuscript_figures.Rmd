@@ -562,7 +562,6 @@ First load memory
 mem_table_davide <- 
   read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
                 "Output", "mem_davide_mac.csv"), header=TRUE, sep=",")
-
 mem_table_davide <- mem_table_davide %>% 
   dplyr::rename(chunk_size = geometry)  %>% 
   mutate(chunk_size = 
@@ -585,6 +584,50 @@ time_table_davide <- time_table_davide %>%
                                          "worst", "singleChunk")))
 levels(time_table_davide$chunk_size) <- 
   c("per cell (best)", "default", "per gene (worst)", "single chunk")
+```
+
+load in ruoxi's mem and time results
+```{r}
+#mem
+mem_table_ruoxi <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
+                "Output", "mem_ruoxi_cluster.csv"), header=TRUE, sep=",")
+mem_table_ruoxi <- mem_table_ruoxi %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")))
+levels(mem_table_ruoxi$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+
+#time
+time_table_ruoxi <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
+                "Output", "time_ruoxi_cluster.csv"), header=TRUE, sep=",")
+
+time_table_ruoxi <- time_table_ruoxi %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")))
+levels(time_table_ruoxi$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+```
+
+```{r}
+p_mem_ruoxi <- mem_table_ruoxi %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
+          geom_point() +
+          geom_line() +
+    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Max memory usage (GB)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 4.4, ymax = 5),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
+  theme(legend.position = "top", legend.justification= "center") 
+p_mem_ruoxi
 ```
 
 ```{r}
@@ -637,6 +680,26 @@ p_time <- time_table_davide %>%
 p_time
 ```
 
+```{r}
+p_time_ruoxi <- time_table_ruoxi %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
+          geom_point()+
+          geom_line()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Elapsed time (mins)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+    scale_color_discrete(name = "Chunk size") + 
+    theme(legend.position = "none", legend.justification= "center") 
+
+p_time_ruoxi
+```
 
 ```{r}
 p4 <- ggdraw() +
