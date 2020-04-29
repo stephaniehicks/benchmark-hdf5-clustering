@@ -17,8 +17,15 @@ batch <- as.numeric(commandArgs(trailingOnly=T)[7])
 k <- as.numeric(commandArgs(trailingOnly=T)[8]) 
 B <- as.numeric(commandArgs(trailingOnly=T)[9])
 data_name <- commandArgs(trailingOnly=T)[10]
-nC <- as.numeric(commandArgs(trailingOnly=T)[11])
+id <- commandArgs(trailingOnly=T)[11]
 
+if (data_name == "TENxBrainData_25k"){
+  nC = 25000
+}else if (data_name == "TENxBrainData_10k"){
+  nC = 10000
+}else if (data_name == "TENxBrainData_5k"){
+  nC = 5000
+}
 
 if(init){
   profile_table <- data.frame(matrix(vector(), 0, 7, 
@@ -30,25 +37,22 @@ if(init){
 }
   
 if(!init){
+  # helper function
   calculate_acc <- function(i, sim_object, method){
     if (method == "kmeans"){
       wcss <- sum(sim_object[[i]]$cluster_wcss)
-      #iters <- sim_object[[i]]$iteration
-      #ifault <- sim_object[[i]]$ifault
     }else{
       wcss <- sum(sim_object[[i]]$cluster_wcss)
-      #iters <- sim_object[[i]]$iters[best_iter]
-      #ifault <- "NA"
     }
     output_list <- list(wcss=wcss)
-    #output_list <- list(wcss=wcss, iters = iters, fault = ifault)
     return(output_list)
   }
   
+  # helper function
   bench_hdf5_acc <- function(i, k, batch, method, data_name){
     if (method == "hdf5"){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
-      cluster_output <- mbkmeans(counts(sce), clusters=k, batch_size = batch, num_init=1, max_iters=100, calc_wcss = TRUE)
+      cluster_output <- mbkmeans(counts(sce), clusters=k, batch_size = batch, max_iters=100, calc_wcss = TRUE)
       
       output <- list(cluster_output = cluster_output$Clusters, 
                      cluster_wcss = cluster_output$WCSS_per_cluster)
@@ -58,8 +62,7 @@ if(!init){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       sce_km <- realize(DelayedArray::t(counts(sce)))
       
-      cluster_output <- mbkmeans:: mini_batch(sce_km, cluster = k, batch_size = batch,
-                                              num_init=1, max_iters=100, calc_wcss = TRUE)
+      cluster_output <- mbkmeans(sce_km, cluster = k, batch_size = batch, max_iters=100, calc_wcss = TRUE)
       
       output <- list(cluster_output = cluster_output$Clusters, 
                      cluster_wcss = cluster_output$WCSS_per_cluster)
@@ -69,12 +72,14 @@ if(!init){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       sce_km <- realize(DelayedArray::t(counts(sce)))
       
-      cluster_output <- stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1) #iter.max and nstart set to the default values of mbkmeans()
+      cluster_output <- stats::kmeans(sce_km, centers=k, iter.max = 100) #iter.max and nstart set to the default values of mbkmeans()
       output <- list(cluster_output = cluster_output$cluster, 
                      cluster_wcss = cluster_output$withinss)
     }
     return(output)
   }
+  
+  # run profiler
   cluster_output <- mclapply(seq_len(B), bench_hdf5_acc, k = k, batch = batch, method = method, data_name = data_name,
                              mc.cores=cores)
   cluster_acc <- mclapply(seq_len(B), calculate_acc, cluster_output, method = method, mc.cores=cores)
