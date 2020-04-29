@@ -559,39 +559,99 @@ dev.off()
 In this figure we show the solid state drive 
 results and show the hard disk drive results in supplemental. 
 
+First load memory
 ```{r}
-mem_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/mem_davide_mac.csv"), header=TRUE, sep=",")
-time_table <- read.csv(here("ongoing_analysis/ChunkTest/TENxBrainData/Output/time_davide_mac.csv"), header=TRUE, sep=",")
+mem_table_davide <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
+                "Output", "mem_davide_mac.csv"), header=TRUE, sep=",")
+
+mem_table_davide <- mem_table_davide %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")))
+levels(mem_table_davide$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+```
+
+and then time 
+```{r}
+time_table_davide <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
+                "Output", "time_davide_mac.csv"), header=TRUE, sep=",")
+
+time_table_davide <- time_table_davide %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")))
+levels(time_table_davide$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
 ```
 
 ```{r}
-p_mem <- mem_table %>% 
-  dplyr::group_by(observations, label) %>% 
-  ggplot(aes(x = observations, y = memory/1024, color=geometry)) +
-          geom_point()+
-          geom_line()+
-    labs(title = "HDF5 Geometry: Memory") + 
-    xlab("Observations")+
-    ylab("Memory(GB)")
-    #facet_grid(~geometry)
+p_mem <- mem_table_davide %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
+          geom_point() +
+          geom_line() +
+    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Max memory usage (GB)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 6, ymax = 6.8),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
+  theme(legend.position = "top", legend.justification= "center") 
 p_mem
 ```
 
+Save the legend on its own
 ```{r}
-p_time <- time_table %>% 
-  dplyr::group_by(observations, label) %>% 
+my_legend <- cowplot::get_legend(p_mem)
+```
+
+Resave figure without legend
+
+```{r}
+p_mem <- p_mem + 
+  theme(legend.position = "none", legend.justification= "center")
+```
+
+
+```{r}
+p_time <- time_table_davide %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
   dplyr::summarize(mean = mean(time1/60), 
                    sd = sd(time1/60)) %>% 
-  ggplot(aes(x = observations, y = mean, color = label)) +
+  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
           geom_point()+
           geom_line()+
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05)) +
-    labs(title = "THDF5 Geometry: Time") + 
-    xlab("Observations")+
-    ylab("Time(Minutes)")
-    #facet_grid(~observations)
+     labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Elapsed time (mins)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+    scale_color_discrete(name = "Chunk size") + 
+    theme(legend.position = "none", legend.justification= "center") 
+
 p_time
+```
+
+
+```{r}
+p4 <- ggdraw() +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.92, width = 1, height = 0.10) + 
+    draw_plot(p_mem, x = 0, y = 0.46, width = 1, height = .48) +
+    draw_plot(p_time, x = 0, y = 0, width = 1, height = .48) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(0.95, 0.51))
+p4
+
+pdf(here::here("main", "figs", "fig-real-hdf5-geometry.pdf"), width = 6, height =8)
+print(p4)
+dev.off()
 ```
 
 ## Figure 5
@@ -615,9 +675,9 @@ p_vark_mem <- vark_table_mem %>%
           geom_point() +
           #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
           #      position=position_dodge(0.05)) +
-     labs(title = "Memory Usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+     labs(title = "Memory usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
         xlab("Number of clusters (k) used in clustering algorithm") + 
-        ylab("Memory Usage (Gb)") + 
+        ylab("Max memory usage (GB)") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
 p_vark_mem
