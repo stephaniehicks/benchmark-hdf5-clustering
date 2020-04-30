@@ -38,6 +38,8 @@ All assessments in this section use absolute batch sizes.
 
 This loads in results from both Davide and Ruoxi. 
 
+#### Increasing $b$ and $N$
+
 ```{r}
 files_sub <- list.files(path= here("main", "case_studies", "output"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
@@ -63,6 +65,31 @@ sub_mem_table <- sub_mem_table %>%
 
 levels(sub_mem_table$machine) <- c("solid state drive", "hard disk drive")
 levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+```
+
+#### HDF5 geometry
+
+```{r}
+mem_table_davide <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
+                "Output", "mem_davide_mac.csv"), header=TRUE, sep=",")
+mem_table_ruoxi <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
+                "Output", "mem_ruoxi_cluster.csv"), header=TRUE, sep=",")
+
+mem_table_hdf5_geom <- 
+  cbind(rbind(mem_table_davide, mem_table_ruoxi), 
+        "machine" = c(rep("solid state drive", nrow(mem_table_davide)),
+                    rep("hard disk drive", nrow(mem_table_ruoxi))))
+
+mem_table_hdf5_geom <- mem_table_hdf5_geom %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")), 
+         machine = factor(machine, levels = c("solid state drive", "hard disk drive")))
+levels(mem_table_hdf5_geom$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
 ```
 
 ### Simulated data
@@ -95,6 +122,8 @@ levels(vark_table_mem$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 This loads in results from both Davide and Ruoxi.
 
+#### Increasing $b$ and $N$
+
 ```{r}
 files_sub_time <- files_sub[grep("time", files_sub)]
 
@@ -116,6 +145,33 @@ sub_time_table <- sub_time_table %>%
 levels(sub_time_table$machine) <- c("solid state drive", "hard disk drive")
 levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
+
+
+#### HDF5 geometry
+
+```{r}
+time_table_davide <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
+                "Output", "time_davide_mac.csv"), header=TRUE, sep=",")
+time_table_ruoxi <- 
+  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
+                "Output", "time_ruoxi_cluster.csv"), header=TRUE, sep=",")
+
+time_table_hdf5_geom <- 
+  cbind(rbind(time_table_davide, time_table_ruoxi), 
+        "machine" = c(rep("solid state drive", nrow(time_table_davide)),
+                      rep("hard disk drive", nrow(time_table_ruoxi))))
+
+time_table_hdf5_geom <- time_table_hdf5_geom %>% 
+  dplyr::rename(chunk_size = geometry)  %>% 
+  mutate(chunk_size = 
+           factor(chunk_size, levels = c("best", "default",
+                                         "worst", "singleChunk")), 
+         machine = factor(machine, levels = c("solid state drive", "hard disk drive")))
+levels(time_table_hdf5_geom$chunk_size) <- 
+  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+```
+
 
 ### Simulated data
 
@@ -330,7 +386,7 @@ sub_mem_plot <-
 ```{r}
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "hard disk drive") %>%
+                machine == "solid state drive") %>%
   dplyr::group_by(Algorithm, ncells) %>%
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -355,7 +411,8 @@ p1 <- ggdraw() +
     
 p1
 
-pdf(here::here("main", "figs", "fig-real-timeandmemory-bs500.pdf"), width = 6, height =8)
+pdf(here::here("main", "figs", "fig-real-timeandmemory-bs500.pdf"), 
+    width = 6, height =8)
 print(p1)
 dev.off()
 ```
@@ -466,7 +523,9 @@ p2_abs <- ggdraw() +
                     x = c(0, 0, 0), y = c(1, 0.64, 0.33))
     
 p2_abs
-pdf(here::here("main", "figs", "fig-sims-and-real-accuracy.pdf"), width = 10, height =10)
+
+pdf(here::here("main", "figs", "fig-sims-and-real-accuracy.pdf"), 
+    width = 10, height =10)
 print(p2_abs)
 dev.off()
 ```
@@ -491,8 +550,8 @@ fig3_mem_plot <- sub_mem_table %>%
   dplyr::group_by(Algorithm, ncells, batch) %>%
   dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
   ggplot(aes(x = batch, y = mean, color = Algorithm)) +
-          geom_line()+
-          geom_point(size = 3)+
+          geom_line() +
+          geom_point(size = 3) +
       labs(title = "Memory usage for increasing batch size") + 
         xlab("Number of cells in batch") + 
         ylab("Max memory usage (GB)") + scale_x_log10() +
@@ -557,61 +616,55 @@ dev.off()
 In this figure we show the solid state drive 
 results and show the hard disk drive results in supplemental. 
 
-First load memory
 ```{r}
-mem_table_davide <- 
-  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
-                "Output", "mem_davide_mac.csv"), header=TRUE, sep=",")
-mem_table_davide <- mem_table_davide %>% 
-  dplyr::rename(chunk_size = geometry)  %>% 
-  mutate(chunk_size = 
-           factor(chunk_size, levels = c("best", "default",
-                                         "worst", "singleChunk")))
-levels(mem_table_davide$chunk_size) <- 
-  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+p_mem_hdf5 <- mem_table_hdf5_geom %>% 
+  dplyr::filter(machine == "solid state drive") %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
+          geom_point() +
+          geom_line() +
+    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Max memory usage (GB)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 6, ymax = 6.8),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
+  theme(legend.position = "top", legend.justification= "center") 
+p_mem_hdf5
 ```
 
-and then time 
+Save the legend on its own
 ```{r}
-time_table_davide <- 
-  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
-                "Output", "time_davide_mac.csv"), header=TRUE, sep=",")
-
-time_table_davide <- time_table_davide %>% 
-  dplyr::rename(chunk_size = geometry)  %>% 
-  mutate(chunk_size = 
-           factor(chunk_size, levels = c("best", "default",
-                                         "worst", "singleChunk")))
-levels(time_table_davide$chunk_size) <- 
-  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+my_legend <- cowplot::get_legend(p_mem_hdf5)
 ```
 
-load in ruoxi's mem and time results
+Resave figure without legend
+
 ```{r}
-#mem
-mem_table_ruoxi <- 
-  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData", 
-                "Output", "mem_ruoxi_cluster.csv"), header=TRUE, sep=",")
-mem_table_ruoxi <- mem_table_ruoxi %>% 
-  dplyr::rename(chunk_size = geometry)  %>% 
-  mutate(chunk_size = 
-           factor(chunk_size, levels = c("best", "default",
-                                         "worst", "singleChunk")))
-levels(mem_table_ruoxi$chunk_size) <- 
-  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+p_mem_hdf5 <- p_mem_hdf5 + 
+  theme(legend.position = "none", legend.justification= "center")
+```
 
-#time
-time_table_ruoxi <- 
-  read.csv(here("ongoing_analysis", "ChunkTest", "TENxBrainData",
-                "Output", "time_ruoxi_cluster.csv"), header=TRUE, sep=",")
 
-time_table_ruoxi <- time_table_ruoxi %>% 
-  dplyr::rename(chunk_size = geometry)  %>% 
-  mutate(chunk_size = 
-           factor(chunk_size, levels = c("best", "default",
-                                         "worst", "singleChunk")))
-levels(time_table_ruoxi$chunk_size) <- 
-  c("per cell (best)", "default", "per gene (worst)", "single chunk")
+```{r}
+p_time_hdf5 <- time_table_hdf5_geom %>% 
+  dplyr::filter(machine == "solid state drive") %>%
+  dplyr::group_by(observations, chunk_size) %>% 
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
+          geom_point() +
+          geom_line() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+    labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Elapsed time (mins)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+    scale_color_discrete(name = "Chunk size") + 
+    theme(legend.position = "none", legend.justification= "center") 
+p_time_hdf5
 ```
 
 ```{r}
@@ -628,56 +681,6 @@ p_mem_ruoxi <- mem_table_ruoxi %>%
   scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
   theme(legend.position = "top", legend.justification= "center") 
 p_mem_ruoxi
-```
-
-```{r}
-p_mem <- mem_table_davide %>% 
-  dplyr::group_by(observations, chunk_size) %>% 
-  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
-          geom_point() +
-          geom_line() +
-    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
-    xlab("Number of cells") +
-    ylab("Max memory usage (GB)") + 
-    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 6, ymax = 6.8),
-               fill = "transparent", color = "#C77CFF", size = 1.5) + 
-  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
-  theme(legend.position = "top", legend.justification= "center") 
-p_mem
-```
-
-Save the legend on its own
-```{r}
-my_legend <- cowplot::get_legend(p_mem)
-```
-
-Resave figure without legend
-
-```{r}
-p_mem <- p_mem + 
-  theme(legend.position = "none", legend.justification= "center")
-```
-
-
-```{r}
-p_time <- time_table_davide %>% 
-  dplyr::group_by(observations, chunk_size) %>% 
-  dplyr::summarize(mean = mean(time1/60), 
-                   sd = sd(time1/60)) %>% 
-  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
-          geom_point()+
-          geom_line()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-     labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
-    xlab("Number of cells") +
-    ylab("Elapsed time (mins)") + 
-    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
-               fill = "transparent", color = "#C77CFF", size = 1.5) + 
-    scale_color_discrete(name = "Chunk size") + 
-    theme(legend.position = "none", legend.justification= "center") 
-
-p_time
 ```
 
 ```{r}
@@ -940,7 +943,7 @@ print(p_vark_wcss)
 dev.off()
 ```
 
-## TENxBrain data (all N)
+## TENxBrainData
 
 ### Accuracy (WCSS)
 
@@ -949,6 +952,8 @@ results were shown in Figure 2.
 
 
 ### Memory
+
+#### Increasing $N$
 
 ```{r}
 sub_mem_plot <- sub_mem_table %>% 
@@ -965,20 +970,74 @@ sub_mem_plot <- sub_mem_table %>%
 sub_mem_plot
 ```
 
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-memory-bs500-twoplatforms.pdf"), 
+    width = 10, height =5)
+print(sub_mem_plot)
+dev.off()
+```
+
+##### Increasing $b$
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-real-memory-bs500-twoplatforms-.pdf"), width = 10, height =5)
+sub_mem_plot <- sub_mem_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means") %>%
+  dplyr::group_by(Algorithm, ncells, batch, machine) %>%
+  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point(size = 3) +
+      labs(title = "Memory usage for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Max memory usage (GB)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center") + 
+  facet_grid(~machine)
+sub_mem_plot
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-memory-acrossbatch-twoplatforms.pdf"), 
+    width = 10, height =5)
 print(sub_mem_plot)
 dev.off()
 ```
 
 
+#### HDF5 geometry
+
+```{r}
+p_mem_hdf5 <- mem_table_hdf5_geom %>% 
+  dplyr::group_by(observations, chunk_size, machine) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
+          geom_point() +
+          geom_line() +
+    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Max memory usage (GB)") + 
+  scale_color_discrete(name = "Chunk size") + 
+  theme(legend.position = "top", legend.justification= "center") + 
+  facet_grid(~machine)
+p_mem_hdf5
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-memory-hdf5-geom-twoplatforms.pdf"), 
+    width = 10, height =5)
+print(p_mem_hdf5)
+dev.off()
+```
+
+
+
+
 ### Time
+
+#### Increasing $N$
 
 ```{r}
 sub_time_plot <- sub_time_table %>% 
-  dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "hard disk drive") %>%
+  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
   dplyr::group_by(Algorithm, ncells, machine) %>% 
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -987,15 +1046,74 @@ sub_time_plot <- sub_time_table %>%
       labs(title = "Elapsed time for increasing number of cells") + 
         xlab("Number of cells") + 
         ylab("Elapsed time (mins)") + 
-  theme(legend.position = "top", legend.justification= "center")+ 
+  theme(legend.position = "top", legend.justification= "center") + 
+  facet_grid(~machine)
+sub_time_plot
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-time-bs500-twoplatforms.pdf"), 
+    width = 10, height =5)
+print(sub_time_plot)
+dev.off()
+```
+
+
+#### Increasing $b$ 
+
+```{r}
+sub_time_plot <- sub_time_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means") %>%
+  dplyr::group_by(Algorithm, ncells, batch, machine) %>%
+  dplyr::summarize(mean = mean(elapsed/60), sd = sd(elapsed/60)) %>%
+  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point(size = 3) +
+            geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+      labs(title = "Elapsed time for increasing batch size") + 
+        xlab("Number of cells in batch") + 
+        ylab("Elapsed time (mins)") + scale_x_log10() +
+  theme(legend.position = "top", legend.justification= "center") + 
   facet_grid(~machine)
 sub_time_plot
 ```
 
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-real-time-bs500-twoplatforms.pdf"), width = 10, height =5)
+pdf(here::here("main", "figs", "fig-supp-real-time-acrossbatch-twoplatforms.pdf"), 
+    width = 10, height =5)
 print(sub_time_plot)
 dev.off()
 ```
 
+
+#### HDF5 geometry
+
+```{r}
+p_time_hdf5 <- time_table_hdf5_geom %>% 
+  dplyr::group_by(observations, chunk_size, machine) %>% 
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
+          geom_point() +
+          geom_line() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+    labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Elapsed time (mins)") + 
+    scale_color_discrete(name = "Chunk size") + 
+    theme(legend.position = "top", legend.justification= "center")  + 
+   facet_grid(~machine)
+p_time_hdf5
+```
+
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-time-hdf5-geom-twoplatforms.pdf"), 
+    width = 10, height =5)
+print(p_time_hdf5)
+dev.off()
+```
