@@ -1,6 +1,0 @@
-"observations","genes","batch_size","time","dimension","dimension_1","dimension_2"
-1e+06,1000,0.001,45512.305,default,23170,1000
-1e+06,1000,0.005,35110.125,default,23170,1000
-1e+06,1000,0.01,49328.108,default,23170,1000
-1e+06,1000,0.05,40071.743,default,23170,1000
-1e+06,1000,0.2,123139.107,default,23170,1000
