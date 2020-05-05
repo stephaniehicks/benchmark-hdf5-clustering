@@ -1,0 +1,157 @@
+---
+title: Full analysis of 1.3M neurons data
+author: Ruoxi Liu, Stephanie Hicks, Davide Risso, Elizabeth Purdom
+output: 
+    html_document:
+        theme: cosmo 
+        toc: true
+        toc_float: true
+        highlight: tango
+        number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, results = "markup")
+```
+
+```{r, message=FALSE}
+library(here)
+library(HDF5Array)
+library(mbkmeans)
+library(scater)
+library(scran)
+library(BiocParallel)
+library(DelayedMatrixStats)
+nworkers <- 6
+```
+
+# Normalization
+
+Here, we apply mbkmeans (k=15 and batch size of 500) as a preliminary step to scran normalization.
+
+We then compute the normalization factors and normalize the data.
+
+```{r load}
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed"))
+```
+
+```{r mbkmeans_full}
+time.start <- proc.time()
+mbk <- mbkmeans(sce, whichAssay = "counts", reduceMethod = NA,
+                clusters=15, batch_size = 500, 
+                BPPARAM = MulticoreParam(nworkers))
+time.end <- proc.time()
+time <- time.end - time.start
+cat("Clustering full matrix:", time[3]/60, "mins")
+saveRDS(mbk, file = here("main/case_studies/data/full/TENxBrainData",
+                         "mbkmeans_k15_bs500.rds"))
+```
+
+```{r scran}
+time.start <- proc.time()
+sce <- computeSumFactors(sce, cluster=mbk$Clusters, min.mean=0.1,
+                         BPPARAM = MulticoreParam(nworkers))
+sce <- logNormCounts(sce)
+time.end <- proc.time()
+time <- time.end - time.start
+cat("Normalization:", time[3]/60, "mins")
+quickResaveHDF5SummarizedExperiment(sce)
+```
+
+# PCA
+
+Here, we compute the first 50 principal components using the top variable genes.
+
+```{r pca}
+time.start <- proc.time()
+sce <- scater::runPCA(sce, ncomponents = 50,
+                      ntop = 1000,
+                      scale = TRUE,
+                      BSPARAM = BiocSingular::IrlbaParam(),
+                      BPPARAM = MulticoreParam(nworkers))
+time <- time.end - time.start
+cat("PCA:", time[3]/60, "mins")
+quickResaveHDF5SummarizedExperiment(sce)
+```
+
+# Finding best k
+
+```{r best_k}
+time.start <- proc.time()
+k_list <- seq(15, 30)
+km_res <- lapply(k_list, function(k) {
+                      mbkmeans(sce, clusters = k, 
+                       batch_size = 500,
+                       reduceMethod = "PCA",
+                       calc_wcss = TRUE,
+                       BPPARAM = MulticoreParam(nworkers)
+                       )
+})
+time <- time.end - time.start
+cat("Clustering:", time[3]/60, "mins")
+
+wcss <- sapply(km_res, function(x) sum(x$WCSS_per_cluster))
+print(data.frame(k_list, wcss))
+saveRDS(km_res, file = here("main/case_studies/data/full/TENxBrainData",
+                         "mbkmeans_pca50_k15-30_bs500.rds"))
+```
+
+# Visualize results
+
+```{r tsne}
+clusters <- sapply(km_res, function(x) factor(paste0("mbk", x$Clusters)))
+colnames(clusters) <- paste0("mbk_", k_list)
+colData(sce) <- cbind(colData(sce), clusters)
+
+time.start <- proc.time()
+sce <- scater::runTSNE(sce, dimred = "PCA", 
+                       external_neighbors = TRUE,
+                       BNPARAM = BiocNeighbors::AnnoyParam(),
+                       BPPARAM = MulticoreParam(nworkers))
+time <- time.end - time.start
+cat("t-SNE:", time[3]/60, "mins")
+quickResaveHDF5SummarizedExperiment(sce)
+```
+
+```{r umap}
+time.start <- proc.time()
+sce <- scater::runUMAP(sce, dimred = "PCA", 
+                       external_neighbors = TRUE,
+                       BNPARAM = BiocNeighbors::AnnoyParam(),
+                       BPPARAM = MulticoreParam(nworkers))
+time <- time.end - time.start
+cat("UMAP:", time[3]/60, "mins")
+quickResaveHDF5SummarizedExperiment(sce)
+```
+
+```{r visualize}
+plotTSNE(sce, colour_by = "mbk_15")
+plotTSNE(sce, colour_by = "mbk_30")
+
+rownames(sce) <- rowData(sce)$Symbol
+
+plotTSNE(sce, colour_by = "Gad1")
+plotTSNE(sce, colour_by = "Gad2")
+plotTSNE(sce, colour_by = "Sst")
+plotTSNE(sce, colour_by = "Chodl")
+plotTSNE(sce, colour_by = "Rorb")
+plotTSNE(sce, colour_by = "Fezf2")
+
+plotUMAP(sce, colour_by = "mbk_15")
+plotUMAP(sce, colour_by = "mbk_30")
+
+plotUMAP(sce, colour_by = "Gad1")
+plotUMAP(sce, colour_by = "Gad2")
+plotUMAP(sce, colour_by = "Sst")
+plotUMAP(sce, colour_by = "Chodl")
+plotUMAP(sce, colour_by = "Rorb")
+plotUMAP(sce, colour_by = "Fezf2")
+```
+
+# Interpret clusters
+
+For each cluster, we extract the centroid and give a label with SingleR using the Allen data as a reference.
+
+```{r singleR}
+
+```
