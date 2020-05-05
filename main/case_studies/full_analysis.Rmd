@@ -153,5 +153,60 @@ plotUMAP(sce, colour_by = "Fezf2")
 For each cluster, we extract the centroid and give a label with SingleR using the Allen data as a reference.
 
 ```{r singleR}
+library(SingleR)
+library(dplyr)
 
+if(!file.exists("allen_10x.rds")) {
+  if(!file.exists("allen_10x.h5")) {
+    download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/umi_counts.h5",
+                  destfile = here("main/case_studies/data/full/TENxBrainData",
+                                  "allen_10x.h5"))
+  }
+  mat = TENxMatrix(here("main/case_studies/data/full/TENxBrainData",
+                        "allen_10x.h5"), group = "matrix")
+  
+  metadata <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/sample_metadata.csv")
+  cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
+  cluster_memb <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.membership.csv")
+  colnames(cluster_memb)[2] <- "cluster_id"
+  cluster_memb <- inner_join(cluster_memb, cluster_anno, by = "cluster_id")
+  
+  anno <- inner_join(metadata, cluster_memb, by = "X")
+  
+  which_cell <- which(metadata$X %in% anno$X)
+  
+  download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/features.tsv.gz",
+                destfile = here("main/case_studies/data/full/TENxBrainData",
+                                  "features.tsv"))
+  features <- read.table(here("main/case_studies/data/full/TENxBrainData",
+                              "features.tsv"), sep="\t")
+  
+  se_allen <- SingleCellExperiment(assays = list(counts=realize(mat[,which_cell])),
+                                   colData = anno,
+                                   rowData = features)
+  saveRDS(se_allen, file = here("main/case_studies/data/full/Allen_10X_V2.rds"))
+} else {
+  se_allen <- readRDS(here("main/case_studies/data/full/Allen_10X_V2,rds"))
+}
+
+se_allen <- logNormCounts(se_allen)
+allen_pseudo <- sumCountsAcrossCells(se_allen, 
+    ids=DataFrame(
+        label=se_allen$subclass_label),
+    average = TRUE,
+    exprs_values = "logcounts",
+    BPPARAM = MulticoreParam(nworkers)
+)
+
+sce_pseudo <- sumCountsAcrossCells(sce, 
+    ids=DataFrame(
+        label=sce$mbk_15),
+    average = TRUE,
+    exprs_values = "logcounts",
+    BPPARAM = MulticoreParam(nworkers)
+)
+
+pred <- SingleR(test=sce_pseudo, ref=allen_pseudo, labels=allen_pseudo$subclass_label,
+                assay.type.test = "logcounts")
+saveRDS(pred, file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds")
 ```
