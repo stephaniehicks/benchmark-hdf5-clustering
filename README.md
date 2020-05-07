@@ -7,41 +7,39 @@ clustering algorithms presented in Hicks et al. (2020).
 
 ### Figure 1 and Figure 3 
 
-Code: `/main/case_studies/01-cluster_full.R`
-Bash: `/main/case_studies/bash/Makefile`
-Output: `/main/case_studies/output`
+- Code: `/main/case_studies/01-cluster_full.R`
+- Bash: `/main/case_studies/bash/Makefile`
+- Output: `/main/case_studies/output`
 
 ### Figure 2: Accuracy 
 
 #### Simulation
 
-Code: `/main/benchmark.R`
-Bash: `/bash for figures/Fig 2`
-Output: `/output_tables/abs_batch/acc`
+- Code: `/main/benchmark.R`
+- Bash: `/bash for figures/Fig 2`
+- Output: `/output_tables/abs_batch/acc`
 
 #### Real Data
 
-Code: `/main/real_data_acc.R`
-Bash: `/bash for figures/Fig 2/`
-Output: `/output_tables/abs_batch/acc`
+- Code: `/main/real_data_acc.R`
+- Bash: `/bash for figures/Fig 2/`
+- Output: `/output_tables/abs_batch/acc`
 
 ### Figure 4: HDF5 Geometry
 
-Code: 
-
-- `/ongoing_analysis/ChunkTest/TENxBrainData/Save_in_three_ways.R`
-- `/ongoing_analysis/ChunkTest/TENxBrainData/TENxBrain_chunktest.R`
-
-Bash: `/bash for figures/Fig 4`
-Output: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
+- Code: 
+    - `/ongoing_analysis/ChunkTest/TENxBrainData/Save_in_three_ways.R`
+    - `/ongoing_analysis/ChunkTest/TENxBrainData/TENxBrain_chunktest.R`
+- Bash: `/bash for figures/Fig 4`
+- Output: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
 
 ### Supp Figure -  Varying K analysis
 
 First generate 10 datasets to be used later with `/main/simulation_k.R`
 
-Code: `/main/benchmark_varying_k.R`
-Bash: `/bash for figures/Varying_k/`
-Output: `/output_tables/Varying_k`
+- Code: `/main/benchmark_varying_k.R`
+- Bash: `/bash for figures/Varying_k/`
+- Output: `/output_tables/Varying_k`
 
 ### Others:
 
@@ -53,7 +51,7 @@ If want to:
 
 - Benchmark simulation data
 
-Code: `/main/benchmark.R`
+Code is in `/main/benchmark.R`.
 Note: In `benchmark.R`, only accuracy uses absolute batch sizes. Time and memory use percentage batch sizes.
 
 - Benchmark real data
