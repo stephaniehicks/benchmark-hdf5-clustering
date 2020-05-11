@@ -246,6 +246,8 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
   rownames(se_allen) <- rowData(se_allen)[,2]
   rownames(allen_pseudo) <- rowData(se_allen)[,2]
   
+  time.start <- proc.time()
+
   pred <- SingleR(test=sce, ref=allen_pseudo,
                   labels=se_allen$subclass_label,
                   method = "cluster",
@@ -253,6 +255,11 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
                   assay.type.ref = "logcounts",
                   BNPARAM = BiocNeighbors::AnnoyParam(),
                   BPPARAM = MulticoreParam(nworkers))
+  
+  time.end <- proc.time()
+  time <- time.end - time.start
+  cat("SingleR:", time[3]/60, "mins")
+
   saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels_full.rds"))
 } else {
   readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
