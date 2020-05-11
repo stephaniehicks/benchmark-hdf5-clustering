@@ -152,14 +152,14 @@ rownames(sce) <- rowData(sce)$Symbol
 plotTSNE(sce, colour_by = "mbk_15")
 
 plotUMAP(sce, colour_by = "mbk_15")
-plotUMAP(sce, colour_by = "mbk_30")
+# plotUMAP(sce, colour_by = "mbk_30")
 
-plotUMAP(sce, colour_by = "Gad1")
-plotUMAP(sce, colour_by = "Gad2")
-plotUMAP(sce, colour_by = "Sst")
-plotUMAP(sce, colour_by = "Chodl")
-plotUMAP(sce, colour_by = "Rorb")
-plotUMAP(sce, colour_by = "Fezf2")
+# plotUMAP(sce, colour_by = "Gad1")
+# plotUMAP(sce, colour_by = "Gad2")
+# plotUMAP(sce, colour_by = "Sst")
+# plotUMAP(sce, colour_by = "Chodl")
+# plotUMAP(sce, colour_by = "Rorb")
+# plotUMAP(sce, colour_by = "Fezf2")
 ```
 
 ```{r hexbin}
@@ -227,28 +227,28 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
 #  }
   
   se_allen <- logNormCounts(se_allen)
-  allen_pseudo <- sumCountsAcrossCells(se_allen, 
-                                       ids=DataFrame(
-                                         label=se_allen$subclass_label),
-                                       average = TRUE,
-                                       exprs_values = "logcounts",
-                                       BPPARAM = SerialParam()
-  )
-  
-  sce_pseudo <- sumCountsAcrossCells(sce, 
-                                     ids=DataFrame(
-                                       label=sce$mbk_15),
-                                     average = TRUE,
-                                     exprs_values = "logcounts",
-                                     BPPARAM = SerialParam()
-  )
+  # allen_pseudo <- sumCountsAcrossCells(se_allen, 
+  #                                      ids=DataFrame(
+  #                                        label=se_allen$subclass_label),
+  #                                      average = TRUE,
+  #                                      exprs_values = "logcounts",
+  #                                      BPPARAM = SerialParam()
+  # )
+  # 
+  # sce_pseudo <- sumCountsAcrossCells(sce, 
+  #                                    ids=DataFrame(
+  #                                      label=sce$mbk_15),
+  #                                    average = TRUE,
+  #                                    exprs_values = "logcounts",
+  #                                    BPPARAM = SerialParam()
+  # )
   
   rownames(se_allen) <- rowData(se_allen)[,2]
-  rownames(allen_pseudo) <- rowData(se_allen)[,2]
+#  rownames(allen_pseudo) <- rowData(se_allen)[,2]
   
   time.start <- proc.time()
 
-  pred <- SingleR(test=sce, ref=allen_pseudo,
+  pred <- SingleR(test=sce, ref=se_allen,
                   labels=se_allen$subclass_label,
                   method = "cluster",
                   assay.type.test = "logcounts",
