@@ -251,6 +251,7 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
   pred <- SingleR(test=sce, ref=se_allen,
                   labels=se_allen$subclass_label,
                   method = "cluster",
+                  clusters = sce$mbk_15,
                   assay.type.test = "logcounts",
                   assay.type.ref = "logcounts",
                   BNPARAM = BiocNeighbors::AnnoyParam(),
