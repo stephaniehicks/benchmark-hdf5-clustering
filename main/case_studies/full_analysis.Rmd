@@ -191,10 +191,10 @@ For each cluster, we extract the centroid and give a label with SingleR using th
 library(SingleR)
 library(dplyr)
 
-if(!file.exists(here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))) {
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels_full.rds"))) {
   
-  if(!file.exists((here("main/case_studies/data/full/allen_10x.rds")))) {
-    if(!file.exists((here("main/case_studies/data/full/allen_10x.h5")))) {
+#  if(!dir.exists((here("main/case_studies/data/full/Allen_10X_V2")))) {
+    if(!file.exists((here("main/case_studies/data/full/TENxBrainData/allen_10x.h5")))) {
       download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/umi_counts.h5",
                     destfile = here("main/case_studies/data/full/TENxBrainData",
                                     "allen_10x.h5"))
@@ -218,13 +218,13 @@ if(!file.exists(here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rd
     features <- read.table(here("main/case_studies/data/full/TENxBrainData",
                                 "features.tsv"), sep="\t")
     
-    se_allen <- SingleCellExperiment(assays = list(counts=realize(mat[,which_cell])),
+    se_allen <- SingleCellExperiment(assays = list(counts=mat[,which_cell]),
                                      colData = anno,
                                      rowData = features)
-    saveRDS(se_allen, file = here("main/case_studies/data/full/Allen_10X_V2.rds"))
-  } else {
-    se_allen <- readRDS(here("main/case_studies/data/full/Allen_10X_V2,rds"))
-  }
+#    saveHDF5SummarizedExperiment(se_allen, dir = here("main/case_studies/data/full/Allen_10X_V2"))
+#  } else {
+#    se_allen <- loadHDF5SummarizedExperiment(here("main/case_studies/data/full/Allen_10X_V2"))
+#  }
   
   se_allen <- logNormCounts(se_allen)
   allen_pseudo <- sumCountsAcrossCells(se_allen, 
@@ -232,7 +232,7 @@ if(!file.exists(here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rd
                                          label=se_allen$subclass_label),
                                        average = TRUE,
                                        exprs_values = "logcounts",
-                                       BPPARAM = MulticoreParam(nworkers)
+                                       BPPARAM = SerialParam()
   )
   
   sce_pseudo <- sumCountsAcrossCells(sce, 
@@ -240,14 +240,22 @@ if(!file.exists(here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rd
                                        label=sce$mbk_15),
                                      average = TRUE,
                                      exprs_values = "logcounts",
-                                     BPPARAM = MulticoreParam(nworkers)
+                                     BPPARAM = SerialParam()
   )
   
-  pred <- SingleR(test=sce_pseudo, ref=allen_pseudo, labels=allen_pseudo$subclass_label,
-                  assay.type.test = "logcounts")
-  saveRDS(pred, file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))
+  rownames(se_allen) <- rowData(se_allen)[,2]
+  rownames(allen_pseudo) <- rowData(se_allen)[,2]
+  
+  pred <- SingleR(test=sce, ref=allen_pseudo,
+                  labels=se_allen$subclass_label,
+                  method = "cluster",
+                  assay.type.test = "logcounts",
+                  assay.type.ref = "logcounts",
+                  BNPARAM = BiocNeighbors::AnnoyParam(),
+                  BPPARAM = MulticoreParam(nworkers))
+  saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels_full.rds"))
 } else {
-  readRDS(file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))
+  readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
 }
 print(pred)
 ```
