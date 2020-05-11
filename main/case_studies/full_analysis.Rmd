@@ -84,10 +84,11 @@ quickResaveHDF5SummarizedExperiment(sce)
 # Finding best k
 
 ```{r best_k}
+k_list <- seq(15, 30)
+
 if(!file.exists(here("main/case_studies/data/full/TENxBrainData",
                      "mbkmeans_pca50_k15-30_bs500.rds"))) {
   time.start <- proc.time()
-  k_list <- seq(15, 30)
   km_res <- lapply(k_list, function(k) {
     mbkmeans(sce, clusters = k, 
              batch_size = 500,
