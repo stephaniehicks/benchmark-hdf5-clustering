@@ -36,6 +36,7 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/TENx
 ```
 
 ```{r mbkmeans_full}
+if(! "logcounts" %in% assayNames(sce)) {
 time.start <- proc.time()
 mbk <- mbkmeans(sce, whichAssay = "counts", reduceMethod = NA,
                 clusters=15, batch_size = 500, 
@@ -45,9 +46,11 @@ time <- time.end - time.start
 cat("Clustering full matrix:", time[3]/60, "mins")
 saveRDS(mbk, file = here("main/case_studies/data/full/TENxBrainData",
                          "mbkmeans_k15_bs500.rds"))
+}
 ```
 
 ```{r scran}
+if(! "logcounts" %in% assayNames(sce)) {
 time.start <- proc.time()
 sce <- computeSumFactors(sce, cluster=mbk$Clusters, min.mean=0.1,
                          BPPARAM = MulticoreParam(nworkers))
@@ -56,6 +59,7 @@ time.end <- proc.time()
 time <- time.end - time.start
 cat("Normalization:", time[3]/60, "mins")
 quickResaveHDF5SummarizedExperiment(sce)
+}
 ```
 
 # PCA
@@ -63,37 +67,48 @@ quickResaveHDF5SummarizedExperiment(sce)
 Here, we compute the first 50 principal components using the top variable genes.
 
 ```{r pca}
+if(! "PCA" %in% reducedDimNames(sce)) {
 time.start <- proc.time()
 sce <- scater::runPCA(sce, ncomponents = 50,
                       ntop = 1000,
                       scale = TRUE,
                       BSPARAM = BiocSingular::IrlbaParam(),
                       BPPARAM = MulticoreParam(nworkers))
+time.end <- proc.time()
 time <- time.end - time.start
 cat("PCA:", time[3]/60, "mins")
 quickResaveHDF5SummarizedExperiment(sce)
+}
 ```
 
 # Finding best k
 
 ```{r best_k}
-time.start <- proc.time()
-k_list <- seq(15, 30)
-km_res <- lapply(k_list, function(k) {
-                      mbkmeans(sce, clusters = k, 
-                       batch_size = 500,
-                       reduceMethod = "PCA",
-                       calc_wcss = TRUE,
-                       BPPARAM = MulticoreParam(nworkers)
-                       )
-})
-time <- time.end - time.start
-cat("Clustering:", time[3]/60, "mins")
-
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData",
+                     "mbkmeans_pca50_k15-30_bs500.rds"))) {
+  time.start <- proc.time()
+  k_list <- seq(15, 30)
+  km_res <- lapply(k_list, function(k) {
+    mbkmeans(sce, clusters = k, 
+             batch_size = 500,
+             reduceMethod = "PCA",
+             calc_wcss = TRUE,
+             BPPARAM = MulticoreParam(nworkers)
+    )
+  })
+  time.end <- proc.time()
+  time <- time.end - time.start
+  cat("Clustering:", time[3]/60, "mins")
+  
+  saveRDS(km_res, file = here("main/case_studies/data/full/TENxBrainData",
+                              "mbkmeans_pca50_k15-30_bs500.rds"))
+} else {
+  km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
+                         "mbkmeans_pca50_k15-30_bs500.rds"))
+}
 wcss <- sapply(km_res, function(x) sum(x$WCSS_per_cluster))
 print(data.frame(k_list, wcss))
-saveRDS(km_res, file = here("main/case_studies/data/full/TENxBrainData",
-                         "mbkmeans_pca50_k15-30_bs500.rds"))
+plot(k_list, wcss, type = "b")
 ```
 
 # Visualize results
@@ -103,39 +118,37 @@ clusters <- sapply(km_res, function(x) factor(paste0("mbk", x$Clusters)))
 colnames(clusters) <- paste0("mbk_", k_list)
 colData(sce) <- cbind(colData(sce), clusters)
 
-time.start <- proc.time()
-sce <- scater::runTSNE(sce, dimred = "PCA", 
-                       external_neighbors = TRUE,
-                       BNPARAM = BiocNeighbors::AnnoyParam(),
-                       BPPARAM = MulticoreParam(nworkers))
-time <- time.end - time.start
-cat("t-SNE:", time[3]/60, "mins")
-quickResaveHDF5SummarizedExperiment(sce)
+if(! "TSNE" %in% reducedDimNames(sce)) {
+  time.start <- proc.time()
+  sce <- scater::runTSNE(sce, dimred = "PCA", 
+                         external_neighbors = TRUE,
+                         BNPARAM = BiocNeighbors::AnnoyParam(),
+                         BPPARAM = MulticoreParam(nworkers))
+  time.end <- proc.time()
+  time <- time.end - time.start
+  cat("t-SNE:", time[3]/60, "mins")
+  quickResaveHDF5SummarizedExperiment(sce)
+}
 ```
 
 ```{r umap}
-time.start <- proc.time()
-sce <- scater::runUMAP(sce, dimred = "PCA", 
-                       external_neighbors = TRUE,
-                       BNPARAM = BiocNeighbors::AnnoyParam(),
-                       BPPARAM = MulticoreParam(nworkers))
-time <- time.end - time.start
-cat("UMAP:", time[3]/60, "mins")
-quickResaveHDF5SummarizedExperiment(sce)
+if(! "UMAP" %in% reducedDimNames(sce)) {
+  time.start <- proc.time()
+  sce <- scater::runUMAP(sce, dimred = "PCA", 
+                         external_neighbors = TRUE,
+                         BNPARAM = BiocNeighbors::AnnoyParam(),
+                         BPPARAM = MulticoreParam(nworkers))
+  time.end <- proc.time()
+  time <- time.end - time.start
+  cat("UMAP:", time[3]/60, "mins")
+  quickResaveHDF5SummarizedExperiment(sce)
+}
 ```
 
 ```{r visualize}
-plotTSNE(sce, colour_by = "mbk_15")
-plotTSNE(sce, colour_by = "mbk_30")
-
 rownames(sce) <- rowData(sce)$Symbol
 
-plotTSNE(sce, colour_by = "Gad1")
-plotTSNE(sce, colour_by = "Gad2")
-plotTSNE(sce, colour_by = "Sst")
-plotTSNE(sce, colour_by = "Chodl")
-plotTSNE(sce, colour_by = "Rorb")
-plotTSNE(sce, colour_by = "Fezf2")
+plotTSNE(sce, colour_by = "mbk_15")
 
 plotUMAP(sce, colour_by = "mbk_15")
 plotUMAP(sce, colour_by = "mbk_30")
@@ -148,6 +161,27 @@ plotUMAP(sce, colour_by = "Rorb")
 plotUMAP(sce, colour_by = "Fezf2")
 ```
 
+```{r hexbin}
+library(schex)
+
+sce <- make_hexbin(sce, nbins = 100, 
+    dimension_reduction = "UMAP", use_dims=c(1,2))
+
+plot_hexbin_density(sce)
+plot_hexbin_meta(sce, col="mbk_15", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+
+plot_hexbin_meta(sce, col="mbk_30", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+
+gene_ids <- c("Gad1", "Gad2", "Sst", "Chodl", "Rorb", "Fexf2")
+for(gene_id in gene_ids) {
+plot_hexbin_feature(sce, type="logcounts", feature=gene_id, 
+    action="mean", xlab="UMAP1", ylab="UMAP2", 
+    title=paste0("Mean of ", gene_id))
+}
+```
+
 # Interpret clusters
 
 For each cluster, we extract the centroid and give a label with SingleR using the Allen data as a reference.
@@ -156,57 +190,72 @@ For each cluster, we extract the centroid and give a label with SingleR using th
 library(SingleR)
 library(dplyr)
 
-if(!file.exists("allen_10x.rds")) {
-  if(!file.exists("allen_10x.h5")) {
-    download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/umi_counts.h5",
+if(!file.exists(here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))) {
+  
+  if(!file.exists((here("main/case_studies/data/full/allen_10x.rds")))) {
+    if(!file.exists((here("main/case_studies/data/full/allen_10x.h5")))) {
+      download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/umi_counts.h5",
+                    destfile = here("main/case_studies/data/full/TENxBrainData",
+                                    "allen_10x.h5"))
+    }
+    mat = TENxMatrix(here("main/case_studies/data/full/TENxBrainData",
+                          "allen_10x.h5"), group = "matrix")
+    
+    metadata <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/sample_metadata.csv")
+    cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
+    cluster_memb <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.membership.csv")
+    colnames(cluster_memb)[2] <- "cluster_id"
+    cluster_memb <- inner_join(cluster_memb, cluster_anno, by = "cluster_id")
+    
+    anno <- inner_join(metadata, cluster_memb, by = "X")
+    
+    which_cell <- which(metadata$X %in% anno$X)
+    
+    download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/features.tsv.gz",
                   destfile = here("main/case_studies/data/full/TENxBrainData",
-                                  "allen_10x.h5"))
-  }
-  mat = TENxMatrix(here("main/case_studies/data/full/TENxBrainData",
-                        "allen_10x.h5"), group = "matrix")
-  
-  metadata <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/sample_metadata.csv")
-  cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
-  cluster_memb <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.membership.csv")
-  colnames(cluster_memb)[2] <- "cluster_id"
-  cluster_memb <- inner_join(cluster_memb, cluster_anno, by = "cluster_id")
-  
-  anno <- inner_join(metadata, cluster_memb, by = "X")
-  
-  which_cell <- which(metadata$X %in% anno$X)
-  
-  download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/features.tsv.gz",
-                destfile = here("main/case_studies/data/full/TENxBrainData",
                                   "features.tsv"))
-  features <- read.table(here("main/case_studies/data/full/TENxBrainData",
-                              "features.tsv"), sep="\t")
+    features <- read.table(here("main/case_studies/data/full/TENxBrainData",
+                                "features.tsv"), sep="\t")
+    
+    se_allen <- SingleCellExperiment(assays = list(counts=realize(mat[,which_cell])),
+                                     colData = anno,
+                                     rowData = features)
+    saveRDS(se_allen, file = here("main/case_studies/data/full/Allen_10X_V2.rds"))
+  } else {
+    se_allen <- readRDS(here("main/case_studies/data/full/Allen_10X_V2,rds"))
+  }
   
-  se_allen <- SingleCellExperiment(assays = list(counts=realize(mat[,which_cell])),
-                                   colData = anno,
-                                   rowData = features)
-  saveRDS(se_allen, file = here("main/case_studies/data/full/Allen_10X_V2.rds"))
+  se_allen <- logNormCounts(se_allen)
+  allen_pseudo <- sumCountsAcrossCells(se_allen, 
+                                       ids=DataFrame(
+                                         label=se_allen$subclass_label),
+                                       average = TRUE,
+                                       exprs_values = "logcounts",
+                                       BPPARAM = MulticoreParam(nworkers)
+  )
+  
+  sce_pseudo <- sumCountsAcrossCells(sce, 
+                                     ids=DataFrame(
+                                       label=sce$mbk_15),
+                                     average = TRUE,
+                                     exprs_values = "logcounts",
+                                     BPPARAM = MulticoreParam(nworkers)
+  )
+  
+  pred <- SingleR(test=sce_pseudo, ref=allen_pseudo, labels=allen_pseudo$subclass_label,
+                  assay.type.test = "logcounts")
+  saveRDS(pred, file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))
 } else {
-  se_allen <- readRDS(here("main/case_studies/data/full/Allen_10X_V2,rds"))
+  readRDS(file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds"))
 }
+print(pred)
+```
 
-se_allen <- logNormCounts(se_allen)
-allen_pseudo <- sumCountsAcrossCells(se_allen, 
-    ids=DataFrame(
-        label=se_allen$subclass_label),
-    average = TRUE,
-    exprs_values = "logcounts",
-    BPPARAM = MulticoreParam(nworkers)
-)
+# Session Info
 
-sce_pseudo <- sumCountsAcrossCells(sce, 
-    ids=DataFrame(
-        label=sce$mbk_15),
-    average = TRUE,
-    exprs_values = "logcounts",
-    BPPARAM = MulticoreParam(nworkers)
-)
-
-pred <- SingleR(test=sce_pseudo, ref=allen_pseudo, labels=allen_pseudo$subclass_label,
-                assay.type.test = "logcounts")
-saveRDS(pred, file = here("main/case_studies/data/full/SingleR_Allen_10X_V2_labels.rds")
+```{r sessioninfo}
+library(benchmarkme)
+print(sessionInfo())
+print(get_ram())
+print(get_cpu())
 ```
