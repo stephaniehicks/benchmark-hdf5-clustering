@@ -83,7 +83,7 @@ quickResaveHDF5SummarizedExperiment(sce)
 
 # Finding best k
 
-```{r best_k}
+```{r best_k, eval=FALSE}
 k_list <- seq(15, 30)
 
 if(!file.exists(here("main/case_studies/data/full/TENxBrainData",
@@ -114,7 +114,7 @@ plot(k_list, wcss, type = "b")
 
 # Visualize results
 
-```{r tsne}
+```{r tsne, eval=FALSE}
 clusters <- sapply(km_res, function(x) factor(paste0("mbk", x$Clusters)))
 colnames(clusters) <- paste0("mbk_", k_list)
 colData(sce) <- cbind(colData(sce), clusters)
@@ -175,12 +175,12 @@ plot_hexbin_meta(sce, col="mbk_15", action = "majority",
 plot_hexbin_meta(sce, col="mbk_30", action = "majority",
                  colors = clusterExperiment::bigPalette)
 
-gene_ids <- c("Gad1", "Gad2", "Sst", "Chodl", "Rorb", "Fexf2")
-for(gene_id in gene_ids) {
-plot_hexbin_feature(sce, type="logcounts", feature=gene_id, 
-    action="mean", xlab="UMAP1", ylab="UMAP2", 
-    title=paste0("Mean of ", gene_id))
-}
+# gene_ids <- c("Gad1", "Gad2", "Sst", "Chodl", "Rorb", "Fexf2")
+# for(gene_id in gene_ids) {
+# plot_hexbin_feature(sce, type="logcounts", feature=gene_id, 
+#     action="mean", xlab="UMAP1", ylab="UMAP2", 
+#     title=paste0("Mean of ", gene_id))
+# }
 ```
 
 # Interpret clusters
@@ -191,7 +191,7 @@ For each cluster, we extract the centroid and give a label with SingleR using th
 library(SingleR)
 library(dplyr)
 
-if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels_full.rds"))) {
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))) {
   
 #  if(!dir.exists((here("main/case_studies/data/full/Allen_10X_V2")))) {
     if(!file.exists((here("main/case_studies/data/full/TENxBrainData/allen_10x.h5")))) {
@@ -226,47 +226,84 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
 #    se_allen <- loadHDF5SummarizedExperiment(here("main/case_studies/data/full/Allen_10X_V2"))
 #  }
   
+    time.start <- proc.time()
   se_allen <- logNormCounts(se_allen)
-  # allen_pseudo <- sumCountsAcrossCells(se_allen, 
-  #                                      ids=DataFrame(
-  #                                        label=se_allen$subclass_label),
-  #                                      average = TRUE,
-  #                                      exprs_values = "logcounts",
-  #                                      BPPARAM = SerialParam()
-  # )
-  # 
-  # sce_pseudo <- sumCountsAcrossCells(sce, 
-  #                                    ids=DataFrame(
-  #                                      label=sce$mbk_15),
-  #                                    average = TRUE,
-  #                                    exprs_values = "logcounts",
-  #                                    BPPARAM = SerialParam()
-  # )
+  allen_pseudo <- sumCountsAcrossCells(se_allen,
+                                       ids=DataFrame(
+                                         label=se_allen$subclass_label),
+                                       average = TRUE,
+                                       exprs_values = "logcounts",
+                                       BPPARAM = SerialParam()
+  )
+
+  sce_pseudo <- sumCountsAcrossCells(sce,
+                                     ids=DataFrame(
+                                       label=sce$mbk_15),
+                                     average = TRUE,
+                                     exprs_values = "logcounts",
+                                     BPPARAM = SerialParam()
+  )
   
   rownames(se_allen) <- rowData(se_allen)[,2]
-#  rownames(allen_pseudo) <- rowData(se_allen)[,2]
+  rownames(allen_pseudo) <- rowData(se_allen)[,2]
   
-  time.start <- proc.time()
-
-  pred <- SingleR(test=sce, ref=se_allen,
+  pred <- SingleR(test=sce_pseudo, ref=allen_pseudo,
                   labels=se_allen$subclass_label,
                   method = "cluster",
                   clusters = sce$mbk_15,
-                  assay.type.test = "logcounts",
-                  assay.type.ref = "logcounts",
-                  BNPARAM = BiocNeighbors::AnnoyParam(),
-                  BPPARAM = MulticoreParam(nworkers))
+                  assay.type.test = "sum",
+                  assay.type.ref = "sum")
   
   time.end <- proc.time()
   time <- time.end - time.start
   cat("SingleR:", time[3]/60, "mins")
 
-  saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels_full.rds"))
+  saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
 } else {
-  readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
+  pred <- readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
 }
-print(pred)
+
+clusters <- data.frame(label = unique(sce$mbk_15), celltype = pred$pruned.labels, ncells = as.numeric(table(sce$mbk_15)[unique(sce$mbk_15)]))
+
+cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
+
+clusters <- inner_join(clusters, cluster_anno[,3:4], by = c("celltype"="subclass_label")) %>% 
+  unique %>%
+  dplyr::arrange(label) 
+
+print(clusters)
+
+tmp = clusters$celltype
+names(tmp) = clusters$label
+sce$celltype <- plyr::revalue(factor(sce$mbk_15), replace = tmp)
+
+plot_hexbin_meta(sce, col="celltype", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+
+label_df <- make_hexbin_label(sce, col="mbk_15")
+pp <- plot_hexbin_meta(sce, col="celltype", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+pp + ggrepel::geom_label_repel(data = label_df, aes(x=x, y=y, label = label), colour="black",  label.size = NA, fill = NA)
+
+tmp = clusters$class_label
+names(tmp) = clusters$label
+sce$class <- plyr::revalue(factor(sce$mbk_15), replace = tmp)
+
+plot_hexbin_meta(sce, col="class", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+
+clusters %>%
+  group_by(class_label) %>%
+  summarize(tot = sum(ncells)/sum(clusters$ncells)*100)
+
+clusters %>%
+  group_by(celltype) %>%
+  summarize(tot = sum(ncells)/sum(clusters$ncells)*100)
 ```
+
+The percentages that we find are quite similar to those described by 10X genomics in their presentations (see https://www.10xgenomics.com/videos/seminars/chromium-single-cell-solutions/). Not sure if this was ever described in any of their publications.
+
+
 
 # Session Info
 
