@@ -60,7 +60,7 @@ if(!init){
     
     if (method == "mbkmeans"){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
-      sce_km <- realize(DelayedArray::t(counts(sce)))
+      sce_km <- realize(counts(sce))
       
       cluster_output <- mbkmeans(sce_km, cluster = k, batch_size = batch, max_iters=100, calc_wcss = TRUE)
       
