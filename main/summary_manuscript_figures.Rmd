@@ -25,6 +25,10 @@ library(gridExtra)
 library(grid)
 library(here)
 theme_set(theme_cowplot())
+
+if(!file.exists(here("main", "csv-tables"))){
+  dir.create(here("main", "csv-tables"))
+}
 ```
 
 # Load data
@@ -63,7 +67,7 @@ sub_mem_table <- sub_mem_table %>%
          memory = memory/1000) %>% 
   dplyr::rename(Algorithm = method)
 
-levels(sub_mem_table$machine) <- c("solid state drive", "hard disk drive")
+levels(sub_mem_table$machine) <- c("desktop", "HPC cluster")
 levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
@@ -79,15 +83,15 @@ mem_table_ruoxi <-
 
 mem_table_hdf5_geom <- 
   cbind(rbind(mem_table_davide, mem_table_ruoxi), 
-        "machine" = c(rep("solid state drive", nrow(mem_table_davide)),
-                    rep("hard disk drive", nrow(mem_table_ruoxi))))
+        "machine" = c(rep("desktop", nrow(mem_table_davide)),
+                    rep("HPC cluster", nrow(mem_table_ruoxi))))
 
 mem_table_hdf5_geom <- mem_table_hdf5_geom %>% 
   dplyr::rename(chunk_size = geometry)  %>% 
   mutate(chunk_size = 
            factor(chunk_size, levels = c("best", "default",
                                          "worst", "singleChunk")), 
-         machine = factor(machine, levels = c("solid state drive", "hard disk drive")))
+         machine = factor(machine, levels = c("desktop", "HPC cluster")))
 levels(mem_table_hdf5_geom$chunk_size) <- 
   c("per cell (best)", "default", "per gene (worst)", "single chunk")
 ```
@@ -142,7 +146,7 @@ sub_time_table <- sub_time_table %>%
          batch = round(batch_size * ncells)) %>% 
   dplyr::rename(Algorithm = method)
 
-levels(sub_time_table$machine) <- c("solid state drive", "hard disk drive")
+levels(sub_time_table$machine) <- c("desktop", "HPC cluster")
 levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
@@ -159,15 +163,15 @@ time_table_ruoxi <-
 
 time_table_hdf5_geom <- 
   cbind(rbind(time_table_davide, time_table_ruoxi), 
-        "machine" = c(rep("solid state drive", nrow(time_table_davide)),
-                      rep("hard disk drive", nrow(time_table_ruoxi))))
+        "machine" = c(rep("desktop", nrow(time_table_davide)),
+                      rep("HPC cluster", nrow(time_table_ruoxi))))
 
 time_table_hdf5_geom <- time_table_hdf5_geom %>% 
   dplyr::rename(chunk_size = geometry)  %>% 
   mutate(chunk_size = 
            factor(chunk_size, levels = c("best", "default",
                                          "worst", "singleChunk")), 
-         machine = factor(machine, levels = c("solid state drive", "hard disk drive")))
+         machine = factor(machine, levels = c("desktop", "HPC cluster")))
 levels(time_table_hdf5_geom$chunk_size) <- 
   c("per cell (best)", "default", "per gene (worst)", "single chunk")
 ```
@@ -232,14 +236,14 @@ for (i in (1:length(files_acc_ruoxi))){
 
 acc_table_abs <- 
   cbind(rbind(acc_table_abs_davide, acc_table_abs_ruoxi), 
-      "machine" = c(rep("solid state drive", nrow(acc_table_abs_davide)),
-                    rep("hard disk drive", nrow(acc_table_abs_ruoxi))))
+      "machine" = c(rep("desktop", nrow(acc_table_abs_davide)),
+                    rep("HPC cluster", nrow(acc_table_abs_ruoxi))))
 
 acc_table_abs <- acc_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
 acc_table_abs$machine <- factor(acc_table_abs$machine, 
-                                levels = c("solid state drive", "hard disk drive"))
+                                levels = c("desktop", "HPC cluster"))
 acc_table_abs$Algorithm <- factor(acc_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
@@ -319,22 +323,22 @@ acc_real_table_abs_davide <-
 
 acc_real_table_abs <- 
   cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi[-5]), 
-      "machine" = c(rep("solid state drive", nrow(acc_real_table_abs_davide)),
-                    rep("hard disk drive", nrow(acc_real_table_abs_ruoxi))))
+      "machine" = c(rep("desktop", nrow(acc_real_table_abs_davide)),
+                    rep("HPC cluster", nrow(acc_real_table_abs_ruoxi))))
 
 acc_real_table_abs <- acc_real_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
 acc_table_abs$machine <- factor(acc_table_abs$machine, 
-                                levels = c("solid state drive", "hard disk drive"))
+                                levels = c("desktop", "HPC cluster"))
 acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 # > table(acc_real_table_abs$machine, acc_real_table_abs$abs_batch)
 #                   
 #                     10  35  75 150 300 500 750 1000 1500 3000 5000 7500 10000
-#  hard disk drive   450 450 450 450   0 450 450  450    0    0    0    0     0
-#  solid state drive   0   0   6   6   5   6   1    6    7    8    6    6     6
+#  HPC cluster   450 450 450 450   0 450 450  450    0    0    0    0     0
+#  desktop   0   0   6   6   5   6   1    6    7    8    6    6     6
 ```
 
 
@@ -348,15 +352,26 @@ Here, we downsampling from the `TENxBrainData`
 ($N=$ 75000, 150000, 300000, 500000  750000, and 1000000 observations)
 and show the impact of memory and time with `mbkmeans` and 
 k-means using a specific $k=15$ and batch size (`batch` = 500). 
-In this figure we show the solid state drive 
-results and show the hard disk drive results in supplemental. 
+In this figure we show the desktop 
+results and show the HPC cluster results in supplemental. 
 
 ### Memory
 
 ```{r}
+fig1_mem <- sub_mem_table %>% 
+  dplyr::filter(Algorithm == "k-means" | batch == 500, 
+                machine == "desktop") %>% 
+  dplyr::select(!c(Dataset, machine, step, batch_size, B)) %>% 
+  dplyr::select(Algorithm, everything()) %>% 
+  dplyr::arrange(Algorithm, ncells)
+fig1_mem[fig1_mem$Algorithm == "k-means",]$batch <- NA
+# readr::write_csv(fig1_mem, path = here("main", "csv-tables", "fig1-mem.csv"))
+```
+
+```{r}
 sub_mem_plot <- sub_mem_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "solid state drive") %>%
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm) %>% 
   ggplot(aes(x = ncells, y = memory, color = Algorithm)) +
           geom_line()+
@@ -384,9 +399,25 @@ sub_mem_plot <-
 ### Time
 
 ```{r}
+fig1_time <- sub_time_table %>% 
+  dplyr::filter(Algorithm == "k-means" | batch == 500, 
+                machine == "desktop") %>% 
+  dplyr::group_by(Algorithm, ncells) %>%
+  dplyr::summarize(elapsed_mean = mean(elapsed/60), elapsed_sd = sd(elapsed/60))
+# readr::write_csv(fig1_time, path = here("main", "csv-tables", "fig1-time.csv"))
+```
+
+```{r}
+fig1_both <- dplyr::left_join(fig1_mem, fig1_time) %>% 
+  dplyr::select(Algorithm, ncells, ngenes, batch, everything())
+readr::write_csv(fig1_both, path = here("main", "csv-tables", "fig1-stats.csv"))
+```
+
+
+```{r}
 sub_time_plot <- sub_time_table %>% 
   dplyr::filter(Algorithm == "k-means" | batch == 500, 
-                machine == "solid state drive") %>%
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm, ncells) %>%
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -401,7 +432,7 @@ sub_time_plot <- sub_time_table %>%
 sub_time_plot
 ```
 
-```{r}
+```{r, fig.align="center"}
 p1 <- ggdraw() +
     draw_plot(as_ggplot(my_legend), x = 0, y = 0.96, width = 1, height = 0.05) + 
     draw_plot(sub_mem_plot, x = 0, y = 0.48, width = 1, height = .48) +
@@ -423,14 +454,14 @@ dev.off()
 
 Here we select three sizes of datasets ($N$) and show the accuracy 
 as a function of absolute batch size using both simulated and 
-real scRNA-seq data. In this figure we show the solid state drive 
-results and show the hard disk drive results in supplemental. 
+real scRNA-seq data. In this figure we show the desktop 
+results and show the HPC cluster results in supplemental. 
 
 ### ARI 
 ```{r}
 p_ari_obs_line_abs <- acc_table_abs %>% 
   dplyr::filter(observations %in% c(5000,10000,25000), 
-                machine == "solid state drive") %>%
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -467,7 +498,7 @@ p_ari_obs_line_abs <-
 ```{r}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
   dplyr::filter(observations %in% c(5000,10000,25000), 
-                machine == "solid state drive") %>%
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
@@ -490,8 +521,12 @@ p_wcss_obs_line_abs
 Need to ask Davide about this. 
 
 ```{r}
+
+dat <- acc_real_table_abs %>%   
+  dplyr::filter(machine == "desktop")
+
 p_wcss_real_abs <- acc_real_table_abs %>%   
-  dplyr::filter(machine == "hard disk drive") %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
   dplyr::filter((observations %in% c(5000,10000,25000)))%>%
   dplyr::group_by(observations, Algorithm, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number()) %>% 
@@ -536,20 +571,31 @@ dev.off()
 Here we select one size of datasets ($N = 1,000,000$) and show role of 
 batch size on time and memory using real scRNA-seq data. 
 as a function of absolute batch size using both simulated and 
-real scRNA-seq data. In this figure we show the solid state drive 
-results and show the hard disk drive results in supplemental. 
+real scRNA-seq data. In this figure we show the desktop 
+results and show the HPC cluster results in supplemental. 
 
 
 ### Memory
 
 ```{r}
+fig3_mem <- sub_mem_table %>% 
+  dplyr::filter(ncells == 1000000, 
+                Algorithm != "k-means",
+                machine == "desktop") %>%
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::select(!c(Dataset, machine, step, batch_size, B)) %>% 
+  dplyr::select(Algorithm, everything()) %>% 
+  dplyr::arrange(Algorithm, batch)
+# readr::write_csv(fig3_mem, path = here("main", "csv-tables", "fig3-mem.csv"))
+```
+
+```{r}
 fig3_mem_plot <- sub_mem_table %>% 
   dplyr::filter(ncells == 1000000, 
                 Algorithm != "k-means",
-                machine == "solid state drive") %>%
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm, ncells, batch) %>%
-  dplyr::summarize(mean = mean(memory), sd = sd(memory)) %>%
-  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+  ggplot(aes(x = batch, y = memory, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
       labs(title = "Memory usage for increasing batch size") + 
@@ -575,17 +621,32 @@ fig3_mem_plot <-
 
 ### Time
 
+
+```{r}
+fig3_time <- sub_time_table %>% 
+  dplyr::filter(ncells == 1000000, Algorithm != "k-means",
+                machine == "desktop") %>% 
+  dplyr::group_by(Algorithm, ncells, batch) %>%
+  dplyr::summarize(elapsed_mean = mean(elapsed/60), elapsed_sd = sd(elapsed/60))
+# readr::write_csv(fig3_time, path = here("main", "csv-tables", "fig3-time.csv"))
+```
+
+```{r}
+fig3_both <- dplyr::left_join(fig3_mem, fig3_time) %>% 
+  dplyr::select(Algorithm, ncells, ngenes, batch, everything())
+readr::write_csv(fig3_both, path = here("main", "csv-tables", "fig3-stats.csv"))
+```
+
 ```{r}
 fig3_time_plot <- sub_time_table %>% 
-  dplyr::filter(ncells == 1000000, 
-                Algorithm != "k-means",
-                machine == "solid state drive") %>%
+  dplyr::filter(ncells == 1000000, Algorithm != "k-means",
+                machine == "desktop") %>%
   dplyr::group_by(Algorithm, ncells, batch) %>%
-  dplyr::summarize(mean = mean(elapsed/60), sd = sd(elapsed/60)) %>%
-  ggplot(aes(x = batch, y = mean, color = Algorithm)) +
+  dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
+  ggplot(aes(x = batch, y = mean_elapsed, color = Algorithm)) + 
           geom_line() +
           geom_point(size = 3) +
-            geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+            geom_errorbar(aes(ymin=mean_elapsed-sd, ymax=mean_elapsed+sd), width=.2,
                 position=position_dodge(0.05)) +
       labs(title = "Elapsed time for increasing batch size") + 
         xlab("Number of cells in batch") + 
@@ -613,12 +674,31 @@ dev.off()
 
 ## Figure 4
 
-In this figure we show the solid state drive 
-results and show the hard disk drive results in supplemental. 
+Here, we downsampling from the `TENxBrainData` 
+($N=$ 75000, 150000, 300000, 500000  750000, and 1000000 observations)
+and show the impact of memory and time with different HDF5 geometry file 
+structures using a specific $k=15$ and batch size (`batch` = 500). 
+In this figure we show the desktop results and show the HPC cluster 
+results in supplemental. 
+
+### Memory
+
+```{r}
+fig4_mem <- mem_table_hdf5_geom %>% 
+  dplyr::filter(machine == "desktop") %>% 
+  dplyr::select(!c(choice, label, machine)) %>% 
+  dplyr::select(chunk_size, dimension_1, dimension_2, observations, genes, 
+                abs.batch.size, memory) %>% 
+  dplyr::rename(dim_1 = dimension_1, dim_2 = dimension_2, ncells = observations, 
+                ngenes = genes, batch = abs.batch.size) %>%
+  dplyr::arrange(chunk_size, ncells) %>% 
+  dplyr::mutate(memory = memory/1024)
+# readr::write_csv(fig4_mem, path = here("main", "csv-tables", "fig4-mem.csv"))
+```
 
 ```{r}
 p_mem_hdf5 <- mem_table_hdf5_geom %>% 
-  dplyr::filter(machine == "solid state drive") %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(observations, chunk_size) %>% 
   ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
           geom_point() +
@@ -646,9 +726,30 @@ p_mem_hdf5 <- p_mem_hdf5 +
 ```
 
 
+### Time
+
+```{r}
+fig4_time <- time_table_hdf5_geom %>% 
+  dplyr::filter(machine == "desktop")  %>% 
+  dplyr::select(!c(choice, label, machine, time2, time3)) %>% 
+  dplyr::select(chunk_size, dimension_1, dimension_2, observations, genes, 
+                abs.batch.size, time1) %>%
+  dplyr::rename(dim_1 = dimension_1, dim_2 = dimension_2, ncells = observations, 
+                ngenes = genes, batch = abs.batch.size) %>%
+  dplyr::group_by(ncells, chunk_size) %>% 
+  dplyr::summarize(elapsed_mean = mean(time1/60), elapsed_sd = sd(time1/60))
+# readr::write_csv(fig4_time, path = here("main", "csv-tables", "fig4-time.csv"))
+```
+
+```{r}
+fig4_both <- dplyr::left_join(fig4_mem, fig4_time) 
+readr::write_csv(fig4_both, path = here("main", "csv-tables", "fig4-stats.csv"))
+```
+
+
 ```{r}
 p_time_hdf5 <- time_table_hdf5_geom %>% 
-  dplyr::filter(machine == "solid state drive") %>%
+  dplyr::filter(machine == "desktop") %>%
   dplyr::group_by(observations, chunk_size) %>% 
   dplyr::summarize(mean = mean(time1/60), 
                    sd = sd(time1/60)) %>% 
@@ -667,48 +768,13 @@ p_time_hdf5 <- time_table_hdf5_geom %>%
 p_time_hdf5
 ```
 
-```{r}
-p_mem_ruoxi <- mem_table_ruoxi %>% 
-  dplyr::group_by(observations, chunk_size) %>% 
-  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
-          geom_point() +
-          geom_line() +
-    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
-    xlab("Number of cells") +
-    ylab("Max memory usage (GB)") + 
-    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 4.4, ymax = 5),
-               fill = "transparent", color = "#C77CFF", size = 1.5) + 
-  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
-  theme(legend.position = "top", legend.justification= "center") 
-p_mem_ruoxi
-```
 
-```{r}
-p_time_ruoxi <- time_table_ruoxi %>% 
-  dplyr::group_by(observations, chunk_size) %>% 
-  dplyr::summarize(mean = mean(time1/60), 
-                   sd = sd(time1/60)) %>% 
-  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
-          geom_point()+
-          geom_line()+
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-     labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
-    xlab("Number of cells") +
-    ylab("Elapsed time (mins)") + 
-    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
-               fill = "transparent", color = "#C77CFF", size = 1.5) + 
-    scale_color_discrete(name = "Chunk size") + 
-    theme(legend.position = "none", legend.justification= "center") 
-
-p_time_ruoxi
-```
 
 ```{r}
 p4 <- ggdraw() +
     draw_plot(as_ggplot(my_legend), x = 0, y = 0.92, width = 1, height = 0.10) + 
-    draw_plot(p_mem, x = 0, y = 0.46, width = 1, height = .48) +
-    draw_plot(p_time, x = 0, y = 0, width = 1, height = .48) +
+    draw_plot(p_mem_hdf5, x = 0, y = 0.46, width = 1, height = .48) +
+    draw_plot(p_time_hdf5, x = 0, y = 0, width = 1, height = .48) +
     draw_plot_label(label = LETTERS[1:2], size = 25,
                     x = c(0, 0), y = c(0.95, 0.51))
 p4
@@ -779,7 +845,7 @@ p_vark_time
 
 ```{r}
 p_ari_obs_line_abs_all <- acc_table_abs %>% 
-  dplyr::filter(machine == "solid state drive") %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -789,7 +855,7 @@ p_ari_obs_line_abs_all <- acc_table_abs %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
       ylim(0.95, 1) + 
-      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a solid state drive") + 
+      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq\ndatasets using a desktop") + 
         xlab("Absolute batch sizes") + 
         ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -807,7 +873,7 @@ dev.off()
 
 ```{r}
 p_ari_obs_line_abs_all <- acc_table_abs %>% 
-  dplyr::filter(machine == "hard disk drive") %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -817,7 +883,7 @@ p_ari_obs_line_abs_all <- acc_table_abs %>%
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
       ylim(0.95, 1) + 
-      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a hard disk drive") + 
+      labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq\ndatasets using a HPC cluster") + 
         xlab("Absolute batch sizes") + 
         ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -863,7 +929,7 @@ dev.off()
 
 ```{r}
 p_wcss_obs_line_abs_all <- acc_table_abs %>% 
-  dplyr::filter(machine == "solid state drive") %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
@@ -874,7 +940,7 @@ p_wcss_obs_line_abs_all <- acc_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a solid state drive") + 
+     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq\ndatasets using a desktop") + 
         xlab("Absolute batch sizes") + 
         ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -890,7 +956,7 @@ dev.off()
 
 ```{r}
 p_wcss_obs_line_abs_all <- acc_table_abs %>% 
-  dplyr::filter(machine == "hard disk drive") %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
   dplyr::group_by(Algorithm, observations, abs_batch) %>% 
   mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
@@ -901,7 +967,7 @@ p_wcss_obs_line_abs_all <- acc_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05))+
-     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq datasets\nusing a hard disk drive") + 
+     labs(title = "Performance of accuracy with increasing sizes of simulated scRNA-seq\ndatasets using a HPC cluster") + 
         xlab("Absolute batch sizes") + 
         ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
@@ -1043,6 +1109,8 @@ sub_time_plot <- sub_time_table %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
           geom_line() +
           geom_point(size = 3) +
+          geom_errorbar(aes(ymin=mean_elapsed-sd, ymax=mean_elapsed+sd), width=.2,
+                        position=position_dodge(0.05)) +
       labs(title = "Elapsed time for increasing number of cells") + 
         xlab("Number of cells") + 
         ylab("Elapsed time (mins)") + 
@@ -1116,4 +1184,51 @@ pdf(here::here("main", "figs", "fig-supp-real-time-hdf5-geom-twoplatforms.pdf"),
     width = 10, height =5)
 print(p_time_hdf5)
 dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+p_mem_ruoxi <- mem_table_ruoxi %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  ggplot(aes(x = observations, y = memory/1024, color=chunk_size)) +
+          geom_point() +
+          geom_line() +
+    labs(title = "Memory usage when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Max memory usage (GB)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 4.4, ymax = 5),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+  scale_color_discrete(name = "Chunk size", guide = guide_legend(nrow = 2)) + 
+  theme(legend.position = "top", legend.justification= "center") 
+p_mem_ruoxi
+```
+
+```{r}
+p_time_ruoxi <- time_table_ruoxi %>% 
+  dplyr::group_by(observations, chunk_size) %>% 
+  dplyr::summarize(mean = mean(time1/60), 
+                   sd = sd(time1/60)) %>% 
+  ggplot(aes(x = observations, y = mean, color = chunk_size)) +
+          geom_point()+
+          geom_line()+
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Elapsed time when accessing HDF5 files\nwith different chunk sizes") + 
+    xlab("Number of cells") +
+    ylab("Elapsed time (mins)") + 
+    geom_rect(aes(xmin = 50000, xmax = 100000, ymin = 0, ymax = 4),
+               fill = "transparent", color = "#C77CFF", size = 1.5) + 
+    scale_color_discrete(name = "Chunk size") + 
+    theme(legend.position = "none", legend.justification= "center") 
+
+p_time_ruoxi
 ```
