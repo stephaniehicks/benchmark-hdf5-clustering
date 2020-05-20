@@ -277,68 +277,48 @@ levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 #### Fixed $k$
 
-This currently loads in results from only Ruoxi. 
-Need to add Davide's output. 
+This loads in results from both Ruoxi and Davide. 
 
 ```{r}
-# load in Ruoxi's files
-files_acc_ruoxi <- list.files(path = here("output_tables", "abs_batch", 
-                                    "acc", "real_data"), 
+files_acc <- list.files(path = here("output_tables", "abs_batch", "acc", "real_data"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-files_acc_ruoxi <- files_acc_ruoxi[grep("_ruoxi_cluster", files_acc_ruoxi)]
+
+files_acc_davide <- files_acc[grep("_davide_mac", files_acc)]
+files_acc_ruoxi <- files_acc[grep("_ruoxi_cluster", files_acc)]
+
+acc_real_table_abs_davide <- NULL
+for (i in (1:length(files_acc_davide))){
+  temp_table <- read.csv(file = files_acc_davide[i], header=TRUE, sep=",")
+  acc_real_table_abs_davide <- rbind(acc_real_table_abs_davide, temp_table)
+}
+#> table(acc_real_table_abs_davide$observations)
+#   5000 10000 25000 
+#   350   350   350 
 
 acc_real_table_abs_ruoxi <- NULL
 for (i in (1:length(files_acc_ruoxi))){
   temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
   acc_real_table_abs_ruoxi <- rbind(acc_real_table_abs_ruoxi, temp_table)
 }
-head(acc_real_table_abs_ruoxi) 
-# > table(acc_real_table_abs_ruoxi$observations)
-#   5000 10000 25000 
-#   1050  1050  1050 
-
-# load in Davide's files
-files_acc_davide <- list.files(path = here("main", "case_studies", "output"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-
-files_acc_davide <- files_acc_davide[grep("wcss_TENxBrainData", files_acc_davide)]
-files_acc_davide <- files_acc_davide[grep("_davide_mac", files_acc_davide)]
-
-acc_real_table_abs_davide <- NULL
-for (i in (1:length(files_acc_davide))){
-  temp_table <- read.csv(file = files_acc_davide[i], header=FALSE, sep=",")
-  acc_real_table_abs_davide <- rbind(acc_real_table_abs_davide, temp_table)
-}
-head(acc_real_table_abs_davide)
-# > table(acc_real_table_abs_davide$V3)
-#  75000  150000  300000  500000  750000 1000000 
-#     11      11      11      10      10      10 
-acc_real_table_abs_davide <- 
-  acc_real_table_abs_davide[,-c(1:2)][,c(6,1,2,5,4,7)]
-colnames(acc_real_table_abs_davide) <- colnames(acc_real_table_abs_ruoxi)[-5]
-acc_real_table_abs_davide <- 
-  acc_real_table_abs_davide %>% 
-  mutate(abs_batch = round(observations*abs_batch))
-
+#> table(acc_real_table_abs_ruoxi$observations)
+#  5000 10000 25000 
+#  1050  1050  1050 
 
 acc_real_table_abs <- 
-  cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi[-5]), 
+  cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi), 
       "machine" = c(rep("desktop", nrow(acc_real_table_abs_davide)),
                     rep("HPC cluster", nrow(acc_real_table_abs_ruoxi))))
 
 acc_real_table_abs <- acc_real_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
-acc_table_abs$machine <- factor(acc_table_abs$machine, 
+acc_real_table_abs$machine <- factor(acc_real_table_abs$machine, 
                                 levels = c("desktop", "HPC cluster"))
 acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
-# > table(acc_real_table_abs$machine, acc_real_table_abs$abs_batch)
-#                   
-#                     10  35  75 150 300 500 750 1000 1500 3000 5000 7500 10000
-#  HPC cluster   450 450 450 450   0 450 450  450    0    0    0    0     0
-#  desktop   0   0   6   6   5   6   1    6    7    8    6    6     6
+
+table(acc_real_table_abs$machine, acc_real_table_abs$abs_batch)
 ```
 
 
@@ -457,7 +437,21 @@ as a function of absolute batch size using both simulated and
 real scRNA-seq data. In this figure we show the desktop 
 results and show the HPC cluster results in supplemental. 
 
-### ARI 
+### ARI
+
+
+```{r}
+fig2_ari_sim <- acc_table_abs %>% 
+  dplyr::filter(observations %in% c(5000,10000,25000), 
+                machine == "desktop") %>%
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  dplyr::rename(ncells = observations, batch = abs_batch, 
+                ari_sim_mean = mean, ari_sim_sd = sd) %>% 
+  dplyr::arrange(Algorithm, ncells, batch)
+```
+
 ```{r}
 p_ari_obs_line_abs <- acc_table_abs %>% 
   dplyr::filter(observations %in% c(5000,10000,25000), 
@@ -495,6 +489,21 @@ p_ari_obs_line_abs <-
 
 
 ### WCSS
+
+```{r}
+fig2_wcss_sim <- acc_table_abs %>% 
+  dplyr::filter(observations %in% c(5000,10000,25000), 
+                machine == "desktop") %>%
+  dplyr::group_by(Algorithm, observations, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  dplyr::rename(ncells = observations, batch = abs_batch, 
+                wcss_sim_mean = mean, wcss_sim_sd = sd) %>% 
+  dplyr::arrange(Algorithm, ncells, batch)
+```
+
 ```{r}
 p_wcss_obs_line_abs <- acc_table_abs %>% 
   dplyr::filter(observations %in% c(5000,10000,25000), 
@@ -521,28 +530,45 @@ p_wcss_obs_line_abs
 Need to ask Davide about this. 
 
 ```{r}
-
-dat <- acc_real_table_abs %>%   
-  dplyr::filter(machine == "desktop")
-
-p_wcss_real_abs <- acc_real_table_abs %>%   
-  dplyr::filter(machine == "HPC cluster") %>% 
-  dplyr::filter((observations %in% c(5000,10000,25000)))%>%
+fig2_wcss_real <- acc_real_table_abs %>%   
+  dplyr::filter(machine == "desktop") %>% 
+  dplyr::filter((observations %in% c(5000,10000,25000))) %>%
   dplyr::group_by(observations, Algorithm, abs_batch) %>% 
-  mutate(q90 = quantile(normal_WCSS, 0.8), row = row_number()) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  dplyr::summarize(mean = median(normal_WCSS), 
+                   sd = sd(normal_WCSS))  %>% 
+  dplyr::rename(ncells = observations, batch = abs_batch, 
+                wcss_real_mean = mean, wcss_real_sd = sd) %>% 
+  dplyr::select(Algorithm, ncells, batch, everything()) 
+```
+
+
+```{r}
+fig2_all <- dplyr::left_join(fig2_ari_sim, fig2_wcss_sim) %>% 
+  dplyr::left_join(fig2_wcss_real)
+readr::write_csv(fig2_all, path = here("main", "csv-tables", "fig2-stats.csv"))
+```
+
+```{r}
+p_wcss_real_abs <- acc_real_table_abs %>%   
+  dplyr::filter(machine == "desktop") %>% 
+  dplyr::filter((observations %in% c(5000,10000,25000))) %>%
+  dplyr::group_by(observations, Algorithm, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
   dplyr::filter(normal_WCSS <= q90) %>%
   dplyr::summarize(mean = median(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
   ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
-          geom_line()+
-          geom_point()+
+          geom_line() +
+          geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
+                position=position_dodge(0.05)) +
   theme(legend.position = "none", legend.justification= "center") +
   labs(title = "Performance of accuracy with three real scRNA-seq datasets") + 
         xlab("Absolute batch sizes") + 
         ylab("WCSS") +
-  facet_wrap(~observations, scales = "free") 
+  facet_wrap( ~ observations, scales = "free") 
 p_wcss_real_abs
 ```
 
@@ -864,7 +890,7 @@ p_ari_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-ari-ssdrive.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-ari-desktop.pdf"), width = 10, height =10)
 print(p_ari_obs_line_abs_all)
 dev.off()
 ```
@@ -892,7 +918,7 @@ p_ari_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-ari-hddrive.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-ari-hpc.pdf"), width = 10, height =10)
 print(p_ari_obs_line_abs_all)
 dev.off()
 ```
@@ -949,7 +975,7 @@ p_wcss_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-wcss-ssdrive.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-desktop.pdf"), width = 10, height =10)
 print(p_wcss_obs_line_abs_all)
 dev.off()
 ```
@@ -976,7 +1002,7 @@ p_wcss_obs_line_abs_all
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-wcss-hddrive.pdf"), width = 10, height =10)
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-hpc.pdf"), width = 10, height =10)
 print(p_wcss_obs_line_abs_all)
 dev.off()
 ```
