@@ -57,3 +57,22 @@ Note: In `benchmark.R`, only accuracy uses absolute batch sizes. Time and memory
 - Benchmark real data
 
 Everything is in `/main/case_studies`, except one script written to benchmark real data accuracy is in `/main/real_data_acc.R`. The difference between `/main/real_data_acc.R` and  `/main/case_studies/01-cluster_full.R` is that the former only benchmarks accuracy, and it uses `mclapply` to quickly run multiple times.
+
+## Performance evaluation
+
+### Accuracy
+To assess the accuracy, we used two performance metrics: 
+
+* Adjusted Rand Index (ARI)  is a measure of similarity between the estimated cluster labels and the true cluster labels (or a "gold standard"). The range of ARI is between 0 and 1, where 0 refers to no similarity between the cluster labels and 1 means the clusters labels are the same. We used the `adjustedRandIndex` function in *mclust*
+* Within-Clusters Sums-of-Squares (WCSS) is defined as the sum of the squared distance between each member of the cluster and its centroid. It does not depend on having true cluster labels. 
+
+### Memory
+
+We used the `Rprof` function in the *utils* package as part of base R with the arguments `append=FALSE` and `memory.profiling=TRUE` to record the memory usage every 0.02 seconds (the default for the argument `interval` in the `Rprof` function is 0.02). The recorded profiles will be saved in an `.out` output file. To summarize and interpret the output files, we used the `summaryRprof` function in the `utils` package with the arguments `memory = "tseries"` and `diff = FALSE` to generate a time series table of the memory consumption in R. The first three columns of the table are `vsize.small`, `vsize.large` and `nodes` respectively. By the documentation of the function `summaryRprof`: `vsize.small` is the vector memory in small blocks on the R heap; `vsize.large` is the vector memory in large blocks; `"Nodes"` is the memory in nodes on the R heap. And the sum of these three is the total memory. So we extracted the max memory by finding the max of the sum of the three columns, and use this max memory to benchmark the memory efficiency of the algorithm.
+
+
+### Time
+
+We used the function `proc.time` in base R to record the 'user time' (the CPU time charged for the execution of user instructions of the calling process), the 'system time' (the CPU time charged for execution by the system on behalf of the calling process), and the 'elapsed time' (the real time to run the process). The function `proc.time` returned time in seconds and we converted to appropriate units (e.g. minutes or hours). 
+
+
