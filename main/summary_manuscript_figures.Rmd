@@ -40,8 +40,6 @@ All assessments in this section use absolute batch sizes.
 
 ### Subsampling TENxBrainData 
 
-This loads in results from both Davide and Ruoxi. 
-
 #### Increasing $b$ and $N$
 
 ```{r}
@@ -98,23 +96,36 @@ levels(mem_table_hdf5_geom$chunk_size) <-
 
 ### Simulated data
 
-This currently loads in results from only Ruoxi. 
-Need to add Davide's output (should be ready by 4/29). 
-
 #### Varying $k$
 
 ```{r}
 files_vark_mem <- list.files(path = here("output_tables", "Varying_k", "mem"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-vark_table_mem <- NULL
-for (i in (1:length(files_vark_mem))){
-  temp_table <- read.csv(file = files_vark_mem[i], header=TRUE, sep=",")
-  vark_table_mem <- rbind(vark_table_mem, temp_table)
+files_vark_mem_davide <- files_vark_mem[grep("_davide_mac", files_vark_mem)]
+files_vark_mem_ruoxi <- files_vark_mem[grep("_ruoxi_cluster", files_vark_mem)]
+
+vark_table_mem_davide <- NULL
+for (i in (1:length(files_vark_mem_davide))){
+  temp_table <- read.csv(file = files_vark_mem_davide[i], header=TRUE, sep=",")
+  vark_table_mem_davide <- rbind(vark_table_mem_davide, temp_table)
 }
+
+vark_table_mem_ruoxi <- NULL
+for (i in (1:length(files_vark_mem_ruoxi))){
+  temp_table <- read.csv(file = files_vark_mem_ruoxi[i], header=TRUE, sep=",")
+  vark_table_mem_ruoxi <- rbind(vark_table_mem_ruoxi, temp_table)
+}
+
+vark_table_mem <- 
+  cbind(rbind(vark_table_mem_davide, vark_table_mem_ruoxi), 
+      "machine" = c(rep("desktop", nrow(vark_table_mem_davide)),
+                    rep("HPC cluster", nrow(vark_table_mem_ruoxi))))
 
 vark_table_mem <- vark_table_mem %>% 
   dplyr::rename(Algorithm = method)
 
+vark_table_mem$machine <- factor(vark_table_mem$machine, 
+                                levels = c("desktop", "HPC cluster"))
 vark_table_mem$Algorithm <- factor(vark_table_mem$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(vark_table_mem$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
@@ -123,8 +134,6 @@ levels(vark_table_mem$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ## Time 
 
 ### Subsampling TENxBrainData 
-
-This loads in results from both Davide and Ruoxi.
 
 #### Increasing $b$ and $N$
 
@@ -177,31 +186,6 @@ levels(time_table_hdf5_geom$chunk_size) <-
 ```
 
 
-### Simulated data
-
-This currently loads in results from only Ruoxi. 
-Need to add Davide's output (should be ready by 4/29).
-
-#### Varying $k$
-
-```{r}
-files_vark_time <- list.files(path = here("output_tables", "Varying_k", "time"), 
-                        pattern="*.csv", full.names=TRUE, recursive=FALSE)
-vark_table_time <- NULL
-for (i in (1:length(files_vark_time))){
-  temp_table <- read.csv(file = files_vark_time[i], header=TRUE, sep=",")
-  vark_table_time <- rbind(vark_table_time, temp_table)
-}
-
-vark_table_time <- vark_table_time %>% 
-  dplyr::rename(Algorithm = method)
-
-vark_table_time$Algorithm <- factor(vark_table_time$Algorithm, 
-                               levels = c("kmeans", "mbkmeans", "hdf5"))
-levels(vark_table_time$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
-```
-
-
 ## Accuracy
 
 Here we are using the performance metrics adjusted Rand index (ARI) and 
@@ -211,8 +195,6 @@ All assessments in this section use absolute batch sizes.
 ### Simulated data
 
 #### Fixed $k$
-
-This loads in results from both Davide and Ruoxi. 
 
 ```{r}
 files_acc <- list.files(path = here("output_tables", "abs_batch", "acc"), 
@@ -252,32 +234,44 @@ levels(acc_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 
 #### Varying $k$
 
-This currently loads in results from only Ruoxi. 
-Need to add Davide's output (should be ready by 4/29).
-
 ```{r}
 files_vark <- list.files(path = here("output_tables", "Varying_k", "acc"), 
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
-vark_table_abs <- NULL
-for (i in (1:length(files_vark))){
-  temp_table <- read.csv(file = files_vark[i], header=TRUE, sep=",")
-  vark_table_abs <- rbind(vark_table_abs, temp_table)
+files_vark_davide <- files_vark[grep("_davide_mac", files_vark)]
+files_vark_ruoxi <- files_vark[grep("_ruoxi_cluster", files_vark)]
+
+vark_table_davide <- NULL
+for (i in (1:length(files_vark_davide))){
+  temp_table <- read.csv(file = files_vark_davide[i], header=TRUE, sep=",")
+  vark_table_davide <- rbind(vark_table_davide, temp_table)
 }
 
-vark_table_abs <- vark_table_abs %>% 
+vark_table_ruoxi <- NULL
+for (i in (1:length(files_vark_ruoxi))){
+  temp_table <- read.csv(file = files_vark_ruoxi[i], header=TRUE, sep=",")
+  vark_table_ruoxi <- rbind(vark_table_ruoxi, temp_table)
+}
+
+vark_table <- 
+  cbind(rbind(vark_table_davide, vark_table_ruoxi), 
+      "machine" = c(rep("desktop", nrow(vark_table_davide)),
+                    rep("HPC cluster", nrow(vark_table_ruoxi))))
+
+vark_table <- vark_table %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
-  dplyr::rename(Algorithm = method)
-vark_table_abs$Algorithm <- factor(vark_table_abs$Algorithm, 
+  dplyr::rename(Algorithm = method) 
+
+vark_table$machine <- factor(vark_table$machine, 
+                                levels = c("desktop", "HPC cluster"))
+vark_table$Algorithm <- factor(vark_table$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
-levels(vark_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+levels(vark_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 ### Subsampling TENxBrainData 
 
 
 #### Fixed $k$
-
-This loads in results from both Ruoxi and Davide. 
 
 ```{r}
 files_acc <- list.files(path = here("output_tables", "abs_batch", "acc", "real_data"), 
@@ -291,18 +285,12 @@ for (i in (1:length(files_acc_davide))){
   temp_table <- read.csv(file = files_acc_davide[i], header=TRUE, sep=",")
   acc_real_table_abs_davide <- rbind(acc_real_table_abs_davide, temp_table)
 }
-#> table(acc_real_table_abs_davide$observations)
-#   5000 10000 25000 
-#   350   350   350 
 
 acc_real_table_abs_ruoxi <- NULL
 for (i in (1:length(files_acc_ruoxi))){
   temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
   acc_real_table_abs_ruoxi <- rbind(acc_real_table_abs_ruoxi, temp_table)
 }
-#> table(acc_real_table_abs_ruoxi$observations)
-#  5000 10000 25000 
-#  1050  1050  1050 
 
 acc_real_table_abs <- 
   cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi), 
@@ -824,46 +812,62 @@ All assessments in this section use absolute batch sizes.
 #### Varying $k$
 
 ```{r}
-p_vark_mem <- vark_table_mem %>% 
+p_vark_mem_desktop <- vark_table_mem %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
   ggplot(aes(x = k, y = memory/1024, color = Algorithm)) +
           geom_line() +
           geom_point() +
-          #geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-          #      position=position_dodge(0.05)) +
-     labs(title = "Memory usage (RAM) with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
+     labs(title = "Memory usage (RAM) using a desktop") + 
         xlab("Number of clusters (k) used in clustering algorithm") + 
         ylab("Max memory usage (GB)") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_mem
+p_vark_mem_desktop
 ```
 
-### Time 
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(p_vark_mem_desktop)
+```
 
-#### Varying $k$
+Resave figure without legend
 
 ```{r}
-p_vark_time <- vark_table_time %>% 
-  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
-  mutate(q90 = quantile(elapsed_time, 0.85), row = row_number()) %>% 
-  #mutate(q15 = quantile(elapsed_time, 0.15), row = row_number()) %>% 
-  dplyr::filter(elapsed_time < q90) %>%
-  dplyr::summarize(mean = mean(elapsed_time/60), 
-                   sd = sd(elapsed_time/60)) %>%
-  ggplot(aes(x = k, y = mean, color = Algorithm)) +
-          geom_line() +
-          geom_point() +
-          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-     labs(title = "Elapsed time with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
-        xlab("Number of clusters (k) used in clustering algorithm") + 
-        ylab("Elapsed time (mins)") + 
-  theme(legend.position = "top", legend.justification= "center") +
-  facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_time
+p_vark_mem_desktop <- 
+  p_vark_mem_desktop + 
+  theme(legend.position = "none", legend.justification= "center")
 ```
 
+```{r}
+p_vark_mem_hpc <- vark_table_mem %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  ggplot(aes(x = k, y = memory/1024, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+     labs(title = "Memory usage (RAM) using a HPC cluster") + 
+        xlab("Number of clusters (k) used in clustering algorithm") + 
+        ylab("Max memory usage (GB)") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_mem_hpc
+
+```
+
+```{r}
+p4 <- ggdraw() +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.92, width = 1, height = 0.10) + 
+    draw_plot(p_vark_mem_desktop, x = 0, y = 0.46, width = 1, height = .48) +
+    draw_plot(p_vark_mem_hpc, x = 0, y = 0, width = 1, height = .48) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(0.95, 0.51))
+p4
+
+pdf(here::here("main", "figs", "fig-supp-sim-memory-varyingk.pdf"), width = 8, height =8)
+print(p4)
+dev.off()
+```
 
 ### Accuracy (ARI)
 
@@ -895,8 +899,6 @@ print(p_ari_obs_line_abs_all)
 dev.off()
 ```
 
-
-
 ```{r}
 p_ari_obs_line_abs_all <- acc_table_abs %>% 
   dplyr::filter(machine == "HPC cluster") %>% 
@@ -922,10 +924,12 @@ pdf(here::here("main", "figs", "fig-supp-sim-ari-hpc.pdf"), width = 10, height =
 print(p_ari_obs_line_abs_all)
 dev.off()
 ```
+
 #### Varying $k$ 
 
 ```{r}
-p_vark_ari <- vark_table_abs %>% 
+p_vark_ari_desktop <- vark_table %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
   dplyr::summarize(mean = mean(ARI), 
                    sd = sd(ARI)) %>% 
@@ -934,17 +938,61 @@ p_vark_ari <- vark_table_abs %>%
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(0.05)) +
-     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000) \n with the true number of clusters as k = 15") + 
-        xlab("Number of clusters (k) used in clustering algorithm") + 
+     labs(title = "Performance accuracy using a desktop") + 
         ylab("adjusted Rand index (ARI)") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_ari
+p_vark_ari_desktop
+```
+
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(p_vark_ari_desktop)
+```
+
+Resave figure without legend
+
+```{r}
+p_vark_ari_desktop <- 
+  p_vark_ari_desktop + 
+  theme(legend.position = "none", legend.justification= "center")
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-ari-varyingk.pdf"), width = 10, height =10)
-print(p_vark_ari)
+p_vark_ari_hpc <- vark_table %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(ARI), 
+                   sd = sd(ARI)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Performance accuracy using a HPC cluster") + 
+        ylab("adjusted Rand index (ARI)") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_ari_hpc
+```
+
+```{r}
+p4 <- ggdraw() +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.92, width = 1, height = 0.10) + 
+    draw_plot(p_vark_ari_desktop, x = 0, y = 0.46, width = 1, height = .48) +
+    draw_plot(p_vark_ari_hpc, x = 0, y = 0, width = 1, height = .48) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(0.95, 0.51))
+p4
+
+pdf(here::here("main", "figs", "fig-supp-sim-ari-varyingk.pdf"), width = 8, height =12)
+print(p4)
+dev.off()
+```
+
+```{r}
+pdf(here::here("main", "figs", "fig-supp-sim-ari-desktop-varyingk.pdf"), width = 10, height =10)
+print(p_vark_ari_desktop)
 dev.off()
 ```
 
@@ -1010,9 +1058,9 @@ dev.off()
 
 #### Varying $k$ 
 
-Using absolute batch sizes. Fixed $k$.
 ```{r}
-p_vark_wcss <- vark_table_abs %>% 
+p_vark_wcss_desktop <- vark_table %>% 
+  dplyr::filter(machine == "desktop") %>% 
   dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
   dplyr::summarize(mean = mean(normal_WCSS), 
                    sd = sd(normal_WCSS)) %>% 
@@ -1020,20 +1068,59 @@ p_vark_wcss <- vark_table_abs %>%
           geom_line() +
           geom_point() +
           geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05))+
-     labs(title = "Performance of accuracy with two sizes of simulated scRNA-seq datasets\nand three absolute batch sizes (75, 500, 1000)\n with the true number of clusters as k = 15") + 
-        xlab("Number of clusters (k) used in clustering algorithm") + 
+                position=position_dodge(0.05)) +
+     labs(title = "Performance accuracy using a desktop") + 
         ylab("WCSS") + 
   theme(legend.position = "top", legend.justification= "center") +
   facet_grid(batch_size ~ observations, scales = "free") 
-p_vark_wcss
+p_vark_wcss_desktop
+```
+
+Save the legend on its own
+```{r}
+my_legend <- cowplot::get_legend(p_vark_wcss_desktop)
+```
+
+Resave figure without legend
+
+```{r}
+p_vark_wcss_desktop <- 
+  p_vark_wcss_desktop + 
+  theme(legend.position = "none", legend.justification= "center")
 ```
 
 ```{r}
-pdf(here::here("main", "figs", "fig-supp-sim-wcss-varyingk.pdf"), width = 10, height =10)
-print(p_vark_wcss)
+p_vark_wcss_hpc <- vark_table %>% 
+  dplyr::filter(machine == "HPC cluster") %>% 
+  dplyr::group_by(Algorithm, observations, batch_size, k) %>% 
+  dplyr::summarize(mean = mean(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = k, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+     labs(title = "Performance accuracy using a HPC cluster") + 
+        ylab("WCSS") + 
+  theme(legend.position = "none", legend.justification= "center") +
+  facet_grid(batch_size ~ observations, scales = "free") 
+p_vark_wcss_hpc
+```
+
+```{r}
+p4 <- ggdraw() +
+    draw_plot(as_ggplot(my_legend), x = 0, y = 0.92, width = 1, height = 0.10) + 
+    draw_plot(p_vark_wcss_desktop, x = 0, y = 0.46, width = 1, height = .48) +
+    draw_plot(p_vark_wcss_hpc, x = 0, y = 0, width = 1, height = .48) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, 0), y = c(0.95, 0.51))
+p4
+
+pdf(here::here("main", "figs", "fig-supp-sim-wcss-varyingk.pdf"), width = 8, height =12)
+print(p4)
 dev.off()
 ```
+
 
 ## TENxBrainData
 

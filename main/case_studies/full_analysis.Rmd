@@ -175,67 +175,48 @@ plot_hexbin_meta(sce, col="mbk_15", action = "majority",
 plot_hexbin_meta(sce, col="mbk_30", action = "majority",
                  colors = clusterExperiment::bigPalette)
 
-# gene_ids <- c("Gad1", "Gad2", "Sst", "Chodl", "Rorb", "Fexf2")
-# for(gene_id in gene_ids) {
-# plot_hexbin_feature(sce, type="logcounts", feature=gene_id, 
-#     action="mean", xlab="UMAP1", ylab="UMAP2", 
-#     title=paste0("Mean of ", gene_id))
-# }
 ```
 
 # Interpret clusters
 
-For each cluster, we extract the centroid and give a label with SingleR using the Allen data as a reference.
+For each cluster, we extract the centroid and give a label with SingleR using this reference dataset: https://science.sciencemag.org/content/360/6385/176/tab-pdf.
+
+We use the P2 brain sample as a reference.
 
 ```{r singleR}
 library(SingleR)
 library(dplyr)
+library(R.matlab)
 
-if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))) {
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_SplitSeq_labels.rds"))) {
   
-#  if(!dir.exists((here("main/case_studies/data/full/Allen_10X_V2")))) {
-    if(!file.exists((here("main/case_studies/data/full/TENxBrainData/allen_10x.h5")))) {
-      download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/umi_counts.h5",
-                    destfile = here("main/case_studies/data/full/TENxBrainData",
-                                    "allen_10x.h5"))
-    }
-    mat = TENxMatrix(here("main/case_studies/data/full/TENxBrainData",
-                          "allen_10x.h5"), group = "matrix")
-    
-    metadata <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/sample_metadata.csv")
-    cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
-    cluster_memb <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.membership.csv")
-    colnames(cluster_memb)[2] <- "cluster_id"
-    cluster_memb <- inner_join(cluster_memb, cluster_anno, by = "cluster_id")
-    
-    anno <- inner_join(metadata, cluster_memb, by = "X")
-    
-    which_cell <- which(metadata$X %in% anno$X)
-    
-    download.file("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/features.tsv.gz",
-                  destfile = here("main/case_studies/data/full/TENxBrainData",
-                                  "features.tsv"))
-    features <- read.table(here("main/case_studies/data/full/TENxBrainData",
-                                "features.tsv"), sep="\t")
-    
-    se_allen <- SingleCellExperiment(assays = list(counts=mat[,which_cell]),
-                                     colData = anno,
-                                     rowData = features)
-#    saveHDF5SummarizedExperiment(se_allen, dir = here("main/case_studies/data/full/Allen_10X_V2"))
-#  } else {
-#    se_allen <- loadHDF5SummarizedExperiment(here("main/case_studies/data/full/Allen_10X_V2"))
-#  }
+  if(!file.exists((here("main/case_studies/data/full/splitseq.mat.gz")))) {
+    download.file("https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3017261&format=file&file=GSM3017261%5F150000%5FCNS%5Fnuclei%2Emat%2Egz",
+                  destfile = here("main/case_studies/data/full/",
+                                  "splitseq.mat.gz"))
+  }
+  mat <- readMat(gzfile(here("main/case_studies/data/full/", "splitseq.mat.gz")))
+  mat$sample.type <- trimws(mat$sample.type)
+  mat$cluster.assignment <- trimws(mat$cluster.assignment)
+  sample_idx <- which(mat$sample.type == "p2_brain" & !grepl("Unresolved", mat$cluster.assignment))
   
-    time.start <- proc.time()
-  se_allen <- logNormCounts(se_allen)
-  allen_pseudo <- sumCountsAcrossCells(se_allen,
+  gene_idx <- which(colSums(mat$DGE) > 0)
+  count_mat <- t(mat$DGE[sample_idx, gene_idx])
+  rownames(count_mat) <- trimws(mat$genes[gene_idx,1])
+
+    se_ref <- SingleCellExperiment(assays = list(counts=count_mat),
+                                   colData = data.frame(cluster.assignment = factor(mat$cluster.assignment[sample_idx])))
+
+  time.start <- proc.time()
+  se_ref <- logNormCounts(se_ref)
+  ref_pseudo <- sumCountsAcrossCells(se_ref,
                                        ids=DataFrame(
-                                         label=se_allen$subclass_label),
+                                      label=se_ref$cluster.assignment),
                                        average = TRUE,
                                        exprs_values = "logcounts",
                                        BPPARAM = SerialParam()
   )
-
+  
   sce_pseudo <- sumCountsAcrossCells(sce,
                                      ids=DataFrame(
                                        label=sce$mbk_15),
@@ -244,32 +225,21 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10
                                      BPPARAM = SerialParam()
   )
   
-  rownames(se_allen) <- rowData(se_allen)[,2]
-  rownames(allen_pseudo) <- rowData(se_allen)[,2]
-  
-  pred <- SingleR(test=sce_pseudo, ref=allen_pseudo,
-                  labels=se_allen$subclass_label,
-                  method = "cluster",
-                  clusters = sce$mbk_15,
+  pred <- SingleR(test=sce_pseudo, ref=ref_pseudo,
+                  labels=ref_pseudo$label,
                   assay.type.test = "sum",
                   assay.type.ref = "sum")
   
   time.end <- proc.time()
   time <- time.end - time.start
   cat("SingleR:", time[3]/60, "mins")
-
-  saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
+  
+  saveRDS(pred, file = here("main/case_studies/data/full/TENxBrainData/SingleR_SplitSeq_labels.rds"))
 } else {
-  pred <- readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_Allen_10X_V2_labels.rds"))
+  pred <- readRDS(file = here("main/case_studies/data/full/TENxBrainData/SingleR_SplitSeq_labels.rds"))
 }
 
 clusters <- data.frame(label = unique(sce$mbk_15), celltype = pred$pruned.labels, ncells = as.numeric(table(sce$mbk_15)[unique(sce$mbk_15)]))
-
-cluster_anno <- read.csv("http://data.nemoarchive.org/biccn/lab/zeng/transcriptome/scell/10X/processed/analysis/10X_cells_v2_AIBS/cluster.annotation.csv")
-
-clusters <- inner_join(clusters, cluster_anno[,3:4], by = c("celltype"="subclass_label")) %>% 
-  unique %>%
-  dplyr::arrange(label) 
 
 print(clusters)
 
@@ -285,24 +255,255 @@ pp <- plot_hexbin_meta(sce, col="celltype", action = "majority",
                  colors = clusterExperiment::bigPalette)
 pp + ggrepel::geom_label_repel(data = label_df, aes(x=x, y=y, label = label), colour="black",  label.size = NA, fill = NA)
 
-tmp = clusters$class_label
-names(tmp) = clusters$label
-sce$class <- plyr::revalue(factor(sce$mbk_15), replace = tmp)
-
-plot_hexbin_meta(sce, col="class", action = "majority",
-                 colors = clusterExperiment::bigPalette)
-
-clusters %>%
-  group_by(class_label) %>%
-  summarize(tot = sum(ncells)/sum(clusters$ncells)*100)
 
 clusters %>%
   group_by(celltype) %>%
   summarize(tot = sum(ncells)/sum(clusters$ncells)*100)
+
+plot_hexbin_meta(sce, col="Mouse", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+
+sce <- make_hexbin(sce, nbins = 100, 
+    dimension_reduction = "PCA", use_dims=c(1,2))
+plot_hexbin_density(sce)
+plot_hexbin_meta(sce, col="mbk_15", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+plot_hexbin_meta(sce, col="mbk_30", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+plot_hexbin_meta(sce, col="celltype", action = "majority",
+                 colors = clusterExperiment::bigPalette)
+plot_hexbin_meta(sce, col="Mouse", action = "majority",
+                 colors = clusterExperiment::bigPalette)
 ```
 
 The percentages that we find are quite similar to those described by 10X genomics in their presentations (see https://www.10xgenomics.com/videos/seminars/chromium-single-cell-solutions/). Not sure if this was ever described in any of their publications.
 
+Bhaduri et al. analyzed the same dataset and found the following broad cell types: Endothelial, Neuron, Interneurons, IPC, Radial Glia, Cajal-Retzius.
+
+## Marker genes
+
+```{r markers}
+library(dplyr)
+library(tidyr)
+
+if(!file.exists(here("main/case_studies/data/full/TENxBrainData/pseudo_mbk15.rds"))) {
+
+  sce_pseudo <- sumCountsAcrossCells(sce[gene_ids,],
+                                   ids=DataFrame(
+                                     label=sce$mbk_15),
+                                   average = TRUE,
+                                   exprs_values = "logcounts",
+                                   BPPARAM = SerialParam()
+)
+  saveRDS(sce_pseudo, file = here("main/case_studies/data/full/TENxBrainData/pseudo_mbk15.rds"))  
+} else {
+  sce_pseudo <- readRDS(here("main/case_studies/data/full/TENxBrainData/pseudo_mbk15.rds"))
+}
+sce_pseudo$ncells <- as.numeric(table(sce$mbk_15)[sce_pseudo$label])
+
+markers <- data.frame(
+  gene = c("Meg3", "Mbp", "Pdgfra", "Dock2", "Rgs5", "Col1a2", "Aldh1l1", "Dnah11", "Mybpc1", "Deptor", "Rarb", "Satb2", "Tfap2d", "Fign", "Arap1", "Pax3", "Ntn1", "Pax2", "Slc6a3", "Fn1", "Tspan18", "Pde11a", "Dlx6os1", "Ntf3", "Itpr1", "Pvrl3", "Rorb", "Thsd7a", "Kcnk2", "Etv1", "Grik3", "Tle4", "Syt6", "Nr4a2", "Mki67", "Prox1", "Dock10", "Spock1", "Meis2", "Aoah", "Emr1", "Dab2", "Fyb", "Rbm47"),
+  celltype = c("Neuronal", "Oligo", "OPC", "Macrophage/Microglia", "Endothelia/SMC", "VLMC", "Astro", "Ependyma", "OEC", "Mitra", "Medium Spiny Neuron", "CTX Pyr", "MTt Glut", "THAL Glut/Int", "Purkinje", "CB Int Progenitor", "CB Int Stellate/Golgi", "MD Glyc Int", "Nigral Dopaminergic", "HIPP/SUB Pyr", "HIPP Pyr/Granule", "SC Glut", "Migrating Int", "Pyr L2/3", "Pyr", "Pyr L2/3/4", "Pyr L4/5", "Pyr L4/5", "Pyr L5", "Pyr L5", "Pyr L5/6", "Pyr L5/6", "Pyr L6", "Pyr", "Granule Progenitors", "Granule", "Granule", "Pyr", "Pyr Progenitors", rep("Macrophage", 5)),
+  study = rep("Rosenberg", 44)
+)
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Neurod6", "Eomes", "Mki67", "Reln", "Satb2", "Fezf2", "Crym", "Bcl11b", "Sst", "Lhx6", "Adarb2", "Gad2", "Isl1", "Tcf7l2", "Hes5", "Aldh1l1", "Olig2", "Otx2", "Trem2", "Igfbp7"),
+                   celltype = c("Excitatory Neurons", "Neuronal Progenitors", "Proliferating and Glia", "L1", "L2/4", "L5/6", "L5/6", "L5/6", "Interneurons", "Interneurons", "Interneurons",  "Interneurons/Striatal", "Striatal", "Thalamic", "Astrocytes", "Proliferating", "Oligodendrocytes", "Choroid Plexus", "Microglia", "Endothelial"),
+                   study = rep("Loo", 20)
+                 ))
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Rbfox3", "Slc17a6", "Slc17a7", "Slc17a8", "Gad1", "Gad2", "Reln", "C1qb", "P2ry12", "Aqp4", "Gja1", "Mbp", "Trf", "Plp1", "Tnr", "Cspg4", "Flt1", "Dcn", "Igfbpl1", "Rgs5", "Acta2", "Sox4", "Sox11", "Tgfbi", "Coch", "Ccdc153"),
+                   celltype = c("Neuron", "Neuron", "Neuron", "Neuron", "Neuron", "Neuron", "Neuron", "Microglia/Macrophage", "Microglia/Macrophage", "Astrocyte", "Astrocyte", "Oligodendrocyte", "Choroid Plexus", "Oligodendrocyte", "Polydendrocyte", "Polydendrocyte", "Endothelial", "Fibroblast", "Fibroblast", "Mural", "Mural/Ependyma", "Neurogenesis & Mitosis", "Neurogenesis & Mitosis", "Choroid Plexus", "Choroid Plexus", "Ependyma"),
+                   study = rep("Saunders", 26)
+                 ))
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Tbr1", "Rasgrf2", "Pvrl3", "Cux2", "Rorb", "Plcxd2", "Thsd7a", "Kcnk2", "Cplx3", "Sulf2", "Foxp2", "Syt6", "Rprm", "Nr4a2", "Synpr", "Pcp4", "Gad1", "Pvalb", "Sst", "Htr3a", "Vip", "Reln", "Cck", "Npy", "Lhx6", "Calb2", "Pde1a", "Lphn2", "Kcnip2", "Rgs10", "Nov", "Cpne5", "Slc5a7", "Crh", "Pax6", "Cxcl14", "Gda", "Sema3e", "Aldh1l1", "Gfap", "Aqp4", "Serpinf1", "Gja1", "Mfge8", "Slco1c1", "Rnf122", "9630013A20Rik", "Itpr2", "Cnksr3", "Rhob", "Omg", "Klk6"),
+                   celltype = c("Pyr", rep("Pyr L2/3", 3), rep("Pyr L5", 4), "Pyr L5/6", "Pyr L5/6", rep("Pyr L6", 3), "ClauPyr", "ClauPyr", "Pyr L5/6", rep("Interneurons", 22), rep("Astro", 7), rep("Oligo", 7)),
+                   study = rep("Zeisel", 52)
+                 ))
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Gad1", "Gad2", "Sst", "Chodl", "Rorb", "Fezf2", "Neurod6", "Akap7", "Htr3a", "Foxp2", "Mki67", "Top2a", "Fkbp5", "Tsc22d3", "Axl", "Snx6", "Snx2", "Dab2", "Ap1b1"),
+                   celltype = c(rep("Inhibitory neurons", 4), rep("Excitatory Neurons", 2), rep("Inhibitory neurons", 4), rep("Macrophages", 2), rep("Adult Macrophages", 3), rep("Postnatal Macrophages", 4)),
+                   study = c(rep("Allen", 6), rep("10X", 4), rep("Elizabeth", 2), rep("Li", 7))
+                 ))
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Fabp7", "Vim", "Aldoc", "Dbi", "Ttyh1", "Slc1a3", "Ednrb", "Ngn2", "Gadd45g", "Neurod1", "Sstr2", "Vcam1", "Pax6", "Sox9", "Sox2", "Tlx", "Mdk", "Hopx", "Hes1", "Hes5", "Sox21", "Id4", "Nde1", "Nes"),
+                   celltype = c(rep("Radial precursors", 7), rep("intermediate progenitor", 4), rep("Radial precursors", 13)),
+                   study = "Yuzwa"
+                 ))
+
+markers <- rbind(markers,
+                 data.frame(
+                   gene = c("Hbb-bs", "Hba-a1", "Hba-a2", "Hbb-bt", "Alas2", "Ube2l6"),
+                   celltype = c(rep("DE mbk14", 6)),
+                   study = "DE"
+                 ))
+
+gene_ids <- intersect(markers$gene, rownames(sce))
+
+# library(pheatmap)
+# mat = assay(sce_pseudo)[gene_ids,]
+# colnames(mat) <- sce_pseudo$label
+# 
+# markers_to_use <- markers[markers$gene %in% gene_ids,]
+# markers_to_use %>%
+#   group_by(gene) %>%
+#   summarise_all(first) -> markers_to_use
+# 
+# colors1 <- clusterExperiment::bigPalette[1:15]
+# names(colors1) <- sce_pseudo$label
+# colors2 <- clusterExperiment::bigPalette
+# names(colors2) <- unique(markers_to_use$celltype)
+# 
+# pheatmap(mat, scale = "row", 
+#          annotation_col = data.frame(
+#            label = sce_pseudo$label, 
+#            ncells = sce_pseudo$ncells,
+#            row.names = sce_pseudo$label),
+#          annotation_row = data.frame(
+#            type = markers_to_use$celltype,
+#            row.names = markers_to_use$gene
+#          ),
+#          annotation_colors = list(label=colors1,
+#                                   type=colors2))
+
+if(FALSE){
+expr <- as.matrix(logcounts(sce)[gene_ids,])
+
+df_genes <- cbind(as.data.frame(colData(sce)), as.data.frame(t(expr)))
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Gad2, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Sst, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Rorb, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Neurod6, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Tsc22d3, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+
+df_genes %>%
+  ggplot(aes(x = mbk_15, y = Ap1b1, color = celltype)) +
+  geom_boxplot() +
+  scale_color_manual(values = clusterExperiment::bigPalette) +
+  theme_bw()
+}
+```
+
+From the markers, it looks like:
+
+- mbk12: mix of Astrocytes/Endothelial/Macrophages
+- mbk2: Inhibitory neurons (Gad1, Gad2, Fign, Dlx6os1)
+- mbk5: Inhibitory neurons (Gad1, Gad2, Sst, Htr3a, Npy)
+- mbk7: Astrocytes/ Radial Precursor (Aqp4, Aldh1l1, Gfap, Mfge8, Vcam1, Fabp7, Dbi)
+- mbk11: Pyramidal neurons (Ntf3, Itpr1, Satb2)
+- mbk8: Pyramidal neurons (?) (Crym, Cck, Cpne5, Pde1a, Pvrl3, Fezf2)
+- mbk1: Macrophages (?) / Radial Precursor (Fkbp5, Mki67, Top2a, Nde1, )
+- mbk10: OPC/Oligodendrocytes? (Pdgfra, Olig2, Eomes)
+- mbk3: Granule cells/DG neurons? (Synpr, Prox1)
+- mbk9: Neuronal progenitor (Eomes, Slc17a6, Plcxd2, Foxp2, Tfap2d)
+- mbk6+mbk13+mbk4: Neuronal progenitors (Meis2, Sox4, Sox11, Neurod6)
+- mbk14: ???
+- mbk15: Cajal-Retzius (Reln, Tbr1) -- See BMG Biology paper
+
+From the DE genes:
+
+- mbk1: Radial Precursor / Proliferating and Glia (Dbi, Mdk, Mki67)
+- mbk2: Inhibitory neurons (Gad1, Gad2, Foxp2, Dlx6os1)
+- mbk3: Granule Cells / DG neurons (Synpr, Prox1)
+- mbk4: Neuronal Progenitor (Meis2, Igfbpl1, Sox11)
+- mbk5: Interneurons (Meg3, Dlx6os1)
+- mbk6: Neuronal progenitor (Meis2, Neurod6, Sox11)
+- mbk7: Radial Precursor (Fabp7, Vim, Aldoc, Dbi, Slc1a3)
+- mbk8: Pyramidal neurons (Neurod6, Cck, Crym, Sox11?)
+- mbk9: Neuronal progenitor (Eomes, Sstr2, Meis2, Sox11)
+- mbk10: Radial precursor (Dbi, Vim, Fabp7)
+- mbk11: Pyramidal neurons (Meg3, Neurod6, Satb2)
+- mbk12: Endothelial/SMC/Mural (Rgs5, Igfbp7)
+- mbk13: Neuronal progenitor (Meis2, Neurod6, Sox4, Sox11, Igfbpl1)
+- mbk14: Blood cells? (Hbb-bs, Hba-a1, Hba-a2, Hbb-bt, Alas2, Ube2l6)
+- mbk15: Cajal-Retzius (Reln, Tbr1)
+
+Notes on similar clusters: 
+
+- mbk7 more "astrocyte like" (Fabp7+, Sox9+, Dbi+), mbk1 (Mki67+, Sox4+, Sox11+) more proliferating/neurogenesis and mbk10 (Eomes+; Gadd45g+) more "progenitor like", 
+- mbk5 is Sst+,Cux2+,Lhx6+ while mbk2 is Foxp2,Dlx6os1,Syt6,Meis2
+- mbk4 is Sox4+, Sox11+, Meis2+ (pyr progenitors); mbk6 is Meg3+, Bcl11b+ (mature), Mdk+; mbk9 is Eomes+,Dbi+,Neurod1+,Sstr2 (less mature/intermediate progenitor); mbk13 is Neurod6+ (more mature?)
+- mbk8 Crym+, Bcl11b+, Pcp4+ (L5/6?); mbk11 Ntf3+, Satb2+, Cux2+ (L2/3?)
+
+# Final figure
+
+```{r}
+library(patchwork)
+
+p1 <- plot_hexbin_meta(sce, col="mbk_15", action = "majority",
+                 colors = clusterExperiment::bigPalette, title = "")
+
+gene_ids <- c("Fabp7", "Sox9", "Dbi", "Mki67", "Sox4", "Sox11", "Sst", "Cux2", "Lhx6", "Foxp2", "Syt6", "Meis2", "Meg3", "Bcl11b", "Mdk", "Eomes", "Neurod1", "Sstr2", "Neurod6", "Crym", "Pcp4", "Ntf3", "Satb2", "Reln", "Tbr1", "Hbb-bs", "Hba-a1", "Hba-a2", "Gad1", "Gad2", "Rgs5", "Igfbp7", "Synpr", "Prox1", "Nde1", "Vim", "Pdgfra", "Igfbpl1", "Nr4a2", "Itpr1", "Tnr", "Cck")
+mat = assay(sce_pseudo)[gene_ids,]
+colnames(mat) <- sce_pseudo$label
+
+markers_to_use <- markers[markers$gene %in% gene_ids,]
+markers_to_use %>%
+  group_by(gene) %>%
+  summarise_all(first) -> markers_to_use
+
+colors1 <- clusterExperiment::bigPalette[1:15]
+names(colors1) <- sort(sce_pseudo$label)
+pheatmap()
+p2 <- pheatmap(mat, scale = "row", annotation_legend = FALSE,
+         annotation_col = data.frame(
+           cluster = sce_pseudo$label, 
+#           ncells = sce_pseudo$ncells,
+           row.names = sce_pseudo$label),
+         annotation_colors = list(cluster=colors1),)
+
+p1 + plot_spacer() + arrangeGrob(p2[[4]]) + plot_layout(widths = c(1, .3, 1))
+
+library(cowplot)
+pfull <- ggdraw() +
+    draw_plot(p1, x = 0, y = 0, width = .48, height = 1) +
+    draw_plot(arrangeGrob(p2[[4]]), x = .5, y = 0, width = .48, height = 1) +
+    draw_plot_label(label = LETTERS[1:2], size = 25,
+                    x = c(0, .5), y = c(0.98, 0.98))
+    
+
+pdf(here::here("main", "figs", "fig-full-analysis.pdf"), 
+    width = 15, height =8)
+print(pfull)
+dev.off()
+
+```
 
 
 # Session Info
