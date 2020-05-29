@@ -305,8 +305,6 @@ acc_real_table_abs$machine <- factor(acc_real_table_abs$machine,
 acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
                                levels = c("kmeans", "mbkmeans", "hdf5"))
 levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
-
-table(acc_real_table_abs$machine, acc_real_table_abs$abs_batch)
 ```
 
 
@@ -513,9 +511,6 @@ p_wcss_obs_line_abs <- acc_table_abs %>%
   facet_wrap(~observations, scales = "free") 
 p_wcss_obs_line_abs
 ```
-
-!!! This need to be changed to `machine == "solid disk drive"` when obs match.
-Need to ask Davide about this. 
 
 ```{r}
 fig2_wcss_real <- acc_real_table_abs %>%   
