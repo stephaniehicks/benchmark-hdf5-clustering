@@ -18,7 +18,7 @@ You can use the code in the file `installPackages.R` to install the necessary pa
 ```
 R CMD BATCH installPackages.R
 ```
-or by cutting and pasting the code into a R session. 
+or by cutting and pasting the code into a R session. It can take some time to install all packages.
 
 ## Code to reproduce the figures
 
