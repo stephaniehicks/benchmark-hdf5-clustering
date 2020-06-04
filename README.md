@@ -3,6 +3,18 @@
 This repository contains code for reproducing the benchmark of the 
 clustering algorithms presented in Hicks et al. (2020).
 
+## Installing necessary packages
+
+We assume that Bioconductor is already installed on your R session. To get a list of all R packages used, run the bash script `findPackageDependencies.sh`. This script searches our files and finds all of the libraries called by our code, and will create a file `installPackages.R` which looks like:
+
+```
+BiocManager::install(c("benchmarkme",
+"BiocParallel",
+"cowplot",
+...
+```
+You can use this code to install the necessary packages.
+
 ## Code to reproduce the figures
 
 ### Figure 1 and Figure 3 
