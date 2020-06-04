@@ -33,6 +33,18 @@ clustering algorithms presented in Hicks et al. (2020).
 - Bash: `/bash for figures/Fig 4`
 - Output: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
 
+### Figure 5: Full analysis of TenxBrainData
+
+#### Initial Processing: Importing data, removing low-quality cells and lowly expressed genes,
+
+- Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
+- Output: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
+
+#### Main Analysis: Normalization, PCA, Clustering, Visualization (tSNE/UMAP)
+
+- Code: `main/case_studies/full_analysis.Rmd`
+- Output: `main/case_studies/data/full/TENxBrainData`
+
 ### Supp Figure -  Varying K analysis
 
 First generate 10 datasets to be used later with `/main/simulation_k.R`
