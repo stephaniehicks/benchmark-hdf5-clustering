@@ -13,11 +13,12 @@ BiocManager::install(c("benchmarkme",
 "cowplot",
 ...
 ```
-You can use this code to install the necessary packages, for example by running
+You can use the code in the file `installPackages.R` to install the necessary packages, for example by running
 
 ```
 R CMD BATCH installPackages.R
 ```
+or by cutting and pasting the code into a R session. 
 
 ## Code to reproduce the figures
 
