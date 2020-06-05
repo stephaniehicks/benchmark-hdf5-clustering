@@ -3,6 +3,23 @@
 This repository contains code for reproducing the benchmark of the 
 clustering algorithms presented in Hicks et al. (2020).
 
+## Installing necessary packages
+
+We assume that Bioconductor is already installed on your R session. To get a list of all R packages used, run the bash script `findPackageDependencies.sh`. This script searches our files and finds all of the libraries called by our code, and will create a file `installPackages.R` which looks like:
+
+```
+BiocManager::install(c("benchmarkme",
+"BiocParallel",
+"cowplot",
+...
+```
+You can use the code in the file `installPackages.R` to install the necessary packages, for example by running
+
+```
+R CMD BATCH installPackages.R
+```
+or by cutting and pasting the code into a R session. It can take some time to install all packages.
+
 ## Code to reproduce the figures
 
 ### Figure 1 and Figure 3 
@@ -32,6 +49,18 @@ clustering algorithms presented in Hicks et al. (2020).
     - `/ongoing_analysis/ChunkTest/TENxBrainData/TENxBrain_chunktest.R`
 - Bash: `/bash for figures/Fig 4`
 - Output: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
+
+### Figure 5: Full analysis of TenxBrainData
+
+#### Initial Processing: Importing data, removing low-quality cells and lowly expressed genes,
+
+- Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
+- Output: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
+
+#### Main Analysis: Normalization, PCA, Clustering, Visualization (tSNE/UMAP)
+
+- Code: `main/case_studies/full_analysis.Rmd`
+- Output: `main/case_studies/data/full/TENxBrainData`
 
 ### Supp Figure -  Varying K analysis
 
