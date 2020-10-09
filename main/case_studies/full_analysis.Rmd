@@ -36,29 +36,35 @@ sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/TENx
 ```
 
 ```{r mbkmeans_full}
+times <- numeric(6)
+tt <- 1
 if(! "logcounts" %in% assayNames(sce)) {
-time.start <- proc.time()
-mbk <- mbkmeans(sce, whichAssay = "counts", reduceMethod = NA,
-                clusters=15, batch_size = 500, 
-                BPPARAM = MulticoreParam(nworkers))
-time.end <- proc.time()
-time <- time.end - time.start
-cat("Clustering full matrix:", time[3]/60, "mins")
-saveRDS(mbk, file = here("main/case_studies/data/full/TENxBrainData",
-                         "mbkmeans_k15_bs500.rds"))
+  time.start <- proc.time()
+  mbk <- mbkmeans(sce, whichAssay = "counts", reduceMethod = NA,
+                  clusters=15, batch_size = 500, 
+                  BPPARAM = MulticoreParam(nworkers))
+  time.end <- proc.time()
+  time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
+  cat("Clustering full matrix:", time[3]/60, "mins")
+  saveRDS(mbk, file = here("main/case_studies/data/full/TENxBrainData",
+                           "mbkmeans_k15_bs500.rds"))
 }
 ```
 
 ```{r scran}
 if(! "logcounts" %in% assayNames(sce)) {
-time.start <- proc.time()
-sce <- computeSumFactors(sce, cluster=mbk$Clusters, min.mean=0.1,
-                         BPPARAM = MulticoreParam(nworkers))
-sce <- logNormCounts(sce)
-time.end <- proc.time()
-time <- time.end - time.start
-cat("Normalization:", time[3]/60, "mins")
-quickResaveHDF5SummarizedExperiment(sce)
+  time.start <- proc.time()
+  sce <- computeSumFactors(sce, cluster=mbk$Clusters, min.mean=0.1,
+                           BPPARAM = MulticoreParam(nworkers))
+  sce <- logNormCounts(sce)
+  time.end <- proc.time()
+  time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
+  cat("Normalization:", time[3]/60, "mins")
+  quickResaveHDF5SummarizedExperiment(sce)
 }
 ```
 
@@ -68,22 +74,24 @@ Here, we compute the first 50 principal components using the top variable genes.
 
 ```{r pca}
 if(! "PCA" %in% reducedDimNames(sce)) {
-time.start <- proc.time()
-sce <- scater::runPCA(sce, ncomponents = 50,
-                      ntop = 1000,
-                      scale = TRUE,
-                      BSPARAM = BiocSingular::IrlbaParam(),
-                      BPPARAM = MulticoreParam(nworkers))
-time.end <- proc.time()
-time <- time.end - time.start
-cat("PCA:", time[3]/60, "mins")
-quickResaveHDF5SummarizedExperiment(sce)
+  time.start <- proc.time()
+  sce <- scater::runPCA(sce, ncomponents = 50,
+                        ntop = 1000,
+                        scale = TRUE,
+                        BSPARAM = BiocSingular::RandomParam(),
+                        BPPARAM = MulticoreParam(nworkers))
+  time.end <- proc.time()
+  time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
+  cat("PCA:", time[3]/60, "mins")
+  quickResaveHDF5SummarizedExperiment(sce)
 }
 ```
 
 # Finding best k
 
-```{r best_k, eval=FALSE}
+```{r best_k}
 k_list <- seq(15, 30)
 
 if(!file.exists(here("main/case_studies/data/full/TENxBrainData",
@@ -99,10 +107,14 @@ if(!file.exists(here("main/case_studies/data/full/TENxBrainData",
   })
   time.end <- proc.time()
   time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
   cat("Clustering:", time[3]/60, "mins")
   
   saveRDS(km_res, file = here("main/case_studies/data/full/TENxBrainData",
                               "mbkmeans_pca50_k15-30_bs500.rds"))
+  saveRDS(times, file = here("main/case_studies/data/full/TENxBrainData",
+                             "computational_times.rds"))
 } else {
   km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
                          "mbkmeans_pca50_k15-30_bs500.rds"))
@@ -114,7 +126,7 @@ plot(k_list, wcss, type = "b")
 
 # Visualize results
 
-```{r tsne, eval=FALSE}
+```{r tsne}
 clusters <- sapply(km_res, function(x) factor(paste0("mbk", x$Clusters)))
 colnames(clusters) <- paste0("mbk_", k_list)
 colData(sce) <- cbind(colData(sce), clusters)
@@ -127,6 +139,9 @@ if(! "TSNE" %in% reducedDimNames(sce)) {
                          BPPARAM = MulticoreParam(nworkers))
   time.end <- proc.time()
   time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
+
   cat("t-SNE:", time[3]/60, "mins")
   quickResaveHDF5SummarizedExperiment(sce)
 }
@@ -141,12 +156,15 @@ if(! "UMAP" %in% reducedDimNames(sce)) {
                          BPPARAM = MulticoreParam(nworkers))
   time.end <- proc.time()
   time <- time.end - time.start
+  times[tt] <- time[3]
+  tt <- tt+1
+  
   cat("UMAP:", time[3]/60, "mins")
   quickResaveHDF5SummarizedExperiment(sce)
 }
 ```
 
-```{r visualize}
+```{r visualize, eval=FALSE}
 rownames(sce) <- rowData(sce)$Symbol
 
 plotTSNE(sce, colour_by = "mbk_15")
@@ -165,6 +183,7 @@ plotUMAP(sce, colour_by = "mbk_15")
 ```{r hexbin}
 library(schex)
 
+rownames(sce) <- rowData(sce)$Symbol
 sce <- make_hexbin(sce, nbins = 100, 
     dimension_reduction = "UMAP", use_dims=c(1,2))
 
@@ -183,7 +202,7 @@ For each cluster, we extract the centroid and give a label with SingleR using th
 
 We use the P2 brain sample as a reference.
 
-```{r singleR}
+```{r singleR, eval=FALSE}
 library(SingleR)
 library(dplyr)
 library(R.matlab)
@@ -282,7 +301,7 @@ Bhaduri et al. analyzed the same dataset and found the following broad cell type
 
 ## Marker genes
 
-```{r markers}
+```{r markers, eval=FALSE}
 library(dplyr)
 library(tidyr)
 
@@ -463,7 +482,7 @@ Notes on similar clusters:
 
 # Final figure
 
-```{r}
+```{r, eval=FALSE}
 library(patchwork)
 library(pheatmap)
 library(gridExtra)
@@ -483,7 +502,7 @@ markers_to_use %>%
 
 colors1 <- clusterExperiment::bigPalette[1:15]
 names(colors1) <- sort(sce_pseudo$label)
-pheatmap()
+
 p2 <- pheatmap(mat, scale = "row", annotation_legend = FALSE,
          annotation_col = data.frame(
            cluster = sce_pseudo$label, 
@@ -502,7 +521,7 @@ pfull <- ggdraw() +
                     x = c(0, .5), y = c(0.98, 0.98))
     
 
-pdf(here::here("main", "figs", "fig-full-analysis.pdf"), 
+pdf(here::here("main", "figs", "fig-full-analysis_random.pdf"), 
     width = 15, height =8)
 print(pfull)
 dev.off()
