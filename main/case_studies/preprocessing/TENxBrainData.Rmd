@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE,
                       cache = FALSE)
 ```
 
-```{r}
+```{r create-folders}
 #Create the necessary folder structure
 library(here)
 if(!file.exists(here("main/case_studies/data"))){
@@ -25,7 +25,7 @@ doParallel::registerDoParallel(ncores)
 ```
 
 ## Data import 
-```{r}
+```{r data-import}
 library(TENxBrainData)
 tenx <- TENxBrainData()
 tenx
@@ -37,7 +37,7 @@ assay(tenx)
 
 Run the next chunk to pick a subset of cells to debug code.
 
-```{r}
+```{r tmp}
 #set.seed(1234)
 #keep_cells <- sample(1:ncol(tenx),size = 100)
 #tenx <- tenx[,keep_cells]
@@ -50,7 +50,7 @@ Run the next chunk to pick a subset of cells to debug code.
 First, we use the `scater` package to compute a set of 
 QC measures and filter out the low-quality samples.
 
-```{r}
+```{r qc-calculate}
 library(scater)
 system.time(tenx <- addPerCellQC(tenx, 
                           subsets = list(Mito = grep("^mt", rowData(tenx)$Symbol)),
@@ -60,7 +60,7 @@ system.time(tenx <- addPerCellQC(tenx,
 We remove cells with high proportion of mitocondrial 
 reads, using it as a proxy for cell damage. 
 
-```{r}
+```{r qc-cell-filter}
 high_mito <- isOutlier(tenx$subsets_Mito_percent, 
                        nmads = 3, type="higher")
 table(high_mito)
@@ -77,7 +77,7 @@ in at least 5% of the data. These threshold are
 dataset-specific and may need to be taylored to 
 specific applications.
 
-```{r}
+```{r qc-gene-filter}
 num_reads <- 1
 num_cells <- 0.01*ncol(tenx)
 system.time(keep <- which(DelayedArray::rowSums(counts(tenx) >= num_reads ) >= num_cells))
@@ -89,7 +89,7 @@ These leaves us with `length(keep)` genes.
 
 
 Save tenx object to /data/full
-```{r}
+```{r save-hdf5-files}
 library(HDF5Array)
 if(!file.exists(here("main/case_studies/data/full/TENxBrainData"))) {
   dir.create(here("main/case_studies/data/full/TENxBrainData"), recursive = TRUE)
