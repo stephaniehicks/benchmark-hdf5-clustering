@@ -18,10 +18,6 @@ if(!file.exists(here("main/case_studies/data"))){
       dir.create(here("main/case_studies/data/full"))
       dir.create(here("main/case_studies/data/pca"))
 }
-
-library(doParallel)
-ncores <- 6
-doParallel::registerDoParallel(ncores)
 ```
 
 ## Data import 
@@ -46,10 +42,9 @@ assay(tenx)
 
 We will next create subsets of the data of the following sizes: 75k, 150k, 300k, 500k, 750k, 1M.
 
-```{r}
+```{r cellidx}
 set.seed(138)
-#ncells <- c(1000) 
-ncells <- c(5, 10, 25) 
+ncells <- c(75, 150, 300, 500, 750, 1000) 
 cellidx <- lapply(ncells, function(n) sample(colnames(tenx), n * 1000))
 sapply(cellidx, length)
 ```
@@ -59,7 +54,7 @@ sapply(cellidx, length)
 
 We select the 5000 top variable genes from the smallest dataset (75k).
 
-```{r}
+```{r hvg}
 sub <- tenx[,cellidx[[1]]]
 sub <- logNormCounts(sub)
 mat <- as.matrix(logcounts(sub))
@@ -71,7 +66,7 @@ geneidx <- names(vars)[1:5000]
 
 ## Subset and save
 
-```{r}
+```{r save-files}
 if(!file.exists(here("main/case_studies/data/subset/TENxBrainData"))) {
   dir.create(here("main/case_studies/data/subset/TENxBrainData"), recursive = TRUE)
 }
@@ -90,6 +85,7 @@ for(i in seq_along(cellidx)) {
                              prefix="", replace=TRUE, 
                              chunkdim=c(dim(counts(sub))[1],1), 
                              level=NULL, verbose=FALSE)
+  print(ncells[[i]])
 }
 ```
 

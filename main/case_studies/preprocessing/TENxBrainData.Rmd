@@ -20,7 +20,7 @@ if(!file.exists(here("main/case_studies/data"))){
 }
 
 library(doParallel)
-ncores <- 7
+ncores <- 5
 doParallel::registerDoParallel(ncores)
 ```
 

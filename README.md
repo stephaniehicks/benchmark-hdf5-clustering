@@ -22,6 +22,10 @@ or by cutting and pasting the code into a R session. It can take some time to in
 
 ## Code to reproduce the figures
 
+- Code: `main/summary_manuscript_figures.Rmd`
+
+The following scripts will create the output files that are used in the `main/summary_manuscript_figures.Rmd` to create the figures. 
+
 ### Figure 1 and Figure 3 
 
 - Code: `/main/case_studies/01-cluster_full.R`
@@ -54,8 +58,18 @@ or by cutting and pasting the code into a R session. It can take some time to in
 
 #### Initial Processing: Importing data, removing low-quality cells and lowly expressed genes,
 
+To process the full 1.3 million cells:
+
 - Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
 - Output: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
+
+To create the downsampled sizes of datasets (sizes 75k, 150k, 300k, 500k, 750k, 1M):
+
+- Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
+- Output: `main/case_studies/data/subset/TENxBrainData/TENxBrainData_75k`
+
+Similar folders are created for each downsampled dataset (e.g. `TENxBrainData_150k`). 
+
 
 #### Main Analysis: Normalization, PCA, Clustering, Visualization (tSNE/UMAP)
 
