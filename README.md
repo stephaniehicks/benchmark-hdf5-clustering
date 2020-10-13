@@ -20,63 +20,39 @@ R CMD BATCH installPackages.R
 ```
 or by cutting and pasting the code into a R session. It can take some time to install all packages.
 
-## Code to reproduce the figures
+## Data
 
-- Code: `main/summary_manuscript_figures.Rmd`
+In this section, we describe the files that need to be run to create the data used in our analysis. 
 
-The following scripts will create the output files that are used in the `main/summary_manuscript_figures.Rmd` to create the figures. 
+### Preprocess the `TENxBrainData` dataset 
 
-### Figure 1 and Figure 3 
-
-- Code: `/main/case_studies/01-cluster_full.R`
-- Bash: `/main/case_studies/bash/Makefile`
-- Output: `/main/case_studies/output`
-
-### Figure 2: Accuracy 
-
-#### Simulation
-
-- Code: `/main/benchmark.R`
-- Bash: `/bash for figures/Fig 2`
-- Output: `/output_tables/abs_batch/acc`
-
-#### Real Data
-
-- Code: `/main/real_data_acc.R`
-- Bash: `/bash for figures/Fig 2/`
-- Output: `/output_tables/abs_batch/acc`
-
-### Figure 4: HDF5 Geometry
-
-- Code: 
-    - `/ongoing_analysis/ChunkTest/TENxBrainData/Save_in_three_ways.R`
-    - `/ongoing_analysis/ChunkTest/TENxBrainData/TENxBrain_chunktest.R`
-- Bash: `/bash for figures/Fig 4`
-- Output: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
-
-### Figure 5: Full analysis of TenxBrainData
-
-#### Initial Processing: Importing data, removing low-quality cells and lowly expressed genes,
-
-To process the full 1.3 million cells:
+First, we importing the `TENxBrainData` [dataset available on ExperimentHub](https://bioconductor.org/packages/TENxBrainData) with 1.3 million cells. 
+In the following script, we remove low-quality cells, and remove lowly expressed genes. 
+Finally, we save the preprocessed object using `saveHDF5SummarizedExperiment()`. 
 
 - Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
 - Output: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
 
-To create the downsampled sizes of datasets (sizes 75k, 150k, 300k, 500k, 750k, 1M):
+These data are used in Figure 5. 
 
+### Downsample `TENxBrainData` data 
+
+Next, we create downsampled sizes of datasets (sizes 75k, 150k, 300k, 500k, 750k, 1M) from the preprocessed object described in the section above. 
+
+- Input data: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
 - Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
-- Output: `main/case_studies/data/subset/TENxBrainData/TENxBrainData_75k`
+- Output data: 
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_75k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_150k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_300k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_500k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_750k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_1000k`    
 
-Similar folders are created for each downsampled dataset (e.g. `TENxBrainData_150k`). 
+These downsampled datasets are used in Figures 1, 3.
 
 
-#### Main Analysis: Normalization, PCA, Clustering, Visualization (tSNE/UMAP)
-
-- Code: `main/case_studies/full_analysis.Rmd`
-- Output: `main/case_studies/data/full/TENxBrainData`
-
-### Supp Figure -  Varying K analysis
+### Varying K analysis
 
 First generate 10 datasets to be used later with `/main/simulation_k.R`
 
@@ -84,9 +60,84 @@ First generate 10 datasets to be used later with `/main/simulation_k.R`
 - Bash: `/bash for figures/Varying_k/`
 - Output: `/output_tables/Varying_k`
 
-### Others:
+Thes datasets are used in a supplemental figure. 
+
+## Code used for each analysis
+
+In this section, we describe the code used for each analysis and the location of the output files. 
+
+### Figure 1 and Figure 3 
+
+- Input data: 
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_75k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_150k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_300k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_500k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_750k`
+    - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_1000k`    
+- Code: `/main/case_studies/01-cluster_full.R`
+- Bash: `/main/case_studies/bash/Makefile`
+- Output files: `/main/case_studies/output`
+
+### Figure 2: Accuracy 
+
+#### Simulation
+
+- Input data: 
+- Code: `/main/benchmark.R`
+- Bash: `/bash for figures/Fig 2`
+- Output files: `/output_tables/abs_batch/acc`
+
+#### Real Data
+
+- Input data: 
+- Code: `/main/real_data_acc.R`
+- Bash: `/bash for figures/Fig 2/`
+- Output files: `/output_tables/abs_batch/acc`
+
+### Figure 4: HDF5 Geometry
+
+- Code: 
+    - `/ongoing_analysis/ChunkTest/TENxBrainData/Save_in_three_ways.R`
+    - `/ongoing_analysis/ChunkTest/TENxBrainData/TENxBrain_chunktest.R`
+- Bash: `/bash for figures/Fig 4`
+- Output files: `/ongoing_analysis/ChunkTest/TENxBrainData/Output`
+
+### Figure 5: Full analysis of `TENxBrainData`
+
+In this section, we use the full 1.3 million dataset that was preprocessed to remove low quality cells and lowly expressed genes. 
+
+#### Main Analysis: Normalization, PCA, Clustering, Visualization (tSNE/UMAP)
+
+- Input data: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
+- Code: `main/case_studies/full_analysis.Rmd`
+- Output files: `main/case_studies/data/full/TENxBrainData`
+
+
+### Supplemental figures 
+
+#### Varying K analysis
+
+First generate 10 datasets to be used later with `/main/simulation_k.R`
+
+- Code: `/main/benchmark_varying_k.R`
+- Bash: `/bash for figures/Varying_k/`
+- Output: `/output_tables/Varying_k`
+
+Thes datasets are used in a supplemental figure. 
+
+#### Others:
 
 `/output_tables/acc`; `/output_tables/mem`; `/output_tables/time`: these are results for simulation memory, time and accuracy with percentage batch sizes.
+
+
+## Code to create figures
+
+In the section above, a set of output files are created at the end of each analysis. 
+These output files are combined in the following `.Rmd` and used to create the figures in the manuscript.
+
+- Code: `main/summary_manuscript_figures.Rmd`
+
 
 ## How to
 
