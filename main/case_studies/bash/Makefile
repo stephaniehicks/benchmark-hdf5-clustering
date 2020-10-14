@@ -72,8 +72,8 @@ clean:
 # input is file <data>/<data>_davide_mac_header.sh
 # IMPORTANT: doesn't delete the file <data>/<data>_davide_mac_header.sh, because for the system specific (i.e. stephanie_cluster_header.sh) would delete that
 %_template_$(TAG).sh: %_$(HEADER) %_data_template.sh
-	echo '\ndata_name="$(@D)"\n' > temp.txt
-	echo '#!/bin/bash\n' > top.txt
+	printf '\ndata_name=%s\n' $(@D) > temp.txt
+	printf '#!/bin/bash\n' > top.txt
 	
 	cat temp.txt $*_data_template.sh > temp2.txt
 	cat $< temp2.txt > temp3.txt
@@ -92,7 +92,7 @@ clean:
 		for mode in $(MODES) ; do \
 			if [[ $$method != "mbkmeans" || $$mode != "acc" ]]; \
 			then \
-			echo '\nmode="'$$mode'"\nmethod="'$$method'"\n' > temp.txt; \
+			printf '\nmode=%s\nmethod=%s\n' $$mode $$method > temp.txt; \
 			cat temp.txt step1_template.sh > temp_template.sh; \
 			cat $< temp_template.sh > "$*_step1_$${mode}_$${method}_$(TAG).sh" ; \
 			rm temp.txt; \
