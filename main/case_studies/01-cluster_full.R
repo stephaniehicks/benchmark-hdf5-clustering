@@ -12,7 +12,7 @@ args <- commandArgs(trailingOnly = TRUE)
 data_name <- args[2]
 mode <- args[3]
 B_name <- args[4]
-method <- args[5] #Here method mbkmeans means mbkmeans with hdf5
+method <- args[5] # Here method mbkmeans means mbkmeans with hdf5
 batch <- as.numeric(args[6])
 run_id <- args[7]
 
@@ -22,9 +22,12 @@ if (data_name == "TENxBrainData"){
   k <- 15
 }
 
-suppressPackageStartupMessages(library(HDF5Array))
-suppressPackageStartupMessages(library(here))
-suppressPackageStartupMessages(library(mbkmeans))
+suppressPackageStartupMessages({
+  library(here)
+  library(HDF5Array)
+  library(mbkmeans)
+  library(ClusterR)
+  })
 
 invisible(gc())
 
@@ -42,6 +45,15 @@ if (mode == "time"){
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
     sce_km <- realize(DelayedArray::t(counts(sce)))
     invisible(stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1)) #iter.max and nstart set to the default values of mbkmeans()
+    time.end <- proc.time()
+    time <- time.end - time.start
+  }
+  
+  if (method == "ClusterR") {
+    time.start <- proc.time()
+    sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
+    sce_km <- realize(DelayedArray::t(counts(sce)))
+    invisible(ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     time.end <- proc.time()
     time <- time.end - time.start
   }
@@ -75,6 +87,7 @@ if (mode == "time"){
 if (mode == "mem"){
   now <- format(Sys.time(), "%b%d%H%M%OS3")
   out_name <- paste0(data_name, "_", run_id, "_step1_", now, "_", batch,".out")
+  
   if (method == "hdf5"){
     if(!file.exists(here("main/case_studies/output/Memory_output"))) {
       dir.create(here("main/case_studies/output/Memory_output"), recursive = TRUE)
@@ -93,6 +106,17 @@ if (mode == "mem"){
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
     sce_km <- realize(DelayedArray::t(counts(sce)))
     invisible(stats::kmeans(sce_km, centers=k, iter.max = 100, nstart = 1)) #iter.max and nstart set to the default values of mbkmeans()
+    Rprof(NULL)
+  }
+  
+  if (method == "ClusterR") {
+    if(!file.exists(here("main/case_studies/output/Memory_output"))) {
+      dir.create(here("main/case_studies/output/Memory_output"), recursive = TRUE)
+    }
+    Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
+    sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
+    sce_km <- realize(DelayedArray::t(counts(sce)))
+    invisible(ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
     Rprof(NULL)
   }
   
