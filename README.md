@@ -31,16 +31,20 @@ In the following script, we remove low-quality cells, and remove lowly expressed
 Finally, we save the preprocessed object using `saveHDF5SummarizedExperiment()`. 
 
 - Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
-- Output: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
+- Bash: `main/case_studies/preprocessing/TENxBrainData.sh` (only for running the `.Rmd` on JHPCE cluster)
+- Output: 
+    - `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed` (column chunk size)
+    - `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed_default` (default chunk size)
 
 These data are used in Figure 5. 
 
-### Downsample `TENxBrainData` data 
+### Downsample the preprocessed `TENxBrainData` dataset
 
 Next, we create downsampled sizes of datasets (sizes 75k, 150k, 300k, 500k, 750k, 1M) from the preprocessed object described in the section above. 
 
-- Input data: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed`
-- Code: `main/case_studies/preprocessing/TENxBrainData.Rmd`
+- Input data: `main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed` (column chunk size)
+- Code: `main/case_studies/preprocessing/TENxSubset.Rmd`
+- Bash: `main/case_studies/preprocessing/TENxSubset.sh` (only for running the `.Rmd` on JHPCE cluster)
 - Output data: 
     - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_75k`
     - `main/case_studies/data/subset/TENxBrainData/TENxBrainData_150k`
@@ -57,7 +61,7 @@ These downsampled datasets are used in Figures 1, 3.
 First generate 10 datasets to be used later with `/main/simulation_k.R`
 
 - Code: `/main/benchmark_varying_k.R`
-- Bash: `/bash for figures/Varying_k/`
+- Bash: `/bash for figures/Varying_k/` 
 - Output: `/output_tables/Varying_k`
 
 Thes datasets are used in a supplemental figure. 
@@ -83,16 +87,26 @@ In this section, we describe the code used for each analysis and the location of
 
 #### Simulation
 
-- Input data: 
+The data used in this section is simulated using the arguments defined in the `.sh` file which is used as input in the `/main/benchmark.R` script. 
+The `/main/benchmark.R` script is the main workhorse here calling relevant helper files in the `scripts/` folder e.g. `scripts/bench_hdf5_time.R` to benchmark computational time using HDF5 files. 
+
+- Bash: (only for running `.R` script on JHPCE cluster)
+    - `/bash for figures/Fig 2/abs_benchmark_acc_km_1k25k.sh`
+    - `/bash for figures/Fig 2/abs_benchmark_acc_mbkm_1k25k.sh`
+    - `/bash for figures/Fig 2/abs_benchmark_acc_hdf5_1k25k.sh`
 - Code: `/main/benchmark.R`
-- Bash: `/bash for figures/Fig 2`
 - Output files: `/output_tables/abs_batch/acc`
+
+Each `.sh` file uses the the `/main/benchmark.R` script 
 
 #### Real Data
 
-- Input data: 
+The data used in this section is simulated using the arguments defined in the `.sh` file which is used as input in the `/main/real_data_acc.R` script. 
+The `/main/real_data_acc.R` script is the main workhorse here calling relevant helper files in the `scripts/` folder. 
+
+- Bash: (only for running `.R` script on JHPCE cluster)
+    - `/bash for figures/Fig 2/real_data_acc_hdf5.sh`
 - Code: `/main/real_data_acc.R`
-- Bash: `/bash for figures/Fig 2/`
 - Output files: `/output_tables/abs_batch/acc`
 
 ### Figure 4: HDF5 Geometry
