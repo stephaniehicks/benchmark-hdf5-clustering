@@ -1,7 +1,21 @@
 # Benchmarking Analysis for clustering methods with HDF5 files
 
 This repository contains code for reproducing the benchmark of the 
-clustering algorithms presented in Hicks et al. (2020).
+clustering algorithms presented in 
+
+-  Hicks SC, Liu R, Ni Y, Purdom E, Risso D. (2020). mbkmeans: fast clustering for single cell data using mini-batch _k_-means. _bioRxiv_. doi: https://doi.org/10.1101/2020.05.27.119438.  
+
+Specifically, we compared the following algorithms 
+
+- _k_-means available in using the `kmeans()` function from the `stats` R package. 
+    - Data must be loaded into memory.
+- mini-batch _k_-means 
+    - available using the `mbkmeans()` function from the `mbkmeans` [Bioconductor](https://www.bioconductor.org/packages/mbkmeans) package. Here we compared performance using data stored (i) in memory OR (ii) data stored on-disk (e.g. HDF5 files). 
+    - available using the `MiniBatchKmeans()` function from the `ClusterR` [CRAN](https://cran.r-project.org/web/packages/ClusterR/index.html) package. Here data must be loaded into memory. 
+- Seurat
+- scanpy
+
+
 
 ## Installing necessary packages
 
