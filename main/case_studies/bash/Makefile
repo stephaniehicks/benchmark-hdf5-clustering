@@ -35,7 +35,7 @@
 DATASETS = tenx_pbmc68k TENxBrainData hca_cordblood hca_bonemarrow TENxBrainData_75k TENxBrainData_150k TENxBrainData_300k TENxBrainData_500k TENxBrainData_750k TENxBrainData_1000k
 TAG = $(strip $(patsubst %_header.sh, %, $(HEADER)))
 MODES = mem time acc
-METHODS = kmeans mbkmeans hdf5
+METHODS = kmeans mbkmeans hdf5 ClusterR
 DATAHEADERS=$(foreach data, $(DATASETS), $(data)/$(data)_$(HEADER))
 FINALSHELLSCRIPTS=$(foreach data,$(DATASETS), $(data)/$(data)_step1_acc_hdf_$(TAG).sh)
 

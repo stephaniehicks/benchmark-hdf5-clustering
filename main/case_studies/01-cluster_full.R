@@ -52,8 +52,9 @@ if (mode == "time"){
   if (method == "ClusterR") {
     time.start <- proc.time()
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
-    sce_km <- realize(DelayedArray::t(counts(sce)))
-    invisible(ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
+    sce_km <- as.array(DelayedArray::t(counts(sce)))
+    km_mb <- ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100)
+    invisible(ClusterR::predict_MBatchKMeans(sce_km, km_mb$centroids))
     time.end <- proc.time()
     time <- time.end - time.start
   }
@@ -115,8 +116,9 @@ if (mode == "mem"){
     }
     Rprof(filename = here("main/case_studies/output/Memory_output",paste0(method, out_name)), append = FALSE, memory.profiling = TRUE)
     sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
-    sce_km <- realize(DelayedArray::t(counts(sce)))
-    invisible(ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100))
+    sce_km <- as.array(DelayedArray::t(counts(sce)))
+    km_mb <- ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=as.integer(dim(counts(sce))[2]*batch), num_init=1, max_iters=100)
+    invisible(ClusterR::predict_MBatchKMeans(sce_km, km_mb$centroids))
     Rprof(NULL)
   }
   
