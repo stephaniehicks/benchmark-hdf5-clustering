@@ -1,0 +1,129 @@
+---
+title: Graph-based clustering of 1.3M neurons data
+author: Davide Risso
+output: 
+    html_document:
+        theme: cosmo 
+        toc: true
+        toc_float: true
+        highlight: tango
+        number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, results = "markup")
+```
+
+```{r, message=FALSE}
+library(here)
+library(HDF5Array)
+library(SingleCellExperiment)
+library(scran)
+library(igraph)
+library(leiden)
+library(bluster)
+nworkers <- 6
+```
+
+
+```{r load}
+sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/full/TENxBrainData/TENxBrainData_preprocessed"))
+sce
+```
+
+# Clustering in PCA space
+
+Here, we compare the mbkmeans clustering in PCA space to `scran`'s graph-based clustering.
+
+To do so, we assume that all the preprocessing was done as in `full_analysis.Rmd` and we start from PCA.
+
+## Approximate neighbors with Annoy
+
+```{r graph_pca}
+time.start <- proc.time()
+g <- buildSNNGraph(sce, k=10, use.dimred = "PCA", 
+                   BPPARAM = BiocParallel::MulticoreParam(nworkers),
+                   BNPARAM = BiocNeighbors::AnnoyParam())
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Creating graph:", time[3]/60, "mins")
+```
+
+## Exact neighbors
+
+```{r graph_pca_exact}
+time.start <- proc.time()
+g_exact <- buildSNNGraph(sce, k=10, use.dimred = "PCA", 
+                   BPPARAM = BiocParallel::MulticoreParam(nworkers))
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Creating graph (exact):", time[3]/60, "mins")
+```
+
+## Louvain clustering
+
+```{r louvain}
+time.start <- proc.time()
+clust <- cluster_louvain(g)$membership
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Louvain clustering:", time[3]/60, "mins")
+```
+
+## Leiden clustering
+
+The Leiden algorithm (default values) fails with 64GB of RAM.
+
+```{r leiden, eval=FALSE}
+time.start <- proc.time()
+clust_leiden <- leiden(g)
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Leiden clustering:", time[3]/60, "mins")
+```
+
+## Compare to mbkmeans
+
+```{r compare}
+km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
+                       "mbkmeans_pca50_k15-30_bs500.rds"))
+names(km_res) <- paste0("k", seq(15, 30))
+
+heatmap(table(km_res$k15$Clusters, clust), ylab="mbkmeans", xlab="Louvain")
+# table(km_res$k15, clust_leiden)
+```
+
+# Clustering of full matrix
+
+The makeSNNGraph function fails with 64GB of RAM.
+
+```{r graph_full, eval=FALSE}
+time.start <- proc.time()
+g_full <- makeSNNGraph(logcounts(sce), k=10,
+                   BPPARAM = BiocParallel::MulticoreParam(nworkers),
+                   BNPARAM = BiocNeighbors::AnnoyParam())
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Creating graph (full matrix):", time[3]/60, "mins")
+
+time.start <- proc.time()
+clust_full <- cluster_louvain(g_full)$membership
+time.end <- proc.time()
+
+time <- time.end - time.start
+cat("Louvain clustering:", time[3]/60, "mins")
+```
+
+# Session Info
+
+```{r sessioninfo}
+library(benchmarkme)
+print(sessionInfo())
+print(get_ram())
+print(get_cpu())
+```
