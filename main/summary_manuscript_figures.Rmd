@@ -47,7 +47,7 @@ files_sub <- list.files(path= here("main", "case_studies", "output"),
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
 files_sub <- files_sub[grep("TENxBrainData", files_sub)]
-files_sub <- files_sub[grep("k_ruoxi_cluster|k_davide_mac", files_sub)]
+files_sub <- files_sub[grep("k_ruoxi_cluster|k_davide_mac|k_stephanie_cluster", files_sub)]
 files_sub_mem <- files_sub[grep("memory", files_sub)]
 
 sub_mem_table <- NULL
@@ -60,13 +60,15 @@ for (i in (1:length(files_sub_mem))){
 colnames(sub_mem_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
                              "method", "batch_size", "B", "memory")
 sub_mem_table <- sub_mem_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
+  mutate(method = factor(sub_mem_table$method, levels = c("kmeans", "ClusterR", "mbkmeans", "hdf5")),
          batch = round(batch_size * ncells),
-         memory = memory/1000) %>% 
+         memory = memory/1000, 
+         machine = case_when(machine == "davide_mac" ~ "desktop", 
+                             machine %in% c("ruoxi_cluster", 
+                                            "stephanie_cluster") ~ "HPC cluster")) %>% 
   dplyr::rename(Algorithm = method)
 
-levels(sub_mem_table$machine) <- c("desktop", "HPC cluster")
-levels(sub_mem_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+levels(sub_mem_table$Algorithm) <- c("k-means", "ClusterR", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 #### HDF5 geometry
@@ -151,12 +153,14 @@ colnames(sub_time_table) <- c("Dataset", "machine", "ncells", "ngenes", "step",
                              "method", "batch_size", "B", "user", "system",
                              "elapsed")
 sub_time_table <- sub_time_table %>% 
-  mutate(method = factor(method, levels = c("kmeans", "mbkmeans", "hdf5")),
-         batch = round(batch_size * ncells)) %>% 
+  mutate(method = factor(method, levels = c("kmeans", "ClusterR", "mbkmeans", "hdf5")),
+         batch = round(batch_size * ncells), 
+         machine = case_when(machine == "davide_mac" ~ "desktop", 
+                             machine %in% c("ruoxi_cluster", 
+                                            "stephanie_cluster") ~ "HPC cluster")) %>% 
   dplyr::rename(Algorithm = method)
 
-levels(sub_time_table$machine) <- c("desktop", "HPC cluster")
-levels(sub_time_table$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+levels(sub_time_table$Algorithm) <- c("k-means", "ClusterR", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 
@@ -1211,7 +1215,7 @@ dev.off()
 
 ```{r}
 sub_time_plot <- sub_time_table %>% 
-  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
+  dplyr::filter(Algorithm != "k-means", batch == 500) %>%
   dplyr::group_by(Algorithm, ncells, machine) %>% 
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -1225,6 +1229,11 @@ sub_time_plot <- sub_time_table %>%
   theme(legend.position = "top", legend.justification= "center") + 
   facet_grid(~machine)
 sub_time_plot
+
+# sub_time_table %>% 
+#   filter(ncells == 75000, batch==500, Algorithm != "mbkmeans (HDF5)") %>% 
+#   group_by(Algorithm) %>% 
+#   summarise(mean(elapsed))
 ```
 
 ```{r}
