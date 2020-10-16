@@ -1229,11 +1229,13 @@ sub_time_plot <- sub_time_table %>%
   theme(legend.position = "top", legend.justification= "center") + 
   facet_grid(~machine)
 sub_time_plot
+```
 
-# sub_time_table %>% 
-#   filter(ncells == 75000, batch==500, Algorithm != "mbkmeans (HDF5)") %>% 
-#   group_by(Algorithm) %>% 
-#   summarise(mean(elapsed))
+```{r}
+sub_time_table %>% 
+  filter(ncells == 500000, batch==500, Algorithm != "mbkmeans (HDF5)") %>% 
+  group_by(Algorithm) %>% 
+  summarise(mean(elapsed/60))
 ```
 
 ```{r}
