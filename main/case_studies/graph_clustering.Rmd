@@ -77,7 +77,7 @@ cat("Louvain clustering:", time[3]/60, "mins")
 
 The Leiden algorithm (default values) fails with 64GB of RAM.
 
-```{r leiden, eval=FALSE}
+```{r leiden}
 time.start <- proc.time()
 clust_leiden <- leiden(g)
 time.end <- proc.time()
@@ -94,6 +94,7 @@ km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
 names(km_res) <- paste0("k", seq(15, 30))
 
 heatmap(table(km_res$k15$Clusters, clust), ylab="mbkmeans", xlab="Louvain")
+heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
 # table(km_res$k15, clust_leiden)
 ```
 
@@ -101,7 +102,7 @@ heatmap(table(km_res$k15$Clusters, clust), ylab="mbkmeans", xlab="Louvain")
 
 The makeSNNGraph function fails with 64GB of RAM.
 
-```{r graph_full, eval=FALSE}
+```{r graph_full}
 time.start <- proc.time()
 g_full <- makeSNNGraph(logcounts(sce), k=10,
                    BPPARAM = BiocParallel::MulticoreParam(nworkers),
