@@ -1215,7 +1215,7 @@ dev.off()
 
 ```{r}
 sub_time_plot <- sub_time_table %>% 
-  dplyr::filter(Algorithm != "k-means", batch == 500) %>%
+  dplyr::filter(Algorithm == "k-means" | batch == 500) %>%
   dplyr::group_by(Algorithm, ncells, machine) %>% 
   dplyr::summarize(mean_elapsed = mean(elapsed/60), sd = sd(elapsed/60)) %>%
   ggplot(aes(x = ncells, y = mean_elapsed, color = Algorithm)) +
@@ -1231,12 +1231,6 @@ sub_time_plot <- sub_time_table %>%
 sub_time_plot
 ```
 
-```{r}
-sub_time_table %>% 
-  filter(ncells == 500000, batch==500, Algorithm != "mbkmeans (HDF5)") %>% 
-  group_by(Algorithm) %>% 
-  summarise(mean(elapsed/60))
-```
 
 ```{r}
 pdf(here::here("main", "figs", "fig-supp-real-time-bs500-twoplatforms.pdf"), 
