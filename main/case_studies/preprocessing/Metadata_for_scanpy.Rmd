@@ -1,0 +1,31 @@
+---
+title: Preprocessing TENx Brain Data
+author: Davide Risso
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      error = FALSE, message = FALSE, 
+                      cache = FALSE)
+```
+
+## Data import 
+```{r data-import}
+library(here)
+library(TENxBrainData)
+tenx <- TENxBrainData()
+tenx
+
+tenx20k <- TENxBrainData20k()
+tenx20k
+```
+
+## Data export
+
+```{r data-export}
+write.csv(data.frame(Mouse = colData(tenx20k)$Mouse),
+          file = here("main/python/mouse_info_20k.csv"), row.names = FALSE)
+write.csv(data.frame(Mouse = colData(tenx)$Mouse),
+          file = here("main/python/mouse_info.csv"), row.names = FALSE)
+```
