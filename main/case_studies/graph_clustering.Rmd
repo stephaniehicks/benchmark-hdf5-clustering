@@ -52,7 +52,7 @@ cat("Creating graph:", time[3]/60, "mins")
 
 ## Exact neighbors
 
-```{r graph_pca_exact}
+```{r graph_pca_exact, eval=FALSE}
 time.start <- proc.time()
 g_exact <- buildSNNGraph(sce, k=10, use.dimred = "PCA", 
                    BPPARAM = BiocParallel::MulticoreParam(nworkers))
@@ -77,7 +77,7 @@ cat("Louvain clustering:", time[3]/60, "mins")
 
 The Leiden algorithm (default values) fails with 64GB of RAM.
 
-```{r leiden}
+```{r leiden, eval=FALSE}
 time.start <- proc.time()
 clust_leiden <- leiden(g)
 time.end <- proc.time()
@@ -89,20 +89,21 @@ cat("Leiden clustering:", time[3]/60, "mins")
 ## Compare to mbkmeans
 
 ```{r compare}
-km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
-                       "mbkmeans_pca50_k15-30_bs500.rds"))
-names(km_res) <- paste0("k", seq(15, 30))
+# km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
+#                        "mbkmeans_pca50_k15-30_bs500.rds"))
+# names(km_res) <- paste0("k", seq(15, 30))
 
-heatmap(table(km_res$k15$Clusters, clust), ylab="mbkmeans", xlab="Louvain")
-heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
+heatmap(table(sce$mbk_15, clust), ylab="mbkmeans (k=15)", xlab="Louvain", scale="none")
+# heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
 # table(km_res$k15, clust_leiden)
+mclust::adjustedRandIndex(sce$mbk_15, clust)
 ```
 
 # Clustering of full matrix
 
 The makeSNNGraph function fails with 64GB of RAM.
 
-```{r graph_full}
+```{r graph_full, eval=FALSE}
 time.start <- proc.time()
 g_full <- makeSNNGraph(logcounts(sce), k=10,
                    BPPARAM = BiocParallel::MulticoreParam(nworkers),
@@ -118,6 +119,27 @@ time.end <- proc.time()
 
 time <- time.end - time.start
 cat("Louvain clustering:", time[3]/60, "mins")
+```
+
+# Scanpy and bbknn
+
+Here, we have run a complete pipeline in scanpy, using the bbknn method to remove batch effects (the mouse) and we compare the resulting clustering from Leiden with our mbkmeans results.
+
+```{r scanpy_res}
+library(dplyr)
+scanpy_res <- read.csv(here("main/python/1M_neurons_leiden_labels.csv"))
+
+df <- inner_join(as.data.frame(colData(sce)), scanpy_res, by = c("Barcode"="X"))
+```
+
+```{r compare_scanpy}
+heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)", scale="none")
+barplot(table(df$leiden))
+heatmap(table(df$mbk_15, df$Mouse), ylab="mbkmeans (k=15)", xlab="Mouse", scale = "none")
+heatmap(table(df$leiden, df$Mouse), xlab="Mouse", ylab="Leiden (scanpy)", scale="none")
+mclust::adjustedRandIndex(df$mbk_15, df$leiden)
+mclust::adjustedRandIndex(df$mbk_15, df$Mouse)
+mclust::adjustedRandIndex(df$leiden, df$Mouse)
 ```
 
 # Session Info
