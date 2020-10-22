@@ -19,3 +19,13 @@ TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,mbkmeans,0.01,1,11940.
 TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,mbkmeans,0.016666667,1,11940.9035102681
 TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,mbkmeans,0.025,1,11983.2340310575
 TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,mbkmeans,0.033333333,1,11940.9035102681
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.00025,1,17696.2129725688
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,5e-04,1,17696.2129725688
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.001,1,17702.4543590059
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.001666667,1,17697.8735942181
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.003333333,1,17696.2130412333
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.005,1,17696.2129725688
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.01,1,17696.2129725688
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.016666667,1,17696.2130412333
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.025,1,17696.2129725688
+TENxBrainData_300k,davide_mac,300000,5000,01_full_cluster,ClusterR,0.033333333,1,17696.2130412333
