@@ -1,11 +1,15 @@
-suppressPackageStartupMessages(library(mbkmeans))
-suppressPackageStartupMessages(library(rhdf5))
-suppressPackageStartupMessages(library(mclust))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(HDF5Array))
-suppressPackageStartupMessages(library(benchmarkme))
-suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages({
+  library(here)
+  library(rhdf5)
+  library(HDF5Array)
+  library(mbkmeans)
+  library(ClusterR)
+  library(benchmarkme)
+  library(parallel)
+  library(mclust)
+  library(dplyr)
+})
+
 rhdf5::h5disableFileLocking()
 
 init <- as.logical(commandArgs(trailingOnly=T)[2])
@@ -50,6 +54,17 @@ if(!init){
   
   # helper function
   bench_hdf5_acc <- function(i, k, batch, method, data_name){
+    if(method == "ClusterR"){
+      sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
+      # sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", "TENxBrainData_5k", paste0("TENxBrainData_5k", "_preprocessed_best")), prefix="")
+      sce_km <- as.array(DelayedArray::t(counts(sce)))
+      km_mb <- ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=batch, init_fraction=(batch/dim(counts(sce))[2]), num_init=1, max_iters=100)
+      cluster_output <- ClusterR::predict_MBatchKMeans(sce_km, km_mb$centroids)
+      
+      output <- list(cluster_output = as.numeric(cluster_output), 
+                     cluster_wcss = km_mb$WCSS_per_cluster)
+    }
+    
     if (method == "hdf5"){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       cluster_output <- mbkmeans(counts(sce), clusters=k, batch_size = batch, max_iters=100, calc_wcss = TRUE)

@@ -40,12 +40,12 @@ assay(tenx)
 
 ## Define the cell subsets
 
-We will next create subsets of the data of the following sizes: 75k, 150k, 300k, 500k, 750k, 1M.
+We will next create subsets of the data of the following sizes: 5k, 10k, 25k, 75k, 150k, 300k, 500k, 750k, 1M.
 
 ```{r cellidx}
 set.seed(138)
-# ncells <- c(5, 10, 25) 
-ncells <- c(75, 150, 300, 500, 750, 1000) 
+ncells <- c(5, 10, 25) 
+# ncells <- c(75, 150, 300, 500, 750, 1000) 
 cellidx <- lapply(ncells, function(n) sample(colnames(tenx), n * 1000))
 sapply(cellidx, length)
 ```
@@ -53,7 +53,7 @@ sapply(cellidx, length)
 
 ## Select 5000 genes from smallest dataset
 
-We select the 5000 top variable genes from the smallest dataset (75k).
+We select the 5000 top variable genes from the smallest dataset (5k or 75k).
 
 ```{r hvg}
 sub <- tenx[,cellidx[[1]]]
