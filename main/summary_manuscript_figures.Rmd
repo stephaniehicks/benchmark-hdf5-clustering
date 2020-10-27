@@ -282,7 +282,7 @@ files_acc <- list.files(path = here("output_tables", "abs_batch", "acc", "real_d
                         pattern="*.csv", full.names=TRUE, recursive=FALSE)
 
 files_acc_davide <- files_acc[grep("_davide_mac", files_acc)]
-files_acc_ruoxi <- files_acc[grep("_ruoxi_cluster", files_acc)]
+files_acc_hpc <- files_acc[grep("_ruoxi_cluster|_stephanie_cluster", files_acc)]
 
 acc_real_table_abs_davide <- NULL
 for (i in (1:length(files_acc_davide))){
@@ -290,25 +290,27 @@ for (i in (1:length(files_acc_davide))){
   acc_real_table_abs_davide <- rbind(acc_real_table_abs_davide, temp_table)
 }
 
-acc_real_table_abs_ruoxi <- NULL
-for (i in (1:length(files_acc_ruoxi))){
-  temp_table <- read.csv(file = files_acc_ruoxi[i], header=TRUE, sep=",")
-  acc_real_table_abs_ruoxi <- rbind(acc_real_table_abs_ruoxi, temp_table)
+acc_real_table_abs_hpc <- NULL
+for (i in (1:length(files_acc_hpc))){
+  temp_table <- read.csv(file = files_acc_hpc[i], header=TRUE, sep=",")
+  acc_real_table_abs_hpc <- rbind(acc_real_table_abs_hpc, temp_table)
 }
 
 acc_real_table_abs <- 
-  cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_ruoxi), 
+  cbind(rbind(acc_real_table_abs_davide, acc_real_table_abs_hpc), 
       "machine" = c(rep("desktop", nrow(acc_real_table_abs_davide)),
-                    rep("HPC cluster", nrow(acc_real_table_abs_ruoxi))))
+                    rep("HPC cluster", nrow(acc_real_table_abs_hpc))))
 
-acc_real_table_abs <- acc_real_table_abs %>% 
+acc_real_table_abs <- 
+  acc_real_table_abs %>% 
   transform(normal_WCSS = WCSS/observations) %>% 
   dplyr::rename(Algorithm = method)
+
 acc_real_table_abs$machine <- factor(acc_real_table_abs$machine, 
                                 levels = c("desktop", "HPC cluster"))
 acc_real_table_abs$Algorithm <- factor(acc_real_table_abs$Algorithm, 
-                               levels = c("kmeans", "mbkmeans", "hdf5"))
-levels(acc_real_table_abs$Algorithm) <- c("k-means", "mbkmeans", "mbkmeans (HDF5)")
+                               levels = c("kmeans", "ClusterR", "mbkmeans", "hdf5"))
+levels(acc_real_table_abs$Algorithm) <- c("k-means", "ClusterR", "mbkmeans", "mbkmeans (HDF5)")
 ```
 
 
@@ -1052,6 +1054,28 @@ p_wcss_obs_line_abs_all
 pdf(here::here("main", "figs", "fig-supp-sim-wcss-hpc.pdf"), width = 10, height =10)
 print(p_wcss_obs_line_abs_all)
 dev.off()
+```
+
+```{r}
+p_wcss_real_abs <- acc_real_table_abs %>%   
+  dplyr::filter(machine == "HPC cluster") %>% 
+  dplyr::filter((observations %in% c(5000,10000,25000))) %>%
+  dplyr::group_by(observations, Algorithm, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  dplyr::summarize(mean = median(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+  theme(legend.position = "top", legend.justification= "center") +
+  labs(title = "Performance of accuracy with three real scRNA-seq datasets") + 
+        xlab("Absolute batch sizes") + 
+        ylab("WCSS") +
+  facet_wrap( ~ observations, scales = "free") 
+p_wcss_real_abs
 ```
 
 
