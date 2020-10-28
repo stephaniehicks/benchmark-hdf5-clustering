@@ -58,11 +58,14 @@ if(!init){
       sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", data_name, paste0(data_name, "_preprocessed_best")), prefix="")
       # sce <- loadHDF5SummarizedExperiment(dir = here("main/case_studies/data/subset/TENxBrainData", "TENxBrainData_5k", paste0("TENxBrainData_5k", "_preprocessed_best")), prefix="")
       sce_km <- as.array(DelayedArray::t(counts(sce)))
-      km_mb <- ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=batch, init_fraction=(batch/dim(counts(sce))[2]), num_init=1, max_iters=100)
+      km_mb <- ClusterR::MiniBatchKmeans(data=sce_km, clusters=k, batch_size=batch, 
+                                         init_fraction=(batch/dim(counts(sce))[2]), num_init=1, max_iters=100, 
+                                         seed = sample(seq_len(1e6), 1))
       cluster_output <- ClusterR::predict_MBatchKMeans(sce_km, km_mb$centroids)
+      wcss_output <- mbkmeans::compute_wcss(clusters = as.numeric(cluster_output), cent = km_mb$centroids, data = sce_km)
       
       output <- list(cluster_output = as.numeric(cluster_output), 
-                     cluster_wcss = km_mb$WCSS_per_cluster)
+                     cluster_wcss = wcss_output)
     }
     
     if (method == "hdf5"){
