@@ -321,7 +321,7 @@ levels(acc_real_table_abs$Algorithm) <- c("k-means", "ClusterR", "mbkmeans", "mb
 ## Figure 1
 
 Here, we downsampling from the `TENxBrainData` 
-($N=$ 75000, 150000, 300000, 500000  750000, and 1000000 observations)
+($N=$ 75000, 150000, 300000, 500000, 750000, and 1000000 observations)
 and show the impact of memory and time with `mbkmeans` and 
 k-means using a specific $k=15$ and batch size (`batch` = 500). 
 In this figure we show the desktop 
@@ -1149,9 +1149,35 @@ dev.off()
 
 ### Accuracy (WCSS)
 
-Only three sizes of datasets were assessed (5000, 10000, 25000). These 
-results were shown in Figure 2. 
+Only three sizes of data sets were assessed (5000, 10000, 25000), but here we results from `ClusterR`.
 
+```{r}
+p_wcss_real_abs <- acc_real_table_abs %>%   
+  dplyr::filter((observations %in% c(5000,10000,25000))) %>%
+  dplyr::group_by(observations, Algorithm, abs_batch) %>% 
+  mutate(q90 = quantile(normal_WCSS, 0.9), row = row_number()) %>% 
+  dplyr::filter(normal_WCSS <= q90) %>%
+  group_by(observations, Algorithm, abs_batch, machine) %>%
+  dplyr::summarize(mean = median(normal_WCSS), 
+                   sd = sd(normal_WCSS)) %>% 
+  ggplot(aes(x = abs_batch, y = mean, color = Algorithm)) +
+          geom_line() +
+          geom_point() +
+          geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+  theme(legend.position = "top", legend.justification= "center") +
+  labs(title = "Performance of accuracy with three real scRNA-seq datasets") + 
+        xlab("Absolute batch sizes") + 
+        ylab("WCSS") +
+  facet_grid(machine ~ observations, scales = "free") 
+p_wcss_real_abs
+```
+```{r}
+pdf(here::here("main", "figs", "fig-supp-real-wcss-twoplatforms.pdf"), 
+    width = 8, height =6)
+print(p_wcss_real_abs)
+dev.off()
+```
 
 ### Memory
 
