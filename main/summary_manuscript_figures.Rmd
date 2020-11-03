@@ -1149,7 +1149,7 @@ dev.off()
 
 ### Accuracy (WCSS)
 
-Only three sizes of data sets were assessed (5000, 10000, 25000), but here we results from `ClusterR`.
+Only three sizes of data sets were assessed (5000, 10000, 25000), but here we include results from `ClusterR`.
 
 ```{r}
 p_wcss_real_abs <- acc_real_table_abs %>%   
