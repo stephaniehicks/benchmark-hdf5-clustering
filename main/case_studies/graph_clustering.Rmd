@@ -20,7 +20,7 @@ library(HDF5Array)
 library(SingleCellExperiment)
 library(scran)
 library(igraph)
-library(leiden)
+# library(leiden)
 library(bluster)
 nworkers <- 6
 ```
@@ -93,7 +93,7 @@ cat("Leiden clustering:", time[3]/60, "mins")
 #                        "mbkmeans_pca50_k15-30_bs500.rds"))
 # names(km_res) <- paste0("k", seq(15, 30))
 
-heatmap(table(sce$mbk_15, clust), ylab="mbkmeans (k=15)", xlab="Louvain", scale="none")
+heatmap(table(sce$mbk_15, clust), ylab="mbkmeans (k=15)", xlab="Louvain")
 # heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
 # table(km_res$k15, clust_leiden)
 mclust::adjustedRandIndex(sce$mbk_15, clust)
@@ -133,7 +133,7 @@ df <- inner_join(as.data.frame(colData(sce)), scanpy_res, by = c("Barcode"="X"))
 ```
 
 ```{r compare_scanpy}
-heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)", scale="none")
+heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)")
 barplot(table(df$leiden))
 heatmap(table(df$mbk_15, df$Mouse), ylab="mbkmeans (k=15)", xlab="Mouse", scale = "none")
 heatmap(table(df$leiden, df$Mouse), xlab="Mouse", ylab="Leiden (scanpy)", scale="none")
