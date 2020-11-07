@@ -92,8 +92,15 @@ cat("Leiden clustering:", time[3]/60, "mins")
 # km_res <- readRDS(here("main/case_studies/data/full/TENxBrainData",
 #                        "mbkmeans_pca50_k15-30_bs500.rds"))
 # names(km_res) <- paste0("k", seq(15, 30))
+cl1 <- sce$mbk_15
+cl1_names <- names(sort(table(cl1)))
+cl1 <- factor(cl1, levels=cl1_names)
 
-heatmap(table(sce$mbk_15, clust), ylab="mbkmeans (k=15)", xlab="Louvain")
+cl2 <- clust
+cl2_names <- names(sort(table(cl2)))
+cl2 <- factor(cl2, levels=cl2_names)
+
+heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Louvain", Rowv = NA, Colv = NA)
 # heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
 # table(km_res$k15, clust_leiden)
 mclust::adjustedRandIndex(sce$mbk_15, clust)
@@ -133,7 +140,17 @@ df <- inner_join(as.data.frame(colData(sce)), scanpy_res, by = c("Barcode"="X"))
 ```
 
 ```{r compare_scanpy}
-heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)")
+cl1 <- df$mbk_15
+cl1_names <- names(sort(table(cl1)))
+cl1 <- factor(cl1, levels=cl1_names)
+
+cl2 <- df$leiden
+cl2_names <- names(sort(table(cl2)))
+cl2 <- factor(cl2, levels=cl2_names)
+
+heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Leiden", Rowv = NA, Colv = NA)
+
+# heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)")
 barplot(table(df$leiden))
 heatmap(table(df$mbk_15, df$Mouse), ylab="mbkmeans (k=15)", xlab="Mouse", scale = "none")
 heatmap(table(df$leiden, df$Mouse), xlab="Mouse", ylab="Leiden (scanpy)", scale="none")
