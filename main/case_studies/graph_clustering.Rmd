@@ -100,7 +100,7 @@ cl2 <- clust
 cl2_names <- names(sort(table(cl2)))
 cl2 <- factor(cl2, levels=cl2_names)
 
-heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Louvain", Rowv = NA, Colv = NA)
+heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Louvain")
 # heatmap(table(km_res$k15$Clusters, clust_leiden), ylab="mbkmeans", xlab="Leiden")
 # table(km_res$k15, clust_leiden)
 mclust::adjustedRandIndex(sce$mbk_15, clust)
@@ -148,7 +148,7 @@ cl2 <- df$leiden
 cl2_names <- names(sort(table(cl2)))
 cl2 <- factor(cl2, levels=cl2_names)
 
-heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Leiden", Rowv = NA, Colv = NA)
+heatmap(table(cl1, cl2), ylab="mbkmeans (k=15)", xlab="Leiden")
 
 # heatmap(table(df$mbk_15, df$leiden), ylab="mbkmeans (k=15)", xlab="Leiden (scanpy)")
 barplot(table(df$leiden))
